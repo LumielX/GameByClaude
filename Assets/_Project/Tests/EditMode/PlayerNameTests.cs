@@ -42,6 +42,28 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void Sanitize_StackedMarks_CappedAtTwo()
+        {
+            Assert.AreEqual("ก่่", PlayerName.Sanitize("ก" + new string('่', 10), 1));
+        }
+
+        [Test]
+        public void Sanitize_ByteCap_PayloadFits()
+        {
+            var evil = string.Concat(Enumerable.Repeat("กั้", 40)) + new string('่', 500);
+            var name = PlayerName.Sanitize(evil, 1);
+            Assert.That(System.Text.Encoding.UTF8.GetByteCount(name), Is.LessThanOrEqualTo(PlayerName.MaxBytes));
+            Assert.That(ConnectionPayload.Encode("0.1.0", name).Length, Is.LessThanOrEqualTo(ConnectionPayload.MaxBytes));
+            Assert.IsNotEmpty(name);
+        }
+
+        [Test]
+        public void Sanitize_FormatChars_Removed()
+        {
+            Assert.AreEqual("AB", PlayerName.Sanitize("A​B‮", 1));
+        }
+
+        [Test]
         public void Sanitize_ControlChars_Removed()
         {
             Assert.AreEqual("AB", PlayerName.Sanitize("A\u0000\u0007B\n", 1));

@@ -27,6 +27,7 @@ namespace BooTrayal.Game.Networking
         public const ushort LocalPort = 7777;
         const string VersionProperty = "ver";
 
+        readonly ConnectionTracker _tracker = new ConnectionTracker();
         ISession _session;
         int _maxPlayers = RoomRules.MaxPlayers;
         bool _hooked;
@@ -45,6 +46,8 @@ namespace BooTrayal.Game.Networking
         public event Action Changed;
 
         NetworkManager Net => NetworkManager.Singleton;
+
+        bool IsActive => _busy || Status == NetStatus.Hosting || Status == NetStatus.Connected || Status == NetStatus.Joining;
 
         void Awake()
         {
@@ -71,10 +74,11 @@ namespace BooTrayal.Game.Networking
 
         public async Task<bool> CreateRoomAsync(int maxPlayers)
         {
-            if (!BeginOperation(NetStatus.SigningIn)) return false;
+            int token = BeginOperation(NetStatus.SigningIn);
+            if (token == 0) return false;
             try
             {
-                if (!await EnsureServicesAsync()) return false;
+                if (!await EnsureServicesAsync() || !_tracker.IsCurrent(token)) return false;
                 PrepareNetwork(maxPlayers);
                 var options = new SessionOptions
                 {
@@ -85,64 +89,80 @@ namespace BooTrayal.Game.Networking
                         { VersionProperty, new SessionProperty(GameVersion.Current) }
                     }
                 }.WithRelayNetwork();
-                _session = await MultiplayerService.Instance.CreateSessionAsync(options);
-                OnHosting(_session.Code);
+                var session = await MultiplayerService.Instance.CreateSessionAsync(options);
+                if (!_tracker.IsCurrent(token))
+                {
+                    await LeaveLateSessionAsync(session);
+                    return false;
+                }
+                _session = session;
+                OnHosting(session.Code);
                 return true;
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"[ConnectionService] Create failed: {e}");
-                await FailAsync(MapError(e));
+                if (_tracker.IsCurrent(token)) await FailOnceAsync(MapError(e));
                 return false;
             }
             finally
             {
-                _busy = false;
+                if (_tracker.IsCurrent(token)) _busy = false;
             }
         }
 
         public async Task<bool> JoinRoomAsync(string rawCode)
         {
+            if (IsActive) return false;
             var code = JoinCode.Normalize(rawCode);
             if (!JoinCode.IsValid(code))
             {
-                await FailAsync("code_invalid");
+                // Nothing is running yet, so there is nothing to tear down.
+                Debug.Log("NET_FAILED reason=code_invalid");
+                LastMessageKey = "code_invalid";
+                Changed?.Invoke();
                 return false;
             }
-            if (!BeginOperation(NetStatus.SigningIn)) return false;
+
+            int token = BeginOperation(NetStatus.SigningIn);
+            if (token == 0) return false;
             try
             {
-                if (!await EnsureServicesAsync()) return false;
+                if (!await EnsureServicesAsync() || !_tracker.IsCurrent(token)) return false;
                 PrepareNetwork(RoomRules.MaxPlayers);
                 SetStatus(NetStatus.Joining);
-                _session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code);
+                var session = await MultiplayerService.Instance.JoinSessionByCodeAsync(code);
+                if (!_tracker.IsCurrent(token))
+                {
+                    await LeaveLateSessionAsync(session);
+                    return false;
+                }
+                _session = session;
                 RoomCode = code;
                 return true;
             }
             catch (Exception e)
             {
                 Debug.LogWarning($"[ConnectionService] Join failed: {e}");
-                var raw = Net != null ? Net.DisconnectReason : null;
-                var reason = DisconnectClassifier.IsRejection(raw) ? raw : MapError(e);
-                await FailAsync(reason);
+                if (_tracker.IsCurrent(token)) await FailOnceAsync(_tracker.RejectionKey ?? MapError(e));
                 return false;
             }
             finally
             {
-                _busy = false;
+                if (_tracker.IsCurrent(token)) _busy = false;
             }
         }
 
         /// <summary>Solo mode and offline tests: plain NGO host on localhost, no Unity Services.</summary>
         public bool StartLocalHost()
         {
-            if (!BeginOperation(NetStatus.Hosting)) return false;
+            if (BeginOperation(NetStatus.Hosting) == 0) return false;
             _busy = false;
             PrepareNetwork(RoomRules.MaxPlayers);
             Net.GetComponent<UnityTransport>().SetConnectionData(LocalAddress, LocalPort);
             if (!Net.StartHost())
             {
-                _ = FailAsync("connect_failed");
+                _ = FailOnceAsync("connect_failed");
                 return false;
             }
             OnHosting("LOCAL");
@@ -151,34 +171,40 @@ namespace BooTrayal.Game.Networking
 
         public bool StartLocalClient()
         {
-            if (!BeginOperation(NetStatus.Joining)) return false;
+            if (BeginOperation(NetStatus.Joining) == 0) return false;
             _busy = false;
             PrepareNetwork(RoomRules.MaxPlayers);
             Net.GetComponent<UnityTransport>().SetConnectionData(LocalAddress, LocalPort);
             if (!Net.StartClient())
             {
-                _ = FailAsync("connect_failed");
+                _ = FailOnceAsync("connect_failed");
                 return false;
             }
             return true;
         }
 
+        /// <summary>Leaves the room. Also cancels a create/join that is still in flight.</summary>
         public async Task LeaveAsync()
         {
+            _tracker.Cancel();
+            _busy = false;
             await CleanupAsync();
+            LastMessageKey = null;
             SetStatus(NetStatus.Offline);
         }
 
         // ------------------------------------------------------------------ internals
 
-        bool BeginOperation(NetStatus status)
+        /// <summary>Returns the operation token, or 0 when another operation or a room is active.</summary>
+        int BeginOperation(NetStatus status)
         {
-            if (_busy || Status == NetStatus.Hosting || Status == NetStatus.Connected || Status == NetStatus.Joining)
-                return false;
+            if (IsActive) return 0;
+            int token = _tracker.Begin();
+            _tracker.ResetClients();
             _busy = true;
             LastMessageKey = null;
             SetStatus(status);
-            return true;
+            return token;
         }
 
         async Task<bool> EnsureServicesAsync()
@@ -194,7 +220,7 @@ namespace BooTrayal.Game.Networking
             catch (Exception e)
             {
                 Debug.LogWarning($"[ConnectionService] Services unavailable: {e}");
-                await FailAsync("services_unavailable");
+                await FailOnceAsync("services_unavailable");
                 return false;
             }
         }
@@ -217,15 +243,16 @@ namespace BooTrayal.Game.Networking
         void OnHosting(string code)
         {
             RoomCode = code;
-            ConnectedCount = 1;
-            SetStatus(NetStatus.Hosting);
-            Debug.Log($"NET_HOSTING code={code}");
+            ConnectedCount = Math.Max(1, _tracker.ClientCount);
+            // Write the code file before logging the marker: the smoke script reads it right after.
             if (!string.IsNullOrEmpty(Args.CodeFile))
             {
                 var dir = Path.GetDirectoryName(Args.CodeFile);
                 if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
                 File.WriteAllText(Args.CodeFile, code);
             }
+            SetStatus(NetStatus.Hosting);
+            Debug.Log($"NET_HOSTING code={code}");
         }
 
         void Approve(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
@@ -243,7 +270,8 @@ namespace BooTrayal.Game.Networking
         {
             if (Net.IsServer)
             {
-                ConnectedCount = Net.ConnectedClientsIds.Count;
+                _tracker.ClientConnected(clientId);
+                ConnectedCount = Math.Max(1, _tracker.ClientCount);
                 if (clientId != Net.LocalClientId)
                     Debug.Log($"NET_CLIENT_JOINED id={clientId} count={ConnectedCount}");
                 Changed?.Invoke();
@@ -260,25 +288,34 @@ namespace BooTrayal.Game.Networking
         {
             if (Net.IsServer)
             {
-                if (clientId == Net.LocalClientId) return;
-                ConnectedCount = Math.Max(1, Net.ConnectedClientsIds.Count - 1);
+                // NGO also reports refused pending clients here; only count players who really joined.
+                if (clientId == Net.LocalClientId || !_tracker.ClientDisconnected(clientId)) return;
+                ConnectedCount = Math.Max(1, _tracker.ClientCount);
                 Debug.Log($"NET_CLIENT_LEFT id={clientId}");
                 Changed?.Invoke();
                 return;
             }
 
             var raw = Net.DisconnectReason;
+            _tracker.RecordRejection(raw);
             var key = DisconnectClassifier.Classify(Status == NetStatus.Connected, raw);
             if (!string.IsNullOrEmpty(raw) && raw != key) Debug.Log($"[ConnectionService] Disconnect detail: {raw}");
             if (key == "host_left")
             {
+                if (!_tracker.TryMarkFailed()) return;
                 Debug.Log("NET_HOST_LOST");
                 _ = FailAsync(key, logMarker: false);
             }
             else
             {
-                _ = FailAsync(key);
+                _ = FailOnceAsync(key);
             }
+        }
+
+        /// <summary>Reports the current operation's failure only once (disconnect callback and join catch can both see it).</summary>
+        Task FailOnceAsync(string reasonKey)
+        {
+            return _tracker.TryMarkFailed() ? FailAsync(reasonKey) : Task.CompletedTask;
         }
 
         async Task FailAsync(string reasonKey, bool logMarker = true)
@@ -288,6 +325,21 @@ namespace BooTrayal.Game.Networking
             LastMessageKey = reasonKey;
             await CleanupAsync();
             SetStatus(NetStatus.Offline);
+        }
+
+        /// <summary>A create/join finished after the player pressed Leave: leave that session again.</summary>
+        async Task LeaveLateSessionAsync(ISession session)
+        {
+            try
+            {
+                await session.LeaveAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[ConnectionService] Late leave failed: {e.Message}");
+            }
+            if (Net != null && Net.IsListening && !Net.ShutdownInProgress)
+                Net.Shutdown();
         }
 
         async Task CleanupAsync()
@@ -307,6 +359,7 @@ namespace BooTrayal.Game.Networking
             }
             if (Net != null && Net.IsListening && !Net.ShutdownInProgress)
                 Net.Shutdown();
+            _tracker.ResetClients();
             RoomCode = null;
             ConnectedCount = 0;
         }
@@ -328,9 +381,8 @@ namespace BooTrayal.Game.Networking
                             return "services_unavailable";
                     }
                 }
-                var msg = x.Message ?? "";
-                if (msg.IndexOf("full", StringComparison.OrdinalIgnoreCase) >= 0) return "room_full";
-                if (msg.IndexOf("not found", StringComparison.OrdinalIgnoreCase) >= 0) return "room_not_found";
+                var key = NetErrorText.Classify(x.Message);
+                if (key != null) return key;
             }
             return "connect_failed";
         }

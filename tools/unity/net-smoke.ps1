@@ -64,6 +64,10 @@ try {
     $line = Wait-Marker $c2 'NET_CONNECTED|NET_FAILED|NET_REJECTED'
     if ($line -notmatch 'NET_REJECTED reason=version_mismatch') { throw "expected version_mismatch, got: $line" }
 
+    Start-Sleep -Seconds 2
+    if (Select-String -Path $host1.Log -Pattern 'NET_CLIENT_LEFT' -Quiet) { throw 'host logged NET_CLIENT_LEFT for a refused client' }
+    if (Select-String -Path $c1.Log -Pattern 'NET_HOST_LOST' -Quiet) { throw 'client1 lost the host before the host was stopped' }
+
     Write-Host '-- 3. host quits, client returns to menu'
     Stop-Process -Id $host1.Process.Id -Force
     $line = Wait-Marker $c1 'NET_HOST_LOST|NET_FAILED'
