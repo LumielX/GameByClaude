@@ -6,7 +6,10 @@
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
 - **เฟส 3 กำลังทำ** บน branch `m0-m1-foundation` — ledger งานย่อยอยู่ที่ `.superpowers/sdd/2026-10-22-m0-m1-foundation-core-rules/progress.md` (git-ignored; ถ้าหายให้ดู `git log`)
 - **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
-- **ถัดไป:** M1 (Task 6–16) กฎเกมแกนกลาง TDD — ไฟล์เทสต์ร่างไว้ใน scratchpad แล้ว
+- **M1 เสร็จ (2026-10-22):** กฎเกมทั้งหมดใน `Assets/_Project/Scripts/Core/` (RoomRules, RoleAssigner, VoteResolver, SabotageTracker, NightJudge, ScoreRules/Wallet, FearModel, Stamina, AdrenalineModel, SafeCode/FuseBox/RitualOffering puzzles, MeetingRules, ExorciseEffects, JoinPolicy) — EditMode tests 128/128 ผ่าน (`TestResults/EditMode.xml`), build + smoke ผ่าน
+  - ผ่าน final review (opus) แก้ 4 จุด: Spy ที่ถูกจับ/หลุดไม่ชนะ, ป่วนนับเฉพาะความคืบหน้าของคนอื่น (puzzle รับ `actor` id, `TrySabotage(rng, saboteur)`), ชนะด้วยภารกิจลับแล้วล็อกไว้ (`SabotageTracker.GoalWon`, จ่าย 150 ครั้งเดียวตอนจบคืนผ่าน `NightEndAwards(..., sabotageGoalWon)`), กด Shift ค้างตอนหมดแรงยังฟื้นได้
+  - งานเล็กที่เลื่อนไว้ (deferred minors): smoke test ไม่เช็ค exit code ของเกม; `Start-Process -Wait` อาจค้างถ้ามี child process; VoteResolver นับ voter id ซ้ำ; FuseBox ไม่บอกว่าของที่ค้ำคันโยกตัวไหนต้องตก; `NightPlayer.Exposed` กับ caught-set ใน tracker ต้อง sync เอง (ให้ NightDirector ใน M5 ดูแล)
+- **ถัดไป: M2 เน็ตเวิร์ก** — ต้องได้ Project ID + Organization ID จากผู้ใช้ก่อน (คู่มือ `docs/SETUP_UNITY_CLOUD.md`) ระหว่างรอ เขียนแผนละเอียด M2 + ทำส่วนที่ไม่ต้องใช้ cloud (NetworkManager prefab, โหมด Solo, version handshake)
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-22
