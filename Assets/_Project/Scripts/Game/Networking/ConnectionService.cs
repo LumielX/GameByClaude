@@ -27,11 +27,6 @@ namespace BooTrayal.Game.Networking
         public const ushort LocalPort = 7777;
         const string VersionProperty = "ver";
 
-        static readonly HashSet<string> RejectionReasons = new HashSet<string>
-        {
-            "version_mismatch", "room_full", "game_in_progress", "bad_payload"
-        };
-
         ISession _session;
         int _maxPlayers = RoomRules.MaxPlayers;
         bool _hooked;
@@ -127,7 +122,8 @@ namespace BooTrayal.Game.Networking
             catch (Exception e)
             {
                 Debug.LogWarning($"[ConnectionService] Join failed: {e}");
-                var reason = Net != null && !string.IsNullOrEmpty(Net.DisconnectReason) ? Net.DisconnectReason : MapError(e);
+                var raw = Net != null ? Net.DisconnectReason : null;
+                var reason = DisconnectClassifier.IsRejection(raw) ? raw : MapError(e);
                 await FailAsync(reason);
                 return false;
             }
@@ -271,22 +267,24 @@ namespace BooTrayal.Game.Networking
                 return;
             }
 
-            var reason = Net.DisconnectReason;
-            if (Status == NetStatus.Connected && string.IsNullOrEmpty(reason))
+            var raw = Net.DisconnectReason;
+            var key = DisconnectClassifier.Classify(Status == NetStatus.Connected, raw);
+            if (!string.IsNullOrEmpty(raw) && raw != key) Debug.Log($"[ConnectionService] Disconnect detail: {raw}");
+            if (key == "host_left")
             {
                 Debug.Log("NET_HOST_LOST");
-                _ = FailAsync("host_left", logMarker: false);
+                _ = FailAsync(key, logMarker: false);
             }
             else
             {
-                _ = FailAsync(string.IsNullOrEmpty(reason) ? "connect_failed" : reason);
+                _ = FailAsync(key);
             }
         }
 
         async Task FailAsync(string reasonKey, bool logMarker = true)
         {
             if (logMarker)
-                Debug.Log(RejectionReasons.Contains(reasonKey) ? $"NET_REJECTED reason={reasonKey}" : $"NET_FAILED reason={reasonKey}");
+                Debug.Log(DisconnectClassifier.IsRejection(reasonKey) ? $"NET_REJECTED reason={reasonKey}" : $"NET_FAILED reason={reasonKey}");
             LastMessageKey = reasonKey;
             await CleanupAsync();
             SetStatus(NetStatus.Offline);
