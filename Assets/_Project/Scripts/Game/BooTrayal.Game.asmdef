@@ -4,6 +4,7 @@
     "references": [
         "BooTrayal.Core",
         "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
         "Unity.Services.Multiplayer",
         "Unity.Services.Core",
         "Unity.Services.Authentication",
