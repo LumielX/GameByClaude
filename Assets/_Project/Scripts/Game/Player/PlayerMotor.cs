@@ -1,0 +1,121 @@
+using BooTrayal.Core.Fear;
+using BooTrayal.Core.Player;
+using Unity.Netcode;
+using Unity.Netcode.Components;
+using UnityEngine;
+
+namespace BooTrayal.Game.Player
+{
+    /// <summary>
+    /// Owner-simulated first-person movement (owner-authoritative NetworkTransform).
+    /// Numbers come from Core MovementModel / Stamina / AdrenalineModel / Knockdown.
+    /// </summary>
+    [RequireComponent(typeof(CharacterController))]
+    public class PlayerMotor : NetworkBehaviour
+    {
+        public const float StandHeight = 1.7f;
+        public const float CrouchHeight = 1.1f;
+        public const float StandEyeHeight = 1.55f;
+        public const float CrouchEyeHeight = 0.95f;
+        const float KnockbackFriction = 10f;
+
+        public readonly NetworkVariable<bool> IsKnockedDown =
+            new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        public readonly NetworkVariable<bool> IsRunningNet =
+            new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+        readonly Knockdown _knockdown = new Knockdown();
+        CharacterController _cc;
+        Transform _head;
+        Vector3 _external;
+        float _vy;
+
+        public Stamina Stamina { get; } = new Stamina();
+        public AdrenalineModel Adrenaline { get; } = new AdrenalineModel();
+        /// <summary>Set by PlayerHands when holding something.</summary>
+        public CarryLoad Load { get; set; }
+        /// <summary>Distance to the nearest ghost; set by the ghost system in M4.</summary>
+        public float GhostDistance { get; set; } = float.PositiveInfinity;
+        /// <summary>Horizontal speed this frame (owner only; server sees the synced transform).</summary>
+        public float CurrentSpeed { get; private set; }
+        public bool IsCrouching { get; private set; }
+
+        void Awake()
+        {
+            _cc = GetComponent<CharacterController>();
+            _head = transform.Find("HeadPivot");
+        }
+
+        public override void OnNetworkSpawn()
+        {
+            if (IsOwner) GetComponent<PlayerInputReader>()?.Activate();
+        }
+
+        void Update()
+        {
+            if (!IsSpawned || !IsOwner) return;
+            var input = PlayerInputSource.Get(gameObject);
+            float dt = Time.deltaTime;
+
+            _knockdown.Tick(dt);
+            bool down = _knockdown.IsDown;
+            if (IsKnockedDown.Value != down) IsKnockedDown.Value = down;
+            Adrenaline.Tick(dt, GhostDistance);
+
+            var move = input.Move;
+            var mi = new MoveInput { X = move.x, Y = move.y, Run = input.Run, Crouch = input.Crouch, Jump = input.JumpPressed };
+            bool running = MovementModel.IsRunning(mi, Stamina.CanRun, down);
+            float speed = MovementModel.TargetSpeed(mi, Stamina.CanRun, Adrenaline.SpeedMultiplier, Load, down);
+            Stamina.Tick(dt, running, Adrenaline.StaminaDrainMultiplier);
+
+            var wish = transform.right * (float.IsNaN(mi.X) ? 0f : mi.X) + transform.forward * (float.IsNaN(mi.Y) ? 0f : mi.Y);
+            wish.y = 0f;
+            if (wish.sqrMagnitude > 1e-4f) wish.Normalize();
+            var horizontal = wish * speed + _external;
+            _external = Vector3.MoveTowards(_external, Vector3.zero, KnockbackFriction * dt);
+
+            ApplyCrouch(mi.Crouch && !down);
+            _vy = MovementModel.NextVerticalVelocity(_vy, _cc.isGrounded, mi.Jump, IsCrouching, Load, down, dt);
+            _cc.Move((horizontal + Vector3.up * _vy) * dt);
+
+            CurrentSpeed = new Vector2(horizontal.x, horizontal.z).magnitude;
+            if (IsRunningNet.Value != running) IsRunningNet.Value = running;
+        }
+
+        void ApplyCrouch(bool crouch)
+        {
+            if (crouch == IsCrouching) return;
+            // Stand up only if there is room above the head.
+            if (!crouch && Physics.SphereCast(transform.position + Vector3.up * CrouchHeight, _cc.radius * 0.9f, Vector3.up,
+                    out _, StandHeight - CrouchHeight, ~0, QueryTriggerInteraction.Ignore))
+                return;
+            IsCrouching = crouch;
+            float h = crouch ? CrouchHeight : StandHeight;
+            _cc.height = h;
+            _cc.center = new Vector3(0f, h * 0.5f, 0f);
+            if (_head != null) _head.localPosition = new Vector3(0f, crouch ? CrouchEyeHeight : StandEyeHeight, 0f);
+        }
+
+        /// <summary>Server asks the owner to apply a push (see PlayerPush).</summary>
+        [Rpc(SendTo.Owner)]
+        public void KnockbackRpc(Vector3 velocity, bool knockdown)
+        {
+            velocity.y = 0f;
+            _external = Vector3.ClampMagnitude(velocity, PushRules.KnockbackSpeed * 2f);
+            if (knockdown) _knockdown.Start(PushRules.KnockdownSeconds);
+        }
+
+        /// <summary>Owner-side teleport that bypasses interpolation.</summary>
+        public void Teleport(Vector3 position, Quaternion rotation)
+        {
+            _cc.enabled = false;
+            var nt = GetComponent<NetworkTransform>();
+            if (nt != null && nt.CanCommitToTransform) nt.Teleport(position, rotation, transform.localScale);
+            else transform.SetPositionAndRotation(position, rotation);
+            _cc.enabled = true;
+            _vy = 0f;
+            _external = Vector3.zero;
+            GetComponent<PlayerLook>()?.SetYaw(rotation.eulerAngles.y);
+        }
+    }
+}

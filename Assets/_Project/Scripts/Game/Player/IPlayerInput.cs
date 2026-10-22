@@ -1,0 +1,31 @@
+using UnityEngine;
+
+namespace BooTrayal.Game.Player
+{
+    /// <summary>One frame of player intent. "Pressed" values are true for a single frame only.</summary>
+    public interface IPlayerInput
+    {
+        Vector2 Move { get; }
+        /// <summary>Look delta in degrees this frame (x = yaw, y = pitch up).</summary>
+        Vector2 Look { get; }
+        bool Run { get; }
+        bool Crouch { get; }
+        bool JumpPressed { get; }
+        bool InteractPressed { get; }
+        bool ThrowPressed { get; }
+        bool DropPressed { get; }
+        bool PushPressed { get; }
+        bool FlashlightPressed { get; }
+    }
+
+    public static class PlayerInputSource
+    {
+        /// <summary>An enabled BotInput (smoke tests) wins over the keyboard/mouse reader.</summary>
+        public static IPlayerInput Get(GameObject player)
+        {
+            var bot = player.GetComponent<BotInput>();
+            if (bot != null && bot.enabled) return bot;
+            return player.GetComponent<PlayerInputReader>();
+        }
+    }
+}
