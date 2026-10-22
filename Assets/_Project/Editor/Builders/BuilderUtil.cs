@@ -29,7 +29,7 @@ namespace BooTrayal.Editor.Builders
             var scene = EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
             var onValidate = typeof(Unity.Netcode.NetworkObject).GetMethod("OnValidate",
                 System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
-            var objects = Object.FindObjectsByType<Unity.Netcode.NetworkObject>(FindObjectsSortMode.None);
+            var objects = Object.FindObjectsByType<Unity.Netcode.NetworkObject>();
             foreach (var no in objects)
             {
                 onValidate?.Invoke(no, null);

@@ -30,7 +30,14 @@ namespace BooTrayal.Game.Items
         {
             Holders = new NetworkList<ulong>();
             _rb = GetComponent<Rigidbody>();
+            var col = GetComponentInChildren<Collider>();
+            var extents = col != null ? col.bounds.extents : Vector3.one * 0.25f;
+            _radius = Mathf.Min(extents.x, Mathf.Min(extents.y, extents.z)) * 0.9f;
+            _halfHeight = extents.y;
         }
+
+        float _radius;
+        float _halfHeight;
 
         public override void OnNetworkSpawn()
         {
@@ -98,8 +105,42 @@ namespace BooTrayal.Game.Items
             // Purely visual for the holding client: draw the light item at our own hand (server copy lags by RTT).
             if (!IsSpawned || Heavy || Holders.Count == 0 || Holders[0] != NetworkManager.LocalClientId) return;
             var hold = HoldPointOf(NetworkManager.LocalClientId);
-            if (hold != null) transform.SetPositionAndRotation(hold.position, hold.rotation);
+            if (hold != null) transform.SetPositionAndRotation(ClearHandPosition(hold), hold.rotation);
         }
+
+        /// <summary>The hold point, pulled back toward the holder's head if a wall is in between (no carrying through walls).</summary>
+        Vector3 ClearHandPosition(Transform hold)
+        {
+            var from = hold.parent != null ? hold.parent.position : hold.position;
+            var to = hold.position;
+            var path = to - from;
+            float dist = path.magnitude;
+            if (dist < 1e-4f) return to;
+            var dir = path / dist;
+            float best = dist;
+            foreach (var hit in Physics.SphereCastAll(from, ItemRadius, dir, dist, ~0, QueryTriggerInteraction.Ignore))
+            {
+                if (!IsStatic(hit.collider) || hit.distance >= best) continue;
+                best = hit.distance;
+            }
+            return from + dir * best;
+        }
+
+        /// <summary>Puts a dragged item back on whatever floor is under it (ramps, steps).</summary>
+        Vector3 OnGround(Vector3 target)
+        {
+            float bestY = float.NegativeInfinity;
+            foreach (var hit in Physics.RaycastAll(target + Vector3.up * 1.5f, Vector3.down, 6f, ~0, QueryTriggerInteraction.Ignore))
+                if (IsStatic(hit.collider) && hit.point.y > bestY && hit.point.y <= target.y + 1.5f) bestY = hit.point.y;
+            if (float.IsNegativeInfinity(bestY)) return target;
+            target.y = bestY + _halfHeight;
+            return target;
+        }
+
+        /// <summary>World geometry only: not players (CharacterController) and not other physics bodies.</summary>
+        static bool IsStatic(Collider c) => c.attachedRigidbody == null && !(c is CharacterController);
+
+        float ItemRadius => _radius;
 
         void FixedUpdate()
         {
@@ -110,7 +151,7 @@ namespace BooTrayal.Game.Items
             {
                 var hand = HoldPointOf(Holders[0]);
                 if (hand == null) Release(Holders[0], Vector3.zero, "stretch");
-                else _rb.MovePosition(hand.position);
+                else _rb.MovePosition(ClearHandPosition(hand));
                 return;
             }
 
@@ -126,14 +167,14 @@ namespace BooTrayal.Game.Items
                     Release(id, Vector3.zero, "stretch");
                     continue;
                 }
-                sum += hold.position;
+                sum += ClearHandPosition(hold);
                 count++;
             }
             if (count == 0) return;
 
             var target = sum / count;
             bool lifted = CarryRules.IsLifted(true, count);
-            if (!lifted) target.y = transform.position.y; // dragged along the floor
+            if (!lifted) target = OnGround(target); // dragged along the floor, following ramps and steps
             float maxSpeed = MovementModel.RunSpeed * 1.5f * CarryRules.SpeedFactor(lifted ? CarryLoad.HeavyShared : CarryLoad.HeavyAlone);
             var next = Vector3.MoveTowards(_rb.position, target, maxSpeed * Time.fixedDeltaTime);
             float moved = Vector3.Distance(next, _rb.position);

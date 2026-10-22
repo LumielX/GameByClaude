@@ -35,6 +35,8 @@ namespace BooTrayal.Game.Dev
                 case "walker": yield return Walker(); break;
                 case "lifter": yield return Grab(heavy: true); break;
                 case "holder": yield return Grab(heavy: false); break;
+                case "waller": yield return Waller(); break;
+                case "pusher": yield return Pusher(); break;
             }
         }
 
@@ -82,13 +84,51 @@ namespace BooTrayal.Game.Dev
             yield return new WaitForSeconds(1f);
             bot.Press(BotButton.Throw);
             Debug.Log("PROBE_THROW");
+            yield return new WaitForSeconds(1f);
+            bot.Crouch = true;
+            Debug.Log("PROBE_CROUCH");
+            yield return new WaitForSeconds(1.5f);
+            bot.Crouch = false;
+        }
+
+        /// <summary>Walks up to the host's player and pushes it twice (second push must hit the cooldown).</summary>
+        IEnumerator Pusher()
+        {
+            var me = LocalPlayer;
+            var target = FindObjectsByType<PlayerMotor>().FirstOrDefault(m => m.OwnerClientId == NetworkManager.ServerClientId);
+            if (target == null)
+            {
+                Debug.Log("PROBE_NO_TARGET");
+                yield break;
+            }
+            yield return WalkTo(target.transform.position, 1.2f, 10f);
+            var push = me.GetComponent<PlayerPush>();
+            push.RequestPush(target);
+            Debug.Log("PROBE_PUSH");
+            yield return null;
+            push.RequestPush(target);
+            Debug.Log("PROBE_PUSH_AGAIN");
+        }
+
+        /// <summary>Carries a box into the east wall and drops it there (it must stay inside the room).</summary>
+        IEnumerator Waller()
+        {
+            yield return Grab(heavy: false);
+            var player = LocalPlayer;
+            var hands = player.GetComponent<PlayerHands>();
+            if (hands.HeldItem == null) yield break;
+            var item = hands.HeldItem;
+            yield return WalkTo(new Vector3(20f, 0f, player.transform.position.z), 0.1f, 6f);
+            yield return new WaitForSeconds(0.5f);
+            EnableBot().Press(BotButton.Drop);
+            Debug.Log($"PROBE_DROPPED item={item.ItemId}");
         }
 
         IEnumerator Grab(bool heavy)
         {
             var player = LocalPlayer;
             var hands = player.GetComponent<PlayerHands>();
-            var target = FindObjectsByType<GrabbableItem>(FindObjectsSortMode.None)
+            var target = FindObjectsByType<GrabbableItem>()
                 .Where(g => g.Heavy == heavy && g.Holders.Count < (heavy ? 2 : 1))
                 .OrderBy(g => Vector3.Distance(g.transform.position, player.transform.position))
                 .FirstOrDefault();

@@ -30,7 +30,7 @@ namespace BooTrayal.Game.Player
 
         void TryPlace()
         {
-            var points = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None).OrderBy(p => p.Index).ToArray();
+            var points = FindObjectsByType<SpawnPoint>().OrderBy(p => p.Index).ToArray();
             if (points.Length == 0) return;
             var point = points[(int)(OwnerClientId % (ulong)points.Length)];
             GetComponent<PlayerMotor>().Teleport(point.transform.position, point.transform.rotation);

@@ -9,6 +9,9 @@ namespace BooTrayal.Game.Player
     {
         const float ClientProbeRange = 2.0f;
 
+        /// <summary>Server-only: who is down, decided by the server when it applies knockdowns.</summary>
+        static readonly KnockdownLedger ServerKnockdowns = new KnockdownLedger();
+
         Transform _head;
         PlayerMotor _motor;
         double _lastPush = double.NegativeInfinity;
@@ -22,6 +25,11 @@ namespace BooTrayal.Game.Player
         }
 
         public override void OnNetworkSpawn() => _lastServerPos = transform.position;
+
+        public override void OnNetworkDespawn()
+        {
+            if (IsServer) ServerKnockdowns.Forget(OwnerClientId);
+        }
 
         void Update()
         {
@@ -48,7 +56,7 @@ namespace BooTrayal.Game.Player
             if (IsOwner && target != null) PushRpc(target.NetworkObject);
         }
 
-        [Rpc(SendTo.Server, RequireOwnership = true)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         void PushRpc(NetworkObjectReference targetRef)
         {
             if (!targetRef.TryGet(out var no)) return;
@@ -58,13 +66,14 @@ namespace BooTrayal.Game.Player
             offset.y = 0f;
             double now = NetworkManager.ServerTime.Time;
             var outcome = PushRules.Evaluate(OwnerClientId, no.OwnerClientId, offset.magnitude, now, _lastPush, _serverSpeed,
-                _motor.IsKnockedDown.Value, target.IsKnockedDown.Value);
+                ServerKnockdowns.IsDown(OwnerClientId, now), ServerKnockdowns.IsDown(no.OwnerClientId, now));
             if (!outcome.Allowed)
             {
                 Debug.Log($"PUSH_DENIED by={OwnerClientId} reason={outcome.Reason}");
                 return;
             }
             _lastPush = now;
+            if (outcome.Knockdown) ServerKnockdowns.MarkDown(no.OwnerClientId, now);
             var dir = offset.sqrMagnitude > 1e-4f ? offset.normalized : transform.forward;
             target.KnockbackRpc(dir * PushRules.KnockbackSpeed, outcome.Knockdown);
             Debug.Log($"PUSH by={OwnerClientId} target={no.OwnerClientId} knockdown={outcome.Knockdown}");

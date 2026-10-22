@@ -66,7 +66,7 @@ namespace BooTrayal.Game.Player
         {
             GrabbableItem best = null;
             float bestDist = float.MaxValue;
-            foreach (var g in FindObjectsByType<GrabbableItem>(FindObjectsSortMode.None))
+            foreach (var g in FindObjectsByType<GrabbableItem>())
             {
                 if (g.Heavy != heavy) continue;
                 float d = Vector3.Distance(_hold.position, g.ClosestPoint(_hold.position));
@@ -80,7 +80,7 @@ namespace BooTrayal.Game.Player
             if (IsOwner && item != null) GrabRpc(item.NetworkObject);
         }
 
-        [Rpc(SendTo.Server, RequireOwnership = true)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         void GrabRpc(NetworkObjectReference itemRef)
         {
             if (HeldItem != null || !itemRef.TryGet(out var no)) return;
@@ -91,14 +91,14 @@ namespace BooTrayal.Game.Player
             else Debug.Log($"GRAB_DENIED by={OwnerClientId} item={item.ItemId} dist={distance:0.00}");
         }
 
-        [Rpc(SendTo.Server, RequireOwnership = true)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         void ThrowRpc(Vector3 direction)
         {
             if (float.IsNaN(direction.x) || float.IsNaN(direction.y) || float.IsNaN(direction.z)) direction = Vector3.zero;
             ReleaseHeld(direction.normalized * ThrowSpeed, "throw");
         }
 
-        [Rpc(SendTo.Server, RequireOwnership = true)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         void DropRpc() => ReleaseHeld(Vector3.zero, "drop");
 
         void ReleaseHeld(Vector3 velocity, string reason)

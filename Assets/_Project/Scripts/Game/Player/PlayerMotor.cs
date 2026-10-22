@@ -23,6 +23,8 @@ namespace BooTrayal.Game.Player
             new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
         public readonly NetworkVariable<bool> IsRunningNet =
             new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        public readonly NetworkVariable<bool> IsCrouchingNet =
+            new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
         readonly Knockdown _knockdown = new Knockdown();
         CharacterController _cc;
@@ -48,7 +50,25 @@ namespace BooTrayal.Game.Player
 
         public override void OnNetworkSpawn()
         {
-            if (IsOwner) GetComponent<PlayerInputReader>()?.Activate();
+            if (IsOwner)
+            {
+                GetComponent<PlayerInputReader>()?.Activate();
+                return;
+            }
+            IsCrouchingNet.OnValueChanged += OnRemoteCrouchChanged;
+            if (IsCrouchingNet.Value) SetCrouchShape(true);
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            IsCrouchingNet.OnValueChanged -= OnRemoteCrouchChanged;
+        }
+
+        void OnRemoteCrouchChanged(bool previous, bool crouch)
+        {
+            SetCrouchShape(crouch);
+            if (IsServer && Application.isBatchMode)
+                Debug.Log($"PLAYER_CROUCH id={OwnerClientId} crouch={crouch} head={_head.localPosition.y:0.00}");
         }
 
         void Update()
@@ -89,6 +109,13 @@ namespace BooTrayal.Game.Player
             if (!crouch && Physics.SphereCast(transform.position + Vector3.up * CrouchHeight, _cc.radius * 0.9f, Vector3.up,
                     out _, StandHeight - CrouchHeight, ~0, QueryTriggerInteraction.Ignore))
                 return;
+            SetCrouchShape(crouch);
+            IsCrouchingNet.Value = crouch;
+        }
+
+        /// <summary>Applied on every peer so the server's hold point and others' view match the owner.</summary>
+        void SetCrouchShape(bool crouch)
+        {
             IsCrouching = crouch;
             float h = crouch ? CrouchHeight : StandHeight;
             _cc.height = h;
@@ -97,7 +124,7 @@ namespace BooTrayal.Game.Player
         }
 
         /// <summary>Server asks the owner to apply a push (see PlayerPush).</summary>
-        [Rpc(SendTo.Owner)]
+        [Rpc(SendTo.Owner, InvokePermission = RpcInvokePermission.Server)]
         public void KnockbackRpc(Vector3 velocity, bool knockdown)
         {
             velocity.y = 0f;
