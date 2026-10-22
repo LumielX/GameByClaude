@@ -4,7 +4,7 @@
 
 ## สถานะปัจจุบัน
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
-- **เฟส 3 กำลังทำ** — M0+M1+M2 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
+- **เฟส 3 กำลังทำ** — M0–M3 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
 - ⚠️ ห้ามแก้ไฟล์ข้อความภาษาไทยด้วย PowerShell 5.1 `Get-Content`/`Set-Content` (อ่าน UTF-8 ผิดแล้วไฟล์เสีย) — ใช้ Edit tool หรือ bash
 - **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
 - **M1 เสร็จ (2026-10-22):** กฎเกมทั้งหมดใน `Assets/_Project/Scripts/Core/` (RoomRules, RoleAssigner, VoteResolver, SabotageTracker, NightJudge, ScoreRules/Wallet, FearModel, Stamina, AdrenalineModel, SafeCode/FuseBox/RitualOffering puzzles, MeetingRules, ExorciseEffects, JoinPolicy) — EditMode tests 128/128 ผ่าน (`TestResults/EditMode.xml`), build + smoke ผ่าน
@@ -18,7 +18,16 @@
   - ทดสอบหลาย instance ในเครื่องเดียว: ต้องใส่ `-profile <ชื่อ>` คนละชื่อ
   - deferred minors: ไม่มี e2e test ห้องเต็ม; ข้อความ "สูงสุด 8 คน" ตายตัว; approval หลายคำขอใน frame เดียวเห็นจำนวนเท่ากัน (local เท่านั้น); host ที่ใช้ `-fakeversion` ปฏิเสธตัวเอง; `session.LeaveAsync` ไม่มี timeout; ไม่ unsubscribe callback; `NetStatus.Failed` ไม่ได้ใช้; host ไม่ลบ client ที่ crash ออกจาก lobby
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-22-m2-ledger.md`
-- **ถัดไป: M3 ผู้เล่น** (FP controller, stamina, หยิบ/แบก, ผลัก, ragdoll-lite, ไฟฉาย) — เขียนแผนละเอียดก่อน
+- **M3 เสร็จ (2026-10-23):** ผู้เล่นมุมมองบุคคลที่ 1 บนเน็ต
+  - Core/Player: MovementModel (เดิน 3.2 / วิ่ง 5.6 / ย่อ 1.6 m/s, กระโดด 4.8, g −18), CarryRules, PushRules, Knockdown, KnockdownLedger, NoiseRules
+  - Game/Player: PlayerInputReader (ปุ่มตาม GDD สร้างในโค้ด, Esc ปล่อยเมาส์), BotInput, PlayerMotor (owner-authoritative NT, crouch sync), PlayerLook (pitch sync), PlayerFlashlight (F), PlayerSpawnPlacer, PlayerAvatar (สีตาม id, ล้มเอียง 80°), PlayerHands (E หยิบ/วาง, คลิกซ้ายขว้าง, G วาง), PlayerPush (คลิกขวา, server ตรวจ)
+  - Items: GrabbableItem — **ของทุกชิ้น server-authoritative** (ของเบาตามมือ, โกศหนักต้อง 2 คนยก/คนเดียวลากช้า+ดัง), กันทะลุกำแพง, NoiseBus สำหรับผีใน M4
+  - Flow: Bootstrap → Menu → (host) Sandbox → Menu เมื่อหลุด; ฉาก Sandbox graybox สร้างด้วย SandboxBuilder
+  - หลักฐาน: EditMode 213/213; `tools/unity/player-smoke.ps1` (6 instance: เดิน, หยิบ/ขว้าง/เสียง, ย่อเห็นบน host, 2 คนยกโกศ, หลุดขณะถือ, ของไม่ทะลุกำแพง, ผลัก+cooldown, ไม่มี exception) ผ่าน; Local/Relay smoke ผ่าน
+  - บั๊กที่เจอระหว่างทาง: CharacterController.minMoveDistance ทำให้ไม่ขยับที่ FPS สูง (ตั้ง 0), in-scene NetworkObject hash = 0 ตอน save ครั้งแรก (ResaveScene เรียก OnValidate), owner-authority item ไม่ sync หลัง ChangeOwnership (เปลี่ยนเป็น server-authoritative)
+  - deferred minors: ของที่ถือชนตัวคนถือ; server ไม่หมุนของตามมือ; NaN จาก client ดัดแปลง; spawn ซ้ำเมื่อ id%4 ชน; cursor ค้างถ้า host ปิดก่อนโหลด Sandbox; input ไม่กลับมาหลัง OnDisable; หยิบทะลุกำแพงได้ (ไม่เช็ค LOS); smoke ยังไม่พิสูจน์ความเร็วขว้าง/โกศเคลื่อนที่; hash ค้างเก่าไม่ถูกจับ
+  - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m3-ledger.md`
+- **ถัดไป: M4 แผนที่เรือนไทย graybox + ผีกระสือ** (NavMesh, state machine, ได้ยินเสียง/ไมค์, Fear + Adrenaline ฝั่ง client)
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-23
