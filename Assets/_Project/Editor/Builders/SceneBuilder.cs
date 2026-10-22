@@ -1,4 +1,5 @@
 using BooTrayal.Game;
+using BooTrayal.Game.Networking;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -25,6 +26,11 @@ namespace BooTrayal.Editor.Builders
             var boot = FindOrCreate(scene, "Bootstrap");
             GetOrAdd<Bootstrap>(boot);
 
+            EnsurePrefabInstance(scene, "NetworkManager", NetworkPrefabBuilder.NetworkManagerPath);
+            var services = FindOrCreate(scene, "Services");
+            GetOrAdd<ConnectionService>(services);
+            GetOrAdd<DebugNetMenu>(services);
+
             EditorSceneManager.SaveScene(scene, BootstrapPath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(BootstrapPath, true) };
             AssetDatabase.SaveAssets();
@@ -46,6 +52,16 @@ namespace BooTrayal.Editor.Builders
             var go = new GameObject(name);
             SceneManager.MoveGameObjectToScene(go, scene);
             return go;
+        }
+
+        static void EnsurePrefabInstance(Scene scene, string name, string prefabPath)
+        {
+            foreach (var root in scene.GetRootGameObjects())
+                if (root.name == name) return;
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            if (prefab == null) throw new System.InvalidOperationException($"Missing prefab {prefabPath}; run NetworkPrefabBuilder.Build first");
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+            instance.name = name;
         }
 
         static T GetOrAdd<T>(GameObject go) where T : Component

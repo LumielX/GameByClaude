@@ -8,6 +8,7 @@ Assert-EditorClosed
 
 $methods = @(
     'BooTrayal.Editor.Builders.ProjectSetupBuilder.Apply',
+    'BooTrayal.Editor.Builders.NetworkPrefabBuilder.Build',
     'BooTrayal.Editor.Builders.SceneBuilder.BuildBootstrap',
     'BooTrayal.Editor.BuildPipeline.WindowsBuild.Build'
 )
