@@ -69,6 +69,24 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void GoalWon_StaysLatchedAfterCatch()
+        {
+            var t = OneSpy();
+            t.Record(10, true); t.Record(10, true); t.Record(10, true);
+            Assert.IsTrue(t.GoalWon);
+            t.MarkCaught(10);
+            Assert.IsTrue(t.GoalWon);
+        }
+
+        [Test]
+        public void GoalWon_FalseBeforeGoal()
+        {
+            var t = OneSpy();
+            t.Record(10, true);
+            Assert.IsFalse(t.GoalWon);
+        }
+
+        [Test]
         public void UnregisteredId_NotCounted()
         {
             var t = OneSpy();

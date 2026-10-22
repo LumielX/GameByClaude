@@ -69,6 +69,14 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void SabotageGoalWon_CaughtSpyStillPaid()
+        {
+            var players = new List<NightPlayer> { P(1, Role.Spy, LifeState.MiniGhost, exposed: true) };
+            var awards = ScoreRules.NightEndAwards(players, NightWinner.Spies, new ulong[0], sabotageGoalWon: true);
+            Assert.AreEqual(150, awards[1]);
+        }
+
+        [Test]
         public void DisconnectedSpy_NotPaid()
         {
             var players = new List<NightPlayer> { P(1, Role.Spy, LifeState.Disconnected) };

@@ -9,6 +9,7 @@ namespace BooTrayal.Core.Puzzles
     {
         readonly HashSet<string> _required;
         readonly List<string> _delivered = new List<string>();
+        readonly Dictionary<string, ulong> _deliveredBy = new Dictionary<string, ulong>();
 
         public RitualOfferingPuzzle(IReadOnlyList<string> requiredItemIds)
         {
@@ -25,19 +26,23 @@ namespace BooTrayal.Core.Puzzles
         /// <summary>Item knocked off the altar by the last sabotage; the game returns it to its spawn.</summary>
         public string LastSabotagedItem { get; private set; }
 
-        public bool Deliver(string itemId)
+        public bool Deliver(string itemId, ulong actor)
         {
             if (Solved || itemId == null || !_required.Contains(itemId) || _delivered.Contains(itemId)) return false;
             _delivered.Add(itemId);
+            _deliveredBy[itemId] = actor;
             return true;
         }
 
-        public bool TrySabotage(IRandom rng)
+        /// <summary>Knocks one item that someone else delivered off the altar.</summary>
+        public bool TrySabotage(IRandom rng, ulong saboteur)
         {
-            if (Solved || _delivered.Count == 0) return false;
-            int index = rng.Next(0, _delivered.Count);
-            LastSabotagedItem = _delivered[index];
-            _delivered.RemoveAt(index);
+            if (Solved) return false;
+            var targets = _delivered.Where(i => _deliveredBy[i] != saboteur).ToList();
+            if (targets.Count == 0) return false;
+            LastSabotagedItem = targets[rng.Next(0, targets.Count)];
+            _delivered.Remove(LastSabotagedItem);
+            _deliveredBy.Remove(LastSabotagedItem);
             return true;
         }
     }

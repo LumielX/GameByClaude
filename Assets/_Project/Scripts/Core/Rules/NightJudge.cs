@@ -27,10 +27,11 @@ namespace BooTrayal.Core.Rules
         {
             var crew = players.Where(p => p.Role == Role.Crew).ToList();
             bool coOp = sabotage.Spies.Count == 0;
-            bool spyGoal = !coOp && sabotage.GoalReached && sabotage.AnyUncaught;
+            bool spyGoal = !coOp && sabotage.GoalWon;
             int alive = crew.Count(p => p.State == LifeState.Alive);
             int escaped = crew.Count(p => p.State == LifeState.Escaped);
-            var loserWinner = coOp ? NightWinner.None : NightWinner.Spies;
+            // When the crew fail, Spies win only if one is still uncaught (GDD 7.1) or the goal was already won.
+            var loserWinner = spyGoal || (!coOp && sabotage.AnyUncaught) ? NightWinner.Spies : NightWinner.None;
 
             if (alive == 0 && escaped == 0)
                 return new NightVerdict(true, loserWinner, "crew_wiped");

@@ -90,6 +90,40 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void SpyDisconnected_TimeUp_SpiesDoNotWin()
+        {
+            var t = Tracker();
+            t.MarkCaught(Spy);
+            var players = Crew(LifeState.Alive, LifeState.Alive);
+            players[0].State = LifeState.Disconnected;
+            players[0].Exposed = true;
+            var v = NightJudge.Evaluate(players, false, 0, t);
+            Assert.IsTrue(v.Ended);
+            Assert.AreEqual(NightWinner.None, v.Winner);
+        }
+
+        [Test]
+        public void SpyCaught_CrewWiped_SpiesDoNotWin()
+        {
+            var t = Tracker();
+            t.MarkCaught(Spy);
+            var v = NightJudge.Evaluate(Crew(LifeState.MiniGhost, LifeState.MiniGhost), false, 100, t);
+            Assert.IsTrue(v.Ended);
+            Assert.AreEqual(NightWinner.None, v.Winner);
+        }
+
+        [Test]
+        public void SabotageGoal_ThenSpyCaught_SpiesStillWin()
+        {
+            var t = Tracker();
+            t.Record(Spy, true); t.Record(Spy, true); t.Record(Spy, true);
+            t.MarkCaught(Spy);
+            var v = NightJudge.Evaluate(Crew(LifeState.Alive, LifeState.Alive), false, 300, t);
+            Assert.IsFalse(v.Ended);
+            Assert.AreEqual(NightWinner.Spies, v.Winner);
+        }
+
+        [Test]
         public void CoOp_TimeUp_WinnerNone()
         {
             var players = new List<NightPlayer> { P(2, Role.Crew, LifeState.Alive), P(3, Role.Crew, LifeState.Alive) };

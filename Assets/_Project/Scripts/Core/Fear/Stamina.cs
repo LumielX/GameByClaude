@@ -19,15 +19,12 @@ namespace BooTrayal.Core.Fear
 
         public void Tick(float dt, bool running, float drainMultiplier)
         {
-            if (running)
+            // Holding sprint while exhausted does not block recovery.
+            if (running && CanRun)
             {
-                // Holding sprint (even while exhausted) postpones regeneration.
                 _sinceRunInput = 0f;
-                if (CanRun)
-                {
-                    Value = Math.Max(0f, Value - RunDrainPerSec * drainMultiplier * dt);
-                    if (Value <= 0f) _exhausted = true;
-                }
+                Value = Math.Max(0f, Value - RunDrainPerSec * drainMultiplier * dt);
+                if (Value <= 0f) _exhausted = true;
                 return;
             }
 

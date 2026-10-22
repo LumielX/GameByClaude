@@ -9,6 +9,6 @@ namespace BooTrayal.Core.Puzzles
         float Progress01 { get; }
 
         /// <summary>Removes progress. True only if progress existed; a solved puzzle is never undone.</summary>
-        bool TrySabotage(IRandom rng);
+        bool TrySabotage(IRandom rng, ulong saboteur);
     }
 }

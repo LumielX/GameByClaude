@@ -26,7 +26,7 @@ namespace BooTrayal.Tests
         public void Stamina_Exhausted_NeedsHysteresis()
         {
             var s = new Stamina();
-            for (int i = 0; i < 60; i++) s.Tick(0.1f, true, 1f);
+            for (int i = 0; i < 55; i++) s.Tick(0.1f, true, 1f);
             Assert.AreEqual(0f, s.Value, 0.01f);
             Assert.IsFalse(s.CanRun);
             for (int i = 0; i < 20; i++) s.Tick(0.1f, false, 1f);
@@ -34,6 +34,21 @@ namespace BooTrayal.Tests
             Assert.IsFalse(s.CanRun);
             for (int i = 0; i < 30; i++) s.Tick(0.1f, false, 1f);
             Assert.IsTrue(s.CanRun);
+        }
+
+        [Test]
+        public void Stamina_HoldingSprintWhileExhausted_StillRecovers()
+        {
+            var s = new Stamina();
+            for (int i = 0; i < 55; i++) s.Tick(0.1f, true, 1f);
+            Assert.IsFalse(s.CanRun);
+            bool recovered = false;
+            for (int i = 0; i < 40; i++)
+            {
+                s.Tick(0.1f, true, 1f);
+                recovered |= s.CanRun;
+            }
+            Assert.IsTrue(recovered);
         }
 
         [Test]

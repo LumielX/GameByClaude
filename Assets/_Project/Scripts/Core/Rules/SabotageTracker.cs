@@ -17,6 +17,8 @@ namespace BooTrayal.Core.Rules
         public int Required { get; }
         public int Successes { get; private set; }
         public bool GoalReached => Successes >= Required;
+        /// <summary>Latched when an uncaught Spy completes the goal; catching the Spy later does not undo it (GDD 4.2).</summary>
+        public bool GoalWon { get; private set; }
         public IReadOnlyCollection<ulong> Spies => _spies;
         public bool AnyUncaught => _spies.Any(s => !_caught.Contains(s));
 
@@ -32,6 +34,7 @@ namespace BooTrayal.Core.Rules
             if (!hadEffect || GoalReached || !_spies.Contains(spyId) || _caught.Contains(spyId))
                 return false;
             Successes++;
+            if (GoalReached) GoalWon = true;
             return true;
         }
     }

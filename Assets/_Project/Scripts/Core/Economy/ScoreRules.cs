@@ -14,7 +14,7 @@ namespace BooTrayal.Core.Economy
         public const int CorrectVoteEach = 30;
 
         public static IReadOnlyDictionary<ulong, int> NightEndAwards(
-            IReadOnlyList<NightPlayer> players, NightWinner winner, IReadOnlyCollection<ulong> correctVoters)
+            IReadOnlyList<NightPlayer> players, NightWinner winner, IReadOnlyCollection<ulong> correctVoters, bool sabotageGoalWon = false)
         {
             var awards = new Dictionary<ulong, int>();
             void Add(ulong id, int amount) => awards[id] = (awards.TryGetValue(id, out var n) ? n : 0) + amount;
@@ -26,7 +26,8 @@ namespace BooTrayal.Core.Economy
                     if (p.State == LifeState.Escaped) Add(p.Id, Escaped);
                     if (winner == NightWinner.Crew) Add(p.Id, CrewWinEach);
                 }
-                else if (winner == NightWinner.Spies && !p.Exposed && p.State != LifeState.Disconnected)
+                // Paid once, here at night end. A goal won before the Spy was caught still pays.
+                else if (winner == NightWinner.Spies && p.State != LifeState.Disconnected && (!p.Exposed || sabotageGoalWon))
                 {
                     Add(p.Id, SpyWin);
                 }
