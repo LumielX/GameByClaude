@@ -1,0 +1,25 @@
+{
+    "name": "BooTrayal.Editor",
+    "rootNamespace": "BooTrayal.Editor",
+    "references": [
+        "BooTrayal.Core",
+        "BooTrayal.Game",
+        "BooTrayal.UI",
+        "Unity.Netcode.Runtime",
+        "Unity.AI.Navigation",
+        "Unity.AI.Navigation.Editor",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
