@@ -157,7 +157,8 @@ namespace BooTrayal.Game.Networking
         /// <summary>Solo mode and offline tests: plain NGO host on localhost, no Unity Services.</summary>
         public bool StartLocalHost()
         {
-            if (BeginOperation(NetStatus.Hosting) == 0) return false;
+            // Hosting is announced by OnHosting once NGO is actually running as server.
+            if (BeginOperation(NetStatus.SigningIn) == 0) return false;
             _busy = false;
             PrepareNetwork(RoomRules.MaxPlayers);
             Net.GetComponent<UnityTransport>().SetConnectionData(LocalAddress, LocalPort);

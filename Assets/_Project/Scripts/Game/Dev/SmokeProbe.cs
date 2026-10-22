@@ -56,7 +56,11 @@ namespace BooTrayal.Game.Dev
                     if (!firstSeen.ContainsKey(client.ClientId)) firstSeen[client.ClientId] = Time.time;
                     // Give the client time to be placed at its spawn point before measuring.
                     if (Time.time - firstSeen[client.ClientId] < 2f) continue;
-                    if (!start.ContainsKey(client.ClientId)) start[client.ClientId] = po.transform.position;
+                    if (!start.ContainsKey(client.ClientId))
+                    {
+                        start[client.ClientId] = po.transform.position;
+                        Debug.Log($"PROBE_SEE id={client.ClientId} start={po.transform.position}");
+                    }
                     float dist = Vector3.Distance(start[client.ClientId], po.transform.position);
                     if (dist > MovedThreshold)
                     {
@@ -100,6 +104,12 @@ namespace BooTrayal.Game.Dev
                 yield return new WaitForSeconds(0.5f);
             }
             Debug.Log(hands.HeldItem != null ? $"PROBE_HOLDING item={target.ItemId}" : $"PROBE_GRAB_FAILED item={target.ItemId}");
+            for (int i = 0; i < 3 && hands.HeldItem != null; i++)
+            {
+                yield return new WaitForSeconds(0.25f);
+                var held = hands.HeldItem;
+                Debug.Log($"PROBE_HELD item={held.ItemId} isOwner={held.IsOwner} owner={held.OwnerClientId} holders={held.Holders.Count} pos={held.transform.position} kinematic={held.GetComponent<Rigidbody>().isKinematic}");
+            }
         }
 
         IEnumerator WalkTo(Vector3 target, float stopDistance, float timeout)
@@ -107,6 +117,7 @@ namespace BooTrayal.Game.Dev
             var player = LocalPlayer;
             var bot = EnableBot();
             var look = player.GetComponent<PlayerLook>();
+            var from = player.transform.position;
             float t = 0f;
             while (t < timeout)
             {
@@ -115,10 +126,17 @@ namespace BooTrayal.Game.Dev
                 if (d.magnitude <= stopDistance) break;
                 look.SetYaw(Quaternion.LookRotation(d).eulerAngles.y);
                 bot.Move = new Vector2(0f, 1f);
+                if (Mathf.FloorToInt(t) != Mathf.FloorToInt(t + Time.deltaTime))
+                {
+                    var motor = player.GetComponent<PlayerMotor>();
+                    var cc = player.GetComponent<CharacterController>();
+                    Debug.Log($"PROBE_TICK pos={player.transform.position} speed={motor.CurrentSpeed:0.00} cc={cc.enabled} grounded={cc.isGrounded} dt={Time.deltaTime:0.0000} owner={motor.IsOwner}");
+                }
                 t += Time.deltaTime;
                 yield return null;
             }
             bot.Move = Vector2.zero;
+            Debug.Log($"PROBE_WALKED from={from} to={player.transform.position} target={target} seconds={t:0.0}");
         }
 
         static BotInput EnableBot()

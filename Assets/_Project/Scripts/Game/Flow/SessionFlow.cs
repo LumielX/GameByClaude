@@ -18,6 +18,7 @@ namespace BooTrayal.Game.Flow
         ConnectionService _svc;
         NetStatus _last = NetStatus.Offline;
         bool _autoStarted;
+        bool _playSceneRequested;
 
         void Start()
         {
@@ -44,19 +45,24 @@ namespace BooTrayal.Game.Flow
         void OnStatusChanged()
         {
             var status = _svc.Status;
-            if (status == _last) return;
-            _last = status;
-
             var net = NetworkManager.Singleton;
-            if (status == NetStatus.Hosting && net != null && net.IsServer)
+
+            // Not deduplicated on status alone: Hosting may be reported before NGO's IsServer is true.
+            if (status == NetStatus.Hosting && net != null && net.IsServer && !_playSceneRequested)
             {
+                _playSceneRequested = true;
                 net.SceneManager.LoadScene(PlayScene, LoadSceneMode.Single);
             }
-            else if (status == NetStatus.Offline && SceneManager.GetActiveScene().name != MenuScene)
+            else if (status == NetStatus.Offline && _last != NetStatus.Offline)
             {
-                PlayerInputReader.SetCursorFree(true);
-                SceneManager.LoadScene(MenuScene);
+                _playSceneRequested = false;
+                if (SceneManager.GetActiveScene().name != MenuScene)
+                {
+                    PlayerInputReader.SetCursorFree(true);
+                    SceneManager.LoadScene(MenuScene);
+                }
             }
+            _last = status;
         }
     }
 }

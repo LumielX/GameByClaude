@@ -9,6 +9,12 @@ namespace BooTrayal.Game
         public const string SmokeArg = "-smoketest";
         public const string SmokeOkMarker = "BOOTRAYAL_SMOKE_OK";
 
+        void Awake()
+        {
+            // Headless test instances would otherwise spin at thousands of FPS and starve each other.
+            if (Application.isBatchMode) Application.targetFrameRate = 60;
+        }
+
         void Start()
         {
             Debug.Log($"BOO-TRAYAL v{Application.version} boot");

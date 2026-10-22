@@ -100,7 +100,7 @@ namespace BooTrayal.Editor.Builders
             var no = Ensure<NetworkObject>(go);
             no.DontDestroyWithOwner = true;
             var nt = Ensure<NetworkTransform>(go);
-            nt.AuthorityMode = heavy ? NetworkTransform.AuthorityModes.Server : NetworkTransform.AuthorityModes.Owner;
+            nt.AuthorityMode = NetworkTransform.AuthorityModes.Server;
             nt.SyncScaleX = nt.SyncScaleY = nt.SyncScaleZ = false;
             Ensure<NetworkRigidbody>(go);
             var item = Ensure<GrabbableItem>(go);

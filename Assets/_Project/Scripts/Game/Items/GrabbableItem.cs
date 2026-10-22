@@ -5,8 +5,9 @@ using UnityEngine;
 namespace BooTrayal.Game.Items
 {
     /// <summary>
-    /// Something players can pick up. Light items: ownership moves to the holder, who carries them at its HoldPoint.
-    /// Heavy items stay server-owned: two holders lift them, one holder drags them slowly and noisily.
+    /// Something players can pick up. Always server-authoritative: the server moves held items to the holders'
+    /// hold points (light: one holder, snaps to the hand; heavy: two lift it, one drags it slowly and noisily).
+    /// The holding client also draws a light item at its own hand so it never looks laggy.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     public class GrabbableItem : NetworkBehaviour
@@ -53,8 +54,7 @@ namespace BooTrayal.Game.Items
             if (!IsServer) return false;
             if (!CarryRules.CanGrab(Heavy, Holders.Count, Holders.Contains(clientId), distance)) return false;
             Holders.Add(clientId);
-            if (!Heavy) NetworkObject.ChangeOwnership(clientId);
-            else _rb.isKinematic = true;
+            _rb.isKinematic = true;
             Debug.Log($"ITEM_GRABBED item={ItemId} by={clientId} holders={Holders.Count}");
             if (Heavy && Holders.Count == 2) Debug.Log($"HEAVY_LIFTED item={ItemId}");
             return true;
@@ -67,7 +67,6 @@ namespace BooTrayal.Game.Items
             Holders.Remove(clientId);
             if (!Heavy)
             {
-                NetworkObject.RemoveOwnership();
                 _rb.isKinematic = false;
                 float speed = CarryRules.ClampThrow(velocity.magnitude);
                 _rb.linearVelocity = speed > 0f ? velocity.normalized * speed : Vector3.zero;
@@ -77,6 +76,16 @@ namespace BooTrayal.Game.Items
                 _rb.isKinematic = false;
             }
             Debug.Log($"ITEM_RELEASED item={ItemId} by={clientId} reason={reason}");
+            if (Debug.isDebugBuild || Application.isBatchMode) StartCoroutine(LogStateAfterRelease());
+        }
+
+        System.Collections.IEnumerator LogStateAfterRelease()
+        {
+            foreach (var delay in new[] { 0.05f, 0.5f })
+            {
+                yield return new WaitForSeconds(delay);
+                Debug.Log($"ITEM_STATE item={ItemId} kinematic={_rb.isKinematic} vel={_rb.linearVelocity} pos={transform.position} owner={OwnerClientId}");
+            }
         }
 
         void OnClientDisconnect(ulong clientId)
@@ -86,20 +95,24 @@ namespace BooTrayal.Game.Items
 
         void LateUpdate()
         {
-            // Light item: the holder (owner) carries it in front of its face.
-            if (!IsSpawned || Heavy || Holders.Count == 0 || !IsOwner) return;
-            if (Holders[0] != NetworkManager.LocalClientId) return;
+            // Purely visual for the holding client: draw the light item at our own hand (server copy lags by RTT).
+            if (!IsSpawned || Heavy || Holders.Count == 0 || Holders[0] != NetworkManager.LocalClientId) return;
             var hold = HoldPointOf(NetworkManager.LocalClientId);
-            if (hold == null) return;
-            _rb.isKinematic = true;
-            transform.SetPositionAndRotation(hold.position, hold.rotation);
+            if (hold != null) transform.SetPositionAndRotation(hold.position, hold.rotation);
         }
 
         void FixedUpdate()
         {
             if (!IsSpawned || !IsServer) return;
             _impactCooldown -= Time.fixedDeltaTime;
-            if (!Heavy || Holders.Count == 0) return;
+            if (Holders.Count == 0) return;
+            if (!Heavy)
+            {
+                var hand = HoldPointOf(Holders[0]);
+                if (hand == null) Release(Holders[0], Vector3.zero, "stretch");
+                else _rb.MovePosition(hand.position);
+                return;
+            }
 
             // Heavy item: follow the average hold point; drop holders who stretched too far.
             Vector3 sum = Vector3.zero;

@@ -25,6 +25,8 @@ namespace BooTrayal.Editor.Builders
             cc.stepOffset = 0.4f;
             cc.slopeLimit = 50f;
             cc.skinWidth = 0.03f;
+            // Default 0.001 drops whole frames of movement at high frame rates (e.g. 3.2 m/s * 0.0003 s).
+            cc.minMoveDistance = 0f;
 
             Ensure<NetworkObject>(root);
             var nt = Ensure<NetworkTransform>(root);
