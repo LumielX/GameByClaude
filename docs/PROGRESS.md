@@ -4,7 +4,10 @@
 
 ## สถานะปัจจุบัน
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
-- **ถัดไป:** เฟส 3 เริ่ม M0 (Foundation) ตามแผนละเอียด — ลงมือเอง (inline) แล้วให้ reviewer ตรวจทั้ง branch ตอนจบ M1
+- **เฟส 3 กำลังทำ** บน branch `m0-m1-foundation` — ledger งานย่อยอยู่ที่ `.superpowers/sdd/2026-10-22-m0-m1-foundation-core-rules/progress.md` (git-ignored; ถ้าหายให้ดู `git log`)
+- **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
+- **ถัดไป:** M1 (Task 6–16) กฎเกมแกนกลาง TDD — ไฟล์เทสต์ร่างไว้ใน scratchpad แล้ว
+- หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-22
 
