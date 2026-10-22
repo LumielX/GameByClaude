@@ -3,6 +3,7 @@
     "rootNamespace": "BooTrayal.Tests",
     "references": [
         "BooTrayal.Core",
+        "BooTrayal.Game",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
