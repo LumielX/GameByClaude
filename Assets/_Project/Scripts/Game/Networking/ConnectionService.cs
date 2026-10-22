@@ -62,7 +62,8 @@ namespace BooTrayal.Game.Networking
             PlayerDisplayName = PlayerName.Sanitize(Args.PlayerName, UnityEngine.Random.Range(1, 10000));
         }
 
-        void Start()
+        /// <summary>Applies -autohost/-autojoin flags. Called by SessionFlow once the Menu scene is up.</summary>
+        public void RunLaunchArgs()
         {
             if (Args.AutoHostLocal) StartLocalHost();
             else if (Args.AutoJoinLocal) StartLocalClient();

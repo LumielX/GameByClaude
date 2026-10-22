@@ -30,9 +30,11 @@ namespace BooTrayal.Editor.Builders
                 list = ScriptableObject.CreateInstance<NetworkPrefabsList>();
                 AssetDatabase.CreateAsset(list, PrefabListPath);
             }
-            if (!list.Contains(stub))
+            var player = PlayerPrefabBuilder.Build();
+            foreach (var prefab in new[] { stub, player })
             {
-                list.Add(new NetworkPrefab { Prefab = stub });
+                if (list.Contains(prefab)) continue;
+                list.Add(new NetworkPrefab { Prefab = prefab });
                 EditorUtility.SetDirty(list);
             }
 
@@ -44,7 +46,7 @@ namespace BooTrayal.Editor.Builders
                 nm.NetworkConfig.NetworkTransport = transport;
                 nm.NetworkConfig.TickRate = TickRate;
                 nm.NetworkConfig.ConnectionApproval = true;
-                nm.NetworkConfig.PlayerPrefab = stub;
+                nm.NetworkConfig.PlayerPrefab = player;
                 if (!nm.NetworkConfig.Prefabs.NetworkPrefabsLists.Contains(list))
                     nm.NetworkConfig.Prefabs.NetworkPrefabsLists.Add(list);
             });

@@ -38,6 +38,13 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void Parse_SmokeProbe()
+        {
+            Assert.AreEqual("walker", LaunchArgs.Parse(new[] { "x.exe", "-smokeprobe", "walker" }).SmokeProbe);
+            Assert.IsNull(LaunchArgs.Parse(new[] { "x.exe" }).SmokeProbe);
+        }
+
+        [Test]
         public void Parse_MissingValue_Ignored()
         {
             var a = LaunchArgs.Parse(new[] { "x.exe", "-autojoin", "-profile" });

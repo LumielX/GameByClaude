@@ -11,6 +11,8 @@ namespace BooTrayal.Game.Networking
         public string FakeVersion { get; private set; }
         public string CodeFile { get; private set; }
         public string PlayerName { get; private set; }
+        /// <summary>Smoke-test bot role (see Game/Dev/SmokeProbe).</summary>
+        public string SmokeProbe { get; private set; }
 
         public static LaunchArgs Parse(string[] args)
         {
@@ -27,6 +29,7 @@ namespace BooTrayal.Game.Networking
                     case "-fakeversion": a.FakeVersion = Value(args, ref i); break;
                     case "-codefile": a.CodeFile = Value(args, ref i); break;
                     case "-name": a.PlayerName = Value(args, ref i); break;
+                    case "-smokeprobe": a.SmokeProbe = Value(args, ref i); break;
                 }
             }
             return a;

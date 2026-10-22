@@ -1,9 +1,12 @@
 using BooTrayal.Game;
+using BooTrayal.Game.Dev;
+using BooTrayal.Game.Flow;
 using BooTrayal.Game.Networking;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static BooTrayal.Editor.Builders.BuilderUtil;
 
 namespace BooTrayal.Editor.Builders
 {
@@ -11,47 +14,57 @@ namespace BooTrayal.Editor.Builders
     public static class SceneBuilder
     {
         public const string BootstrapPath = "Assets/_Project/Scenes/Bootstrap.unity";
+        public const string MenuPath = "Assets/_Project/Scenes/Menu.unity";
+
+        /// <summary>Run: -executeMethod BooTrayal.Editor.Builders.SceneBuilder.BuildAll (needs NetworkPrefabBuilder.Build first).</summary>
+        public static void BuildAll()
+        {
+            BuildBootstrap();
+            BuildMenu();
+            SandboxBuilder.Build();
+            EditorBuildSettings.scenes = new[]
+            {
+                new EditorBuildSettingsScene(BootstrapPath, true),
+                new EditorBuildSettingsScene(MenuPath, true),
+                new EditorBuildSettingsScene(SandboxBuilder.ScenePath, true)
+            };
+            AssetDatabase.SaveAssets();
+            Debug.Log("[SceneBuilder] All scenes ready");
+        }
 
         public static void BuildBootstrap()
         {
-            var scene = OpenOrCreate(BootstrapPath);
+            var scene = OpenOrCreateScene(BootstrapPath);
+            Camera(scene, "Main Camera");
 
-            var cam = FindOrCreate(scene, "Main Camera");
-            cam.tag = "MainCamera";
-            var camera = GetOrAdd<Camera>(cam);
-            camera.clearFlags = CameraClearFlags.SolidColor;
-            camera.backgroundColor = new Color(0.035f, 0.02f, 0.07f);
-            GetOrAdd<AudioListener>(cam);
-
-            var boot = FindOrCreate(scene, "Bootstrap");
-            GetOrAdd<Bootstrap>(boot);
+            var boot = Root(scene, "Bootstrap");
+            Ensure<Bootstrap>(boot);
 
             EnsurePrefabInstance(scene, "NetworkManager", NetworkPrefabBuilder.NetworkManagerPath);
-            var services = FindOrCreate(scene, "Services");
-            GetOrAdd<ConnectionService>(services);
-            GetOrAdd<DebugNetMenu>(services);
+            var services = Root(scene, "Services");
+            Ensure<ConnectionService>(services);
+            Ensure<DebugNetMenu>(services);
+            Ensure<SessionFlow>(services);
+            Ensure<SmokeProbe>(services);
 
             EditorSceneManager.SaveScene(scene, BootstrapPath);
-            EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(BootstrapPath, true) };
-            AssetDatabase.SaveAssets();
-            Debug.Log("[SceneBuilder] Bootstrap scene ready");
         }
 
-        static Scene OpenOrCreate(string path)
+        public static void BuildMenu()
         {
-            if (AssetDatabase.LoadAssetAtPath<SceneAsset>(path) != null)
-                return EditorSceneManager.OpenScene(path, OpenSceneMode.Single);
-            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-            return EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            var scene = OpenOrCreateScene(MenuPath);
+            Camera(scene, "MenuCamera");
+            EditorSceneManager.SaveScene(scene, MenuPath);
         }
 
-        static GameObject FindOrCreate(Scene scene, string name)
+        static void Camera(Scene scene, string name)
         {
-            foreach (var root in scene.GetRootGameObjects())
-                if (root.name == name) return root;
-            var go = new GameObject(name);
-            SceneManager.MoveGameObjectToScene(go, scene);
-            return go;
+            var cam = Root(scene, name);
+            cam.tag = "MainCamera";
+            var camera = Ensure<Camera>(cam);
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = new Color(0.035f, 0.02f, 0.07f);
+            Ensure<AudioListener>(cam);
         }
 
         static void EnsurePrefabInstance(Scene scene, string name, string prefabPath)
@@ -62,11 +75,6 @@ namespace BooTrayal.Editor.Builders
             if (prefab == null) throw new System.InvalidOperationException($"Missing prefab {prefabPath}; run NetworkPrefabBuilder.Build first");
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
             instance.name = name;
-        }
-
-        static T GetOrAdd<T>(GameObject go) where T : Component
-        {
-            return go.TryGetComponent<T>(out var c) ? c : go.AddComponent<T>();
         }
     }
 }
