@@ -4,7 +4,7 @@
 
 ## สถานะปัจจุบัน
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
-- **เฟส 3 กำลังทำ** — M0–M6 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
+- **เฟส 3 กำลังทำ** — M0–M7 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
 - ⚠️ ห้ามแก้ไฟล์ข้อความภาษาไทยด้วย PowerShell 5.1 `Get-Content`/`Set-Content` (อ่าน UTF-8 ผิดแล้วไฟล์เสีย) — ใช้ Edit tool หรือ bash
 - **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
 - **M1 เสร็จ (2026-10-22):** กฎเกมทั้งหมดใน `Assets/_Project/Scripts/Core/` (RoomRules, RoleAssigner, VoteResolver, SabotageTracker, NightJudge, ScoreRules/Wallet, FearModel, Stamina, AdrenalineModel, SafeCode/FuseBox/RitualOffering puzzles, MeetingRules, ExorciseEffects, JoinPolicy) — EditMode tests 128/128 ผ่าน (`TestResults/EditMode.xml`), build + smoke ผ่าน
@@ -61,7 +61,26 @@
   - deferred minors: ชื่อขึ้นต้นด้วย @ ถูกตีความเป็น key; Refresh บางหน้าจองหน่วยความจำทุกเฟรม; บันทึกค่าตั้งค่าทุกครั้งที่ลากสไลเดอร์; subscription ไม่ถอด; AllReady นับเฉพาะ player ที่ spawn แล้ว; เตะไม่มีถามยืนยันและกลับเข้าได้ทันที; แชทส่งได้นอกล็อบบี้ (เครื่องดัดแปลง)
   - **ต้องทดสอบด้วยมือ (2 เครื่องจริง):** กด Enter ส่งแชท, dropdown ภาษาไทยแสดงถูก, เข้า/ออกห้องหลายรอบ
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m6-ledger.md`
-- **ถัดไป: M7 เสียงคุย Vivox + โมเดล Blender + เสียงประกอบ**
+- **M7 เสร็จ (2026-10-23):** เสียงคุย Vivox + โมเดล Blender + เสียงประกอบ — แผน `docs/plans/2026-10-23-m7-voice-art-audio.md`
+  - เสียงคุย (`Core/Voice/VoiceRules.cs`, `Game/Voice/VoiceService.cs`): คนเป็นคุยตามระยะ (ได้ยินถึง 32 m), ช่วงประชุมทั้งห้องได้ยินกัน, ผีจิ๋วคุยกันเองในช่องผี (คนเป็นไม่ได้ยิน); ตะโกนดัง → ผีกระสือได้ยิน; ตั้งค่า เปิดไมค์ตลอด/กดคุย (V) + ระดับเสียง; HUD แสดง "X กำลังพูด"
+  - ใช้เฉพาะห้องออนไลน์ (Relay); ซ้อมคนเดียว/`-novoice` ไม่มีเสียงคุย; ถ้า Vivox ล้ม เกมเล่นต่อได้ — ปิดเสียงคุย บอกเหตุผลในหน้าตั้งค่า แล้วลองใหม่ใน 10 วิ
+  - โมเดล (`tools/blender/build_models.py` → `tools/blender/build-models.ps1`): ผู้เล่นมีกระดูก + ท่า Idle/Walk/Run/Carry/Fall, ผีกระสือ, โกศ, กระถางธูป, หม้อดิน, ระฆัง, ศาลพระภูมิ (ทุกตัวต่ำกว่างบ polygon); ภาพตัวอย่าง `docs/art_previews/models/`
+  - shader `BooTrayal/Toon` (แสง 3 ระดับ + ขอบ + rim, รองรับ Forward+, เงา, SSAO), `ModelImportBuilder` นำเข้าโมเดล/สร้าง Animator อัตโนมัติ, ผู้เล่นสีตาม id
+  - เสียงประกอบ (สังเคราะห์ด้วยโค้ดทั้งหมด): เสียงกลางคืน (จิ้งหรีด + ลม), เสียงกระซิบตอนผีใกล้, ระฆังตอนเริ่มประชุม, เสียงคลิก/ชี้ปุ่ม UI
+  - หลักฐาน: EditMode 334/334; smoke ทุกตัวผ่าน (player, ghost, lobby, ui -Shots, night Coop/Spy — Spy ตรวจว่าระฆังดังทุกเครื่อง, net Local, net Relay `-Voice` — 2 เครื่อง login + เข้าช่อง pos/meet + ส่งเสียง + ปิดเสียงคุยเมื่อ host หลุด); builder รันซ้ำไม่มี diff
+  - ผ่าน final review (opus) แก้ 7 จุดหลัก: Vivox ล้มแล้วค้างสถานะเก่า (ผีจิ๋วยังได้ยินในช่องคนเป็น), กดคุยใช้ไม่ได้ระหว่างประชุม, ตายแล้วยังส่งเสียงช่องคนเป็นช่วงเข้าช่องผี, ออกห้องกลาง login ทำให้สถานะเพี้ยน, leave ล้มแล้วไม่ logout, ช่องหลุดเองไม่ต่อใหม่, shader ไม่มี DepthNormals/ไม่เข้า SRP Batcher
+  - deferred minors: เส้นขอบแตกตรงมุมแข็งของโมเดล flat-shaded; ท่าถือของขาไม่ขยับ; กฎช่องเสียงบังคับฝั่ง client (เครื่องดัดแปลงแอบฟังช่องผีได้ — รับได้สำหรับเล่นกับเพื่อน); clip id ของ Player.fbx พึ่ง Unity สร้างซ้ำเหมือนเดิม; การซ่อน renderer ศาลพระภูมิอิงชื่อ
+  - **ต้องทดสอบด้วยมือ (2 เครื่องจริง + ไมค์):**
+    1. เครื่อง A สร้างห้องออนไลน์ เครื่อง B เข้าด้วยรหัส → หน้าตั้งค่าขึ้นว่าเสียงคุยเปิด
+    2. ยืนใกล้กัน → ได้ยินกันชัด; เดินห่างออกไป → เสียงเบาลงจนเงียบ (~32 m); ขึ้น "X กำลังพูด" เฉพาะตอนอยู่ใกล้
+    3. ตั้ง "กดคุย" → ไม่กด V ไม่มีเสียงออก; กด V ค้างระหว่างประชุมก็คุยได้; พิมพ์แชทที่มีตัว v ต้องไม่เปิดไมค์
+    4. ตีระฆัง → ทั้งห้องได้ยินกันทุกระยะ; จบประชุม → กลับเป็นตามระยะ
+    5. ให้เครื่อง B ตาย (เป็นผีจิ๋ว) → A ต้องไม่ได้ยิน B อีก (ยกเว้นตอนประชุม)
+    6. ตะโกนใส่ไมค์ใกล้ผีกระสือ → ผีหันมาสืบเสียง; พูดเบาๆ ผีไม่สนใจ
+    7. เลื่อนระดับเสียงคุย → เสียงเพื่อนดัง/เบาตาม; ค่าเริ่มต้นไม่แตก
+    8. ออกห้อง แล้วสร้างห้องใหม่ → เสียงคุยกลับมาและชื่อคนพูดถูกคน
+  - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m7-ledger.md`
+- **ถัดไป: M8 ปล่อย pre-release แรก** (build zip, `release.ps1`, repo เป็น Public, README, PLAYTEST_CHECKLIST) — ต้องให้ผู้ใช้รัน `gh auth login` และทดสอบกับเพื่อน
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-23
