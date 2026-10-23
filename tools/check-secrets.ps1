@@ -18,7 +18,9 @@ $Patterns = [ordered]@{
     'service account' = 'private_key_id.{0,4}:[[:space:]]*.[0-9a-f]{40}'
     'client secret'   = 'client_secret.{0,3}[:=][[:space:]]*.?[A-Za-z0-9_-]{16,}'
 }
-$BadNames = '(\.pem|\.p12|\.pfx|\.keystore)$|serviceaccount[^/]*\.json$|credentials[^/]*\.json$|(^|/)\.env$'
+$VivoxSettings = 'ProjectSettings/Packages/com.unity.services.vivox/Settings.json'
+$BinaryOk = '\.(png|jpe?g|gif|tga|psd|exr|hdr|fbx|blend|ttf|otf|wav|ogg|mp3|asset)$'
+$BadNames ='(\.pem|\.p12|\.pfx|\.keystore)$|serviceaccount[^/]*\.json$|credentials[^/]*\.json$|(^|/)\.env$'
 
 function Find-Secrets([string]$repo) {
     $hits = New-Object System.Collections.Generic.List[string]
@@ -34,9 +36,35 @@ function Find-Secrets([string]$repo) {
             }
         }
     }
-    $paths = @(git -C $repo log --all --format= --name-only 2>$null) | Where-Object { $_ } | Sort-Object -Unique
+    # Vivox test-mode credentials: Unity writes the key name and its value on different lines, so parse the JSON.
+    foreach ($c in @(git -C $repo log --all --format=%h -- $VivoxSettings 2>$null)) {
+        if (-not (git -C $repo ls-tree --name-only $c -- $VivoxSettings)) { continue } # deleted in this commit
+        $json = (git -C $repo show "${c}:$VivoxSettings") -join "`n" | ConvertFrom-Json
+        foreach ($entry in @($json.m_Dictionary.m_DictionaryValues)) {
+            if ($entry.key -ne 'tokenKey') { continue }
+            if (($entry.value | ConvertFrom-Json).m_Value) { $hits.Add("SECRET $c ${VivoxSettings}: Vivox token key") }
+        }
+    }
+    # Binary blobs are invisible to grep (a UTF-16 file from PowerShell `>` looks binary): only known media may be binary.
+    $commit = $null
+    foreach ($line in @(git -C $repo -c core.quotePath=false log --all --numstat --format=%h 2>$null)) {
+        if ($line -match '^[0-9a-f]{7,}$') { $commit = $line; continue }
+        if ($line -match '^-\t-\t(.+)$' -and $Matches[1] -notmatch $BinaryOk) { $hits.Add("SECRET $commit $($Matches[1]): binary file git cannot scan") }
+    }
+    $paths = @(git -C $repo -c core.quotePath=false log --all --format= --name-only 2>$null) | Where-Object { $_ } | Sort-Object -Unique
     foreach ($p in $paths) { if ($p -match $BadNames) { $hits.Add("SECRET history ${p}: secret-looking file name") } }
     return @($hits | Sort-Object -Unique)
+}
+
+function VivoxSettings([string]$key) {
+    $entry = '            {{
+                "type": "System.String",
+                "key": "{0}",
+                "value": "{{\"m_Value\":\"{1}\"}}"
+            }}'
+    return "{`n    `"m_Dictionary`": {`n        `"m_DictionaryValues`": [`n" +
+        (($entry -f 'tokenKey', $key), ($entry -f 'tokenIssuer', 'x-1') -join ",`n").Replace('\n', "`n") +
+        "`n        ]`n    }`n}"
 }
 
 function Invoke-SelfTest {
@@ -61,11 +89,40 @@ function Invoke-SelfTest {
         git -C $dirty rm -q config.txt
         git -C $dirty commit -q -m 'remove it'
 
+        # Vivox test-mode credentials, in the exact multi-line format Unity writes (key and value on separate lines).
+        $vivoxDir = Join-Path $dirty 'ProjectSettings\Packages\com.unity.services.vivox'
+        New-Item -ItemType Directory -Force $vivoxDir | Out-Null
+        Set-Content -Path (Join-Path $vivoxDir 'Settings.json') -Value (VivoxSettings ('Zx' * 12)) -Encoding ASCII
+        git -C $dirty add -A
+        git -C $dirty commit -q -m 'vivox test mode'
+        $vivox = (git -C $dirty rev-parse --short HEAD).Trim()
+
+        # A token saved by PowerShell 5.1 `>` is UTF-16: git sees a binary file and cannot grep it.
+        Set-Content -Path (Join-Path $dirty 'tok.txt') -Value ('ghp_' + ('a' * 36)) -Encoding Unicode
+        git -C $dirty add -A
+        git -C $dirty commit -q -m 'token'
+        $utf16 = (git -C $dirty rev-parse --short HEAD).Trim()
+
+        # The clean repo holds what this project really has: an empty Vivox key and binary images.
+        $cleanVivox = Join-Path $clean 'ProjectSettings\Packages\com.unity.services.vivox'
+        New-Item -ItemType Directory -Force $cleanVivox | Out-Null
+        Set-Content -Path (Join-Path $cleanVivox 'Settings.json') -Value (VivoxSettings '') -Encoding ASCII
+        [IO.File]::WriteAllBytes((Join-Path $clean 'shot.png'), [byte[]](0x89, 0x50, 0x4E, 0x47, 0, 0, 0, 0, 1, 2))
+        git -C $clean add -A
+        git -C $clean commit -q -m 'settings and image'
+
         $dirtyHits = @(Find-Secrets $dirty)
         $cleanHits = @(Find-Secrets $clean)
-        if (-not ($dirtyHits | Where-Object { $_ -match "^SECRET $leak config\.txt: AWS key$" })) {
-            Write-Host "SELFTEST FAILED: the deleted key in commit $leak was not found (got: $($dirtyHits -join '; '))" -ForegroundColor Red
-            return $false
+        $expected = @(
+            "^SECRET $leak config\.txt: AWS key$",
+            "^SECRET $vivox ProjectSettings/Packages/com\.unity\.services\.vivox/Settings\.json: Vivox token key$",
+            "^SECRET $utf16 tok\.txt: binary file git cannot scan$"
+        )
+        foreach ($pattern in $expected) {
+            if (-not ($dirtyHits | Where-Object { $_ -match $pattern })) {
+                Write-Host "SELFTEST FAILED: no hit matching $pattern (got: $($dirtyHits -join '; '))" -ForegroundColor Red
+                return $false
+            }
         }
         if ($cleanHits.Count -gt 0) {
             Write-Host "SELFTEST FAILED: the clean repo reported $($cleanHits -join '; ')" -ForegroundColor Red
