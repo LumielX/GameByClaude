@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="hud" class="hud-layer" picking-mode="Ignore">
+    <ui:VisualElement class="col" picking-mode="Ignore" style="position: absolute; left: 36px; top: 30px;">
+      <ui:Label name="night" text="" class="muted" />
+      <ui:Label name="timer" text="10:00" class="hud-big heavy" />
+    </ui:VisualElement>
+    <ui:VisualElement class="hud-box col" picking-mode="Ignore" style="position: absolute; right: 36px; top: 30px; width: 400px;">
+      <ui:Label text="@hud.tasks" class="faint" />
+      <ui:Label name="seals" text="" />
+      <ui:Label name="ritual" text="" class="wrap" />
+      <ui:Label name="escape" text="" />
+    </ui:VisualElement>
+    <ui:VisualElement picking-mode="Ignore" style="position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin-left: -4px; margin-top: -4px; border-radius: 4px; background-color: rgb(242, 238, 248);" />
+    <ui:VisualElement name="hint" class="row" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; top: 56%; justify-content: center;">
+      <ui:VisualElement class="hud-box row" picking-mode="Ignore" style="padding: 8px 16px;">
+        <ui:Label text="E" class="key" />
+        <ui:Label name="hint-text" text="" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="banner-row" class="row" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; top: 24%; justify-content: center;">
+      <ui:Label name="banner" text="" class="toast" />
+    </ui:VisualElement>
+    <ui:VisualElement name="toast-row" class="row" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; top: 14%; justify-content: center;">
+      <ui:Label name="toast" text="" class="toast" />
+    </ui:VisualElement>
+    <ui:VisualElement class="col" picking-mode="Ignore" style="position: absolute; left: 36px; bottom: 36px; width: 340px;">
+      <ui:VisualElement class="row" picking-mode="Ignore" style="justify-content: space-between; margin-bottom: 6px;">
+        <ui:Label text="@hud.stamina" class="muted" />
+        <ui:Label name="adrenaline" text="" class="accent" />
+      </ui:VisualElement>
+      <ui:VisualElement name="stamina-bar" class="bar" picking-mode="Ignore">
+        <ui:VisualElement name="stamina-fill" class="bar-fill" picking-mode="Ignore" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="held" class="hud-box col" picking-mode="Ignore" style="position: absolute; right: 36px; bottom: 36px;">
+      <ui:Label name="held-name" text="" class="semibold" />
+      <ui:Label text="@hud.hold_hint" class="faint" />
+    </ui:VisualElement>
+    <ui:VisualElement class="row" picking-mode="Ignore" style="position: absolute; left: 0; right: 0; bottom: 36px; justify-content: center;">
+      <ui:Label name="role" text="" class="hud-pill wrap" style="max-width: 760px;" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

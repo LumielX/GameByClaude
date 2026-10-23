@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="pause" class="overlay">
+    <ui:VisualElement class="card col stack" style="width: 460px;">
+      <ui:Label text="@pause.title" class="h2 heavy" />
+      <ui:Label text="@pause.note" class="muted" />
+      <ui:Button name="resume" text="@pause.resume" class="btn btn-primary heavy" />
+      <ui:Button name="settings" text="@pause.settings" class="btn semibold" />
+      <ui:Button name="howto" text="@pause.howto" class="btn semibold" />
+      <ui:Button name="leave" text="@pause.leave" class="btn btn-danger semibold" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

@@ -408,10 +408,10 @@ MonoBehaviour:
   HowToUxml: {fileID: 9197481963319205126, guid: 23a3bff0a5159d3468278746cdd4115d, type: 3}
   ErrorUxml: {fileID: 9197481963319205126, guid: 2bb60ebdff2a9c249b92b564b3a9a480, type: 3}
   LobbyUxml: {fileID: 9197481963319205126, guid: a3fc665abffe2394e910d154accd3e51, type: 3}
-  HudUxml: {fileID: 0}
-  VoteUxml: {fileID: 0}
-  SummaryUxml: {fileID: 0}
-  PauseUxml: {fileID: 0}
+  HudUxml: {fileID: 9197481963319205126, guid: 478296abf73f493468ba275137491ff5, type: 3}
+  VoteUxml: {fileID: 9197481963319205126, guid: 97223226b700aff418aa56a47c9f0f5c, type: 3}
+  SummaryUxml: {fileID: 9197481963319205126, guid: 3dc843e8fdb62a24a8d3812d8b06436b, type: 3}
+  PauseUxml: {fileID: 9197481963319205126, guid: 3fdbd071bffdcae4383939c186891f8d, type: 3}
 --- !u!114 &1775321587
 MonoBehaviour:
   m_ObjectHideFlags: 0

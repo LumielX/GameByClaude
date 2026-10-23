@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="vote" class="screen col" style="background-color: rgb(18, 12, 28); padding: 44px 72px;">
+    <ui:VisualElement class="row" style="align-items: flex-end; margin-bottom: 14px;">
+      <ui:VisualElement class="col grow">
+        <ui:Label name="caller" text="" class="muted" />
+        <ui:Label text="@meeting.who" class="h1 heavy" />
+      </ui:VisualElement>
+      <ui:Label name="timer" text="" class="hud-big heavy warn" />
+    </ui:VisualElement>
+    <ui:VisualElement name="timebar" class="bar bar-warn" style="height: 8px; margin-bottom: 22px;">
+      <ui:VisualElement name="timebar-fill" class="bar-fill" />
+    </ui:VisualElement>
+    <ui:VisualElement name="people" class="row" style="flex-wrap: wrap; align-items: flex-start;" />
+    <ui:Label name="cannot" text="@meeting.cannot_vote" class="warn" style="margin-top: 10px;" />
+    <ui:VisualElement class="grow" />
+    <ui:VisualElement class="row" style="align-items: flex-end;">
+      <ui:Label text="@meeting.rules" class="muted grow" style="font-size: 17px; margin-right: 20px;" />
+      <ui:Button name="skip" text="@meeting.skip" class="btn semibold" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

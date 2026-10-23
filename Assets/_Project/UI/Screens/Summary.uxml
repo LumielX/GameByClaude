@@ -1,0 +1,26 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="summary" class="screen row" style="align-items: stretch; padding: 44px 72px;">
+    <ui:VisualElement class="col" style="width: 520px; margin-right: 40px;">
+      <ui:Label name="night" text="" class="tag tag-muted" />
+      <ui:Label name="winner" text="" class="h1 heavy accent wrap" style="margin: 8px 0 6px 0;" />
+      <ui:Label name="reason" text="" class="muted" style="margin-bottom: 20px;" />
+      <ui:VisualElement name="spy-card" class="card row" style="border-color: rgb(123, 63, 228); padding: 24px;">
+        <ui:VisualElement name="spy-avatar" class="avatar" style="margin: 0 20px 0 0;" />
+        <ui:VisualElement class="col grow">
+          <ui:Label name="spy-label" text="@summary.spy_is" class="muted" />
+          <ui:Label name="spy-name" text="" class="h2 heavy wrap" />
+          <ui:Label name="sabotage" text="" class="muted" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement class="col grow">
+      <ui:VisualElement class="row" style="padding: 0 18px 8px 18px;">
+        <ui:Label text="@summary.player" class="faint grow" style="flex-basis: 0;" />
+        <ui:Label name="col-tonight" text="@summary.tonight" class="faint grow right" style="flex-basis: 0;" />
+        <ui:Label text="@summary.total" class="faint grow right" style="flex-basis: 0;" />
+      </ui:VisualElement>
+      <ui:ScrollView name="rows" class="grow" />
+      <ui:Label name="next" text="" class="muted" style="-unity-text-align: middle-right; margin-top: 10px;" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

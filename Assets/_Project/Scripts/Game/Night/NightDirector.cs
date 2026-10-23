@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BooTrayal.Core;
 using BooTrayal.Core.Ghosts;
 using BooTrayal.Core.Night;
@@ -48,6 +47,7 @@ namespace BooTrayal.Game.Night
         public readonly NetworkVariable<bool> GateOpen = Server(false);
         public readonly NetworkVariable<MeetingPhase> MeetPhase = Server(MeetingPhase.None);
         public readonly NetworkVariable<float> MeetTimeLeft = Server(0f);
+        public readonly NetworkVariable<ulong> MeetCaller = Server(0ul);
 
         static NetworkVariable<T> Server<T>(T value) =>
             new NetworkVariable<T>(value, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -56,8 +56,10 @@ namespace BooTrayal.Game.Night
         public bool HasRole { get; private set; }
         public Role MyRole { get; private set; }
         public IReadOnlyList<ulong> MyPartners { get; private set; } = new ulong[0];
-        public string LastSummary { get; private set; } = "";
-        public string LastMeetingResult { get; private set; } = "";
+        /// <summary>The last night summary / game-over ranking / meeting result, as data so each client shows it in its own language.</summary>
+        public NightSummaryData LastSummary { get; private set; }
+        public RankingData LastRanking { get; private set; }
+        public MeetingResultData LastMeetingResult { get; private set; }
         public float MeetingResultUntil { get; private set; }
         /// <summary>Who showed the cold breath most recently, and how many traces this peer has seen (smoke bots use these).</summary>
         public ulong? LastSpyTraceId { get; private set; }
@@ -338,19 +340,16 @@ namespace BooTrayal.Game.Night
             _game.ApplyAwards(awards);
             int nightNo = NightNumber.Value;
             Debug.Log($"NIGHT_END night={nightNo} winner={v.Winner} reason={v.Reason} sabotage={_night.Sabotage.Successes}/{_night.Sabotage.Required}");
-            var summary = new StringBuilder();
-            summary.AppendLine($"คืนที่ {nightNo} จบแล้ว — {WinnerText(v.Winner)} ({v.Reason})");
-            summary.AppendLine(_night.Roles.Spies.Count == 0
-                ? "คืนนี้ไม่มีร่างทรง (co-op)"
-                : $"ร่างทรง (Spy): {string.Join(", ", _night.Roles.Spies.Select(PlayerAvatar.NameOf))} — ป่วนสำเร็จ {_night.Sabotage.Successes}/{_night.Sabotage.Required}");
-            foreach (var id in NetworkManager.ConnectedClientsIds.OrderBy(i => i))
+            var ids = NetworkManager.ConnectedClientsIds.OrderBy(i => i).ToArray();
+            var coinsList = new int[ids.Length];
+            var totals = new int[ids.Length];
+            for (int i = 0; i < ids.Length; i++)
             {
-                int coins = awards.TryGetValue(id, out var c) ? c : 0;
-                int total = _game.WalletOf(id).TotalScore;
-                Debug.Log($"AWARD id={id} coins={coins} total={total}");
-                summary.AppendLine($"{PlayerAvatar.NameOf(id)}: +{coins} (รวม {total})");
+                coinsList[i] = awards.TryGetValue(ids[i], out var c) ? c : 0;
+                totals[i] = _game.WalletOf(ids[i]).TotalScore;
+                Debug.Log($"AWARD id={ids[i]} coins={coinsList[i]} total={totals[i]}");
             }
-            SummaryRpc(nightNo, summary.ToString());
+            SummaryRpc(nightNo, v.Winner, v.Reason ?? "", _night.Roles.Spies.ToArray(), _night.Sabotage.Successes, _night.Sabotage.Required, ids, coinsList, totals);
 
             if (GhostSpawner != null) GhostSpawner.DespawnGhost();
             foreach (var client in NetworkManager.ConnectedClientsList)
@@ -366,9 +365,7 @@ namespace BooTrayal.Game.Night
             {
                 var ranking = _game.Ranking();
                 Debug.Log($"GAME_OVER ranking={string.Join(",", ranking.Select(r => $"{r.Id}:{r.Score}"))}");
-                var text = new StringBuilder("จบเกม! อันดับรวม\n");
-                for (int i = 0; i < ranking.Count; i++) text.AppendLine($"{i + 1}. {PlayerAvatar.NameOf(ranking[i].Id)} — {ranking[i].Score}");
-                GameOverRpc(text.ToString());
+                GameOverRpc(ranking.Select(r => r.Id).ToArray(), ranking.Select(r => r.Score).ToArray());
                 _phaseTimer = GameOverSeconds;
                 SetPhase(SessionPhase.GameOver);
             }
@@ -379,8 +376,6 @@ namespace BooTrayal.Game.Night
             }
         }
 
-        static string WinnerText(NightWinner w) =>
-            w == NightWinner.Crew ? "ทีมชนะ (Crew win)" : w == NightWinner.Spies ? "ร่างทรงชนะ (Spy win)" : "ไม่มีใครชนะ (No winner)";
 
         void ToLobby()
         {
@@ -491,6 +486,7 @@ namespace BooTrayal.Game.Night
                 var spot = MeetingSpotFor(i++);
                 player.GetComponent<PlayerMotor>().TeleportRpc(spot.position, spot.rotation, false);
             }
+            MeetCaller.Value = caller;
             Debug.Log($"MEETING_START caller={caller}");
             Publish();
         }
@@ -505,19 +501,14 @@ namespace BooTrayal.Game.Night
         void ApplyOutcome(MeetingOutcome o)
         {
             Debug.Log($"MEETING_RESULT ejected={(o.Ejected ? o.Target.ToString() : "-")} spy={o.WasSpy}");
-            string text;
-            if (!o.Ejected) text = "ไม่มีใครถูกไล่ (No one ejected)";
-            else
+            if (o.Ejected)
             {
                 var player = NetworkManager.SpawnManager.GetPlayerNetworkObject(o.Target);
                 // Only if the vote itself made them a mini ghost (not someone who died or left meanwhile).
                 if (_night.StateOf(o.Target) == LifeState.MiniGhost && !_orbs.ContainsKey(o.Target) && player != null)
                     MakeMiniGhost(o.Target, player.transform.position, "vote");
-                text = o.WasSpy
-                    ? $"{PlayerAvatar.NameOf(o.Target)} คือร่างทรง! ไล่ถูก ผีอ่อนแรงลง +60 วิ (Correct!)"
-                    : $"{PlayerAvatar.NameOf(o.Target)} ไม่ใช่ร่างทรง! ผีโกรธ 30 วิ (Wrong!)";
             }
-            MeetingResultRpc(text);
+            MeetingResultRpc(o.Ejected, o.Target, o.WasSpy);
         }
 
         void OnPower(ulong spy, SpyPower power)
@@ -596,23 +587,23 @@ namespace BooTrayal.Game.Night
         }
 
         [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
-        void SummaryRpc(int night, string text)
+        void SummaryRpc(int night, NightWinner winner, string reason, ulong[] spies, int sabotage, int required, ulong[] ids, int[] coins, int[] totals)
         {
-            LastSummary = text;
+            LastSummary = new NightSummaryData(night, winner, reason, spies, sabotage, required, ids, coins, totals);
             if (Application.isBatchMode) Debug.Log($"SUMMARY_RECEIVED night={night}");
         }
 
         [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
-        void GameOverRpc(string text)
+        void GameOverRpc(ulong[] ids, int[] scores)
         {
-            LastSummary = text;
+            LastRanking = new RankingData(ids, scores);
             if (Application.isBatchMode) Debug.Log("GAME_OVER_RECEIVED");
         }
 
         [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
-        void MeetingResultRpc(string text)
+        void MeetingResultRpc(bool ejected, ulong target, bool wasSpy)
         {
-            LastMeetingResult = text;
+            LastMeetingResult = new MeetingResultData(ejected, target, wasSpy);
             MeetingResultUntil = Time.time + 6f;
         }
 
@@ -626,6 +617,59 @@ namespace BooTrayal.Game.Night
             if (col != null) col.enabled = !open;
             var r = gate.GetComponent<Renderer>();
             if (r != null) r.enabled = !open;
+        }
+    }
+
+    /// <summary>What a client needs to draw the night summary (GDD 4: winner, Spy reveal, coins).</summary>
+    public sealed class NightSummaryData
+    {
+        public int Night { get; }
+        public NightWinner Winner { get; }
+        public string Reason { get; }
+        public ulong[] Spies { get; }
+        public int Sabotage { get; }
+        public int Required { get; }
+        public ulong[] Ids { get; }
+        public int[] Coins { get; }
+        public int[] Totals { get; }
+
+        public NightSummaryData(int night, NightWinner winner, string reason, ulong[] spies, int sabotage, int required, ulong[] ids, int[] coins, int[] totals)
+        {
+            Night = night;
+            Winner = winner;
+            Reason = reason ?? "";
+            Spies = spies ?? new ulong[0];
+            Sabotage = sabotage;
+            Required = required;
+            Ids = ids ?? new ulong[0];
+            Coins = coins ?? new int[0];
+            Totals = totals ?? new int[0];
+        }
+    }
+
+    public sealed class RankingData
+    {
+        public ulong[] Ids { get; }
+        public int[] Scores { get; }
+
+        public RankingData(ulong[] ids, int[] scores)
+        {
+            Ids = ids ?? new ulong[0];
+            Scores = scores ?? new int[0];
+        }
+    }
+
+    public sealed class MeetingResultData
+    {
+        public bool Ejected { get; }
+        public ulong Target { get; }
+        public bool WasSpy { get; }
+
+        public MeetingResultData(bool ejected, ulong target, bool wasSpy)
+        {
+            Ejected = ejected;
+            Target = target;
+            WasSpy = wasSpy;
         }
     }
 }
