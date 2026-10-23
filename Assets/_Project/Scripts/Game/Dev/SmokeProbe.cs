@@ -25,7 +25,8 @@ namespace BooTrayal.Game.Dev
             if (string.IsNullOrEmpty(role)) yield break;
             Debug.Log($"SMOKE_PROBE role={role}");
 
-            while (SceneManager.GetActiveScene().name != SessionFlow.CurrentPlayScene || LocalPlayer == null)
+            // Clients do not know the host's -playscene; any scene past the menu is the play scene.
+            while (SceneManager.GetActiveScene().name == SessionFlow.MenuScene || SceneManager.GetActiveScene().name == "Bootstrap" || LocalPlayer == null)
                 yield return null;
             yield return new WaitForSeconds(1.5f);
 
