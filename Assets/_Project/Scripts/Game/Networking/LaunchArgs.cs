@@ -33,6 +33,10 @@ namespace BooTrayal.Game.Networking
         public float MeetingScale { get; private set; } = 1f;
         /// <summary>Seeds roles, seals and codes for reproducible tests.</summary>
         public int? Seed { get; private set; }
+        /// <summary>Walk every UI screen in both languages and log UI_SCREEN markers (tools/unity/ui-smoke.ps1).</summary>
+        public bool UiSmoke { get; private set; }
+        /// <summary>With -uismoke in a windowed run: save a PNG of every screen into this folder.</summary>
+        public string UiShots { get; private set; }
 
         public float NightSecondsFor(int nightIndex) =>
             NightSeconds == null || NightSeconds.Length == 0 ? 0f : NightSeconds[System.Math.Min(nightIndex, NightSeconds.Length - 1)];
@@ -61,6 +65,8 @@ namespace BooTrayal.Game.Networking
                     case "-nospy": a.NoSpy = true; break;
                     case "-spies": a.Spies = PositiveInt(Value(args, ref i)); break;
                     case "-noghost": a.NoGhost = true; break;
+                    case "-uismoke": a.UiSmoke = true; break;
+                    case "-uishots": a.UiShots = Value(args, ref i); break;
                     case "-meetingscale":
                         var scale = FloatList(Value(args, ref i));
                         if (scale != null && scale.Length == 1) a.MeetingScale = scale[0];

@@ -99,6 +99,12 @@ namespace BooTrayal.UI
             if (Instance == this) Instance = null;
         }
 
+        void Start()
+        {
+            var svc = ConnectionService.Instance;
+            if (svc != null && svc.Args.UiSmoke) StartCoroutine(UISmokeRunner.Run(this));
+        }
+
         void OnEnable()
         {
             var doc = GetComponent<UIDocument>();

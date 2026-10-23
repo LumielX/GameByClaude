@@ -96,6 +96,17 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void UiSmoke_Flags()
+        {
+            var a = LaunchArgs.Parse(new[] { "x.exe", "-uismoke", "-uishots", "C:/shots" });
+            Assert.IsTrue(a.UiSmoke);
+            Assert.AreEqual("C:/shots", a.UiShots);
+            var d = LaunchArgs.Parse(new[] { "x.exe" });
+            Assert.IsFalse(d.UiSmoke);
+            Assert.IsNull(d.UiShots);
+        }
+
+        [Test]
         public void Bad_NightSeconds_Ignored()
         {
             Assert.IsNull(LaunchArgs.Parse(new[] { "x.exe", "-nightseconds", "abc" }).NightSeconds);
