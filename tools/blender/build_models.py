@@ -7,7 +7,7 @@ Writes <models_dir>/<Name>.fbx, <models_dir>/tris.txt and <previews_dir>/<Name>.
 Exits with code 1 when a model is over its triangle budget.
 
 Conventions (matched by Editor/Builders/ModelImportBuilder.cs):
-- Metres, Z up, the front faces -Y (Blender front view) -> +Z in Unity (importer bakes the axis conversion).
+- Metres, Z up, the front faces +Y -> +Z in Unity (the importer bakes the axis conversion; checked by ModelBudgetTests).
 - Characters: origin at the feet. Props: origin at the centre of their collider box.
 - Material slot names are the toon material names in Unity: Body, Skin, Hair, EyeWhite, Pupil, Shoe, KrasueSkin,
   KrasueHair, KrasueEye, Glow, Urn, Gold, Clay, Incense, Stick, Ember, Bell, Shrine, Roof, Pillar.
@@ -176,19 +176,19 @@ def build_player():
         cylinder("Torso", "Body", 0.27, 0.22, 0.5, (0, 0, 0.82), segments=10, group="Spine"),
         cylinder("Belly", "Body", 0.22, 0.27, 0.12, (0, 0, 0.6), segments=10, group="Hips"),
         sphere("HeadBall", "Skin", 0.32, (0, 0, 1.38), segments=12, rings=8, scale=(1, 0.95, 0.92), group="Head"),
-        sphere("HairCap", "Hair", 0.33, (0, 0.03, 1.47), segments=12, rings=6, scale=(1.02, 0.98, 0.7), group="Head"),
-        sphere("EyeWhiteL", "EyeWhite", 0.07, (0.11, -0.28, 1.4), segments=8, rings=5, scale=(1, 0.5, 1.2), group="Head"),
-        sphere("EyeWhiteR", "EyeWhite", 0.07, (-0.11, -0.28, 1.4), segments=8, rings=5, scale=(1, 0.5, 1.2), group="Head"),
-        sphere("PupilL", "Pupil", 0.035, (0.11, -0.31, 1.39), segments=6, rings=4, scale=(1, 0.5, 1.3), group="Head"),
-        sphere("PupilR", "Pupil", 0.035, (-0.11, -0.31, 1.39), segments=6, rings=4, scale=(1, 0.5, 1.3), group="Head"),
+        sphere("HairCap", "Hair", 0.33, (0, -0.03, 1.47), segments=12, rings=6, scale=(1.02, 0.98, 0.7), group="Head"),
+        sphere("EyeWhiteL", "EyeWhite", 0.07, (0.11, 0.28, 1.4), segments=8, rings=5, scale=(1, 0.5, 1.2), group="Head"),
+        sphere("EyeWhiteR", "EyeWhite", 0.07, (-0.11, 0.28, 1.4), segments=8, rings=5, scale=(1, 0.5, 1.2), group="Head"),
+        sphere("PupilL", "Pupil", 0.035, (0.11, 0.31, 1.39), segments=6, rings=4, scale=(1, 0.5, 1.3), group="Head"),
+        sphere("PupilR", "Pupil", 0.035, (-0.11, 0.31, 1.39), segments=6, rings=4, scale=(1, 0.5, 1.3), group="Head"),
         cylinder("ArmMeshL", "Body", 0.07, 0.06, 0.36, (0.345, 0, 0.83), rot=(0, 24, 0), group="ArmL"),
         cylinder("ArmMeshR", "Body", 0.07, 0.06, 0.36, (-0.345, 0, 0.83), rot=(0, -24, 0), group="ArmR"),
         sphere("HandL", "Skin", 0.075, (0.43, 0, 0.64), segments=8, rings=5, group="ArmL"),
         sphere("HandR", "Skin", 0.075, (-0.43, 0, 0.64), segments=8, rings=5, group="ArmR"),
         cylinder("LegMeshL", "Body", 0.09, 0.08, 0.45, (0.12, 0, 0.32), group="LegL"),
         cylinder("LegMeshR", "Body", 0.09, 0.08, 0.45, (-0.12, 0, 0.32), group="LegR"),
-        box("ShoeL", "Shoe", (0.16, 0.24, 0.1), (0.12, -0.03, 0.05), group="LegL"),
-        box("ShoeR", "Shoe", (0.16, 0.24, 0.1), (-0.12, -0.03, 0.05), group="LegR"),
+        box("ShoeL", "Shoe", (0.16, 0.24, 0.1), (0.12, 0.03, 0.05), group="LegL"),
+        box("ShoeR", "Shoe", (0.16, 0.24, 0.1), (-0.12, 0.03, 0.05), group="LegR"),
     ]
     body = join(parts, "PlayerMesh")
 
@@ -253,18 +253,18 @@ def make_actions(rig):
         def pose(f):
             s = math.sin(f / period * math.tau)
             p = rest(LegL=(leg * s, 0, 0), LegR=(-leg * s, 0, 0), ArmL=(-arm * s, 0, 6), ArmR=(arm * s, 0, -6),
-                     Spine=(lean, 0, 3 * s), Head=(-lean * 0.5, 0, -3 * s))
+                     Spine=(-lean, 0, 3 * s), Head=(lean * 0.5, 0, -3 * s))
             p[("loc", "Hips")] = (0, 0, 0.025 * abs(math.sin(f / period * math.tau)))
             return p
         return pose
 
     def carry(f):
         s = math.sin(f / 24 * math.tau)
-        return rest(ArmL=(-80, 0, 4), ArmR=(-80, 0, -4), Spine=(-4 + s, 0, 0), LegL=(6 * s, 0, 0), LegR=(-6 * s, 0, 0))
+        return rest(ArmL=(80, 0, 4), ArmR=(80, 0, -4), Spine=(4 + s, 0, 0), LegL=(6 * s, 0, 0), LegR=(-6 * s, 0, 0))
 
     def fall(f):
         t = min(1.0, f / 14)
-        return rest(Root=(-80 * t * t, 0, 0), ArmL=(-40 * t, 0, 40 * t), ArmR=(-40 * t, 0, -40 * t), LegL=(20 * t, 0, 0))
+        return rest(Root=(80 * t * t, 0, 0), ArmL=(40 * t, 0, 40 * t), ArmR=(40 * t, 0, -40 * t), LegL=(-20 * t, 0, 0))
 
     action(rig, "Idle", range(0, 49, 6), idle)
     action(rig, "Walk", range(0, 21, 2), gait(20, 28, 22, 4))
@@ -280,11 +280,11 @@ def build_krasue():
     h = 1.4
     parts = [
         sphere("Face", "KrasueSkin", 0.23, (0, 0, h), segments=12, rings=8, scale=(0.95, 0.9, 1.05)),
-        sphere("HairTop", "KrasueHair", 0.27, (0, 0.05, h + 0.06), segments=12, rings=7, scale=(1.05, 1.0, 0.95)),
-        cylinder("HairTail", "KrasueHair", 0.15, 0.05, 0.34, (0, 0.2, h - 0.2), segments=8, rot=(-18, 0, 0)),
-        sphere("EyeL", "KrasueEye", 0.045, (0.08, -0.205, h + 0.03), segments=6, rings=4, scale=(1.3, 0.5, 0.8)),
-        sphere("EyeR", "KrasueEye", 0.045, (-0.08, -0.205, h + 0.03), segments=6, rings=4, scale=(1.3, 0.5, 0.8)),
-        box("Mouth", "KrasueHair", (0.1, 0.03, 0.025), (0, -0.215, h - 0.1)),
+        sphere("HairTop", "KrasueHair", 0.27, (0, -0.05, h + 0.06), segments=12, rings=7, scale=(1.05, 1.0, 0.95)),
+        cylinder("HairTail", "KrasueHair", 0.15, 0.05, 0.34, (0, -0.2, h - 0.2), segments=8, rot=(18, 0, 0)),
+        sphere("EyeL", "KrasueEye", 0.045, (0.08, 0.205, h + 0.03), segments=6, rings=4, scale=(1.3, 0.5, 0.8)),
+        sphere("EyeR", "KrasueEye", 0.045, (-0.08, 0.205, h + 0.03), segments=6, rings=4, scale=(1.3, 0.5, 0.8)),
+        box("Mouth", "KrasueHair", (0.1, 0.03, 0.025), (0, 0.215, h - 0.1)),
     ]
     # Entrails: three tapering, gently curving strands hanging under the neck.
     for i, (x, length, sway) in enumerate([(0.0, 0.75, 6), (0.06, 0.6, -10), (-0.06, 0.5, 14)]):
@@ -293,7 +293,7 @@ def build_krasue():
         for seg in range(4):
             seg_len = length / 4
             parts.append(cylinder(f"Gut{i}_{seg}", "Glow", r, r * 0.8, seg_len,
-                                  (x + math.sin(seg) * 0.03 * (i - 1), 0.01 * seg, z - seg_len * 0.5),
+                                  (x + math.sin(seg) * 0.03 * (i - 1), -0.01 * seg, z - seg_len * 0.5),
                                   segments=6, rot=(sway * (seg % 2 * 2 - 1) * 0.4, sway, 0)))
             z -= seg_len * 0.95
             r *= 0.82
@@ -336,7 +336,7 @@ def build_spirit_house():
         cylinder("Pedestal", "Pillar", 0.15, 0.13, 1.2, (0, 0, 0.6), segments=8),
         box("Base", "Shrine", (0.9, 0.8, 0.08), (0, 0, 1.18)),
         box("Hall", "Shrine", (0.64, 0.54, 0.5), (0, 0, 1.45)),
-        box("Door", "Roof", (0.22, 0.02, 0.32), (0, -0.28, 1.4)),
+        box("Door", "Roof", (0.22, 0.02, 0.32), (0, 0.28, 1.4)),
     ]
     # Two-tier Thai roof with chofa horns at the gable tips.
     for tier, (w, z, d) in enumerate([(0.86, 1.82, 0.78), (0.62, 2.02, 0.56)]):
@@ -380,7 +380,7 @@ def preview(objects, path):
     cam_data = bpy.data.cameras.new("PreviewCam")
     cam = bpy.data.objects.new("PreviewCam", cam_data)
     scene.collection.objects.link(cam)
-    direction = Vector((0.55, -1.0, 0.35)).normalized()
+    direction = Vector((0.55, 1.0, 0.35)).normalized()
     cam.location = center + direction * size * 1.7
     cam.rotation_euler = (center - cam.location).to_track_quat("-Z", "Y").to_euler()
     cam_data.lens = 50

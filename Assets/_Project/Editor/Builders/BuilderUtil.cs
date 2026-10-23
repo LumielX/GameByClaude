@@ -90,6 +90,29 @@ namespace BooTrayal.Editor.Builders
             return go.TryGetComponent<T>(out var c) ? c : go.AddComponent<T>();
         }
 
+        /// <summary>
+        /// Puts the Blender model <paramref name="modelName"/> under <paramref name="parent"/> as "Model" (once), undoing the
+        /// parent's scale so the model keeps its real size, and hides the parent's own primitive renderer (colliders stay).
+        /// </summary>
+        public static GameObject ModelChild(GameObject parent, string modelName, Vector3 localPos = default, bool hideParentRenderer = true)
+        {
+            var existing = parent.transform.Find("Model");
+            GameObject go;
+            if (existing != null) go = existing.gameObject;
+            else
+            {
+                go = (GameObject)PrefabUtility.InstantiatePrefab(ModelImportBuilder.Model(modelName), parent.scene);
+                go.name = "Model";
+                go.transform.SetParent(parent.transform, false);
+            }
+            var s = parent.transform.lossyScale;
+            go.transform.localPosition = localPos;
+            go.transform.localRotation = Quaternion.identity;
+            go.transform.localScale = new Vector3(1f / s.x, 1f / s.y, 1f / s.z);
+            if (hideParentRenderer && parent.TryGetComponent<Renderer>(out var r)) r.enabled = false;
+            return go;
+        }
+
         public static Material Lit(string name, Color color, float smoothness = 0.15f)
         {
             System.IO.Directory.CreateDirectory(MaterialsFolder);
@@ -121,7 +144,7 @@ namespace BooTrayal.Editor.Builders
 
         /// <summary>In-scene networked grabbable at scene root (NGO in-scene placed object).</summary>
         public static void Item(Scene scene, string id, PrimitiveType type, Vector3 pos, Vector3 scale,
-            Material mat, float mass, bool heavy)
+            Material mat, float mass, bool heavy, string model = null)
         {
             var name = "Item_" + id;
             GameObject go = null;
@@ -151,6 +174,7 @@ namespace BooTrayal.Editor.Builders
             var item = Ensure<GrabbableItem>(go);
             item.Heavy = heavy;
             item.ItemId = id;
+            if (model != null) ModelChild(go, model);
         }
     }
 }

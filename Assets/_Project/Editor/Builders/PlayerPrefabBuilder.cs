@@ -51,20 +51,27 @@ namespace BooTrayal.Editor.Builders
             Ensure<PlayerLobby>(root);
             Ensure<BooTrayal.Game.Fear.FearDirector>(root);
 
-            var body = Lit("PlayerBody", new Color(0.95f, 0.70f, 0.24f));
-            var skin = Lit("PlayerSkin", new Color(1f, 0.85f, 0.72f));
-            var eyeWhite = Lit("EyeWhite", new Color(0.96f, 0.95f, 1f), 0.5f);
             var eyeBlack = Lit("EyeBlack", new Color(0.07f, 0.04f, 0.09f), 0.6f);
 
             var visual = Child(root, "Visual", Vector3.zero);
-            Primitive(visual, "Body", PrimitiveType.Capsule, new Vector3(0f, 0.75f, 0f), new Vector3(0.7f, 0.75f, 0.7f), body, false);
-            Primitive(visual, "Head", PrimitiveType.Sphere, new Vector3(0f, 1.5f, 0f), new Vector3(0.62f, 0.58f, 0.6f), skin, false);
-            foreach (var side in new[] { -1f, 1f })
+            // M7: the Blender model replaces the graybox capsule (colliders are on the root, not here).
+            foreach (var old in new[] { "Body", "Head", "EyeL", "EyeR", "PupilL", "PupilR" })
             {
-                var tag = side < 0 ? "L" : "R";
-                Primitive(visual, "Eye" + tag, PrimitiveType.Sphere, new Vector3(0.12f * side, 1.55f, 0.25f), new Vector3(0.17f, 0.2f, 0.1f), eyeWhite, false);
-                Primitive(visual, "Pupil" + tag, PrimitiveType.Sphere, new Vector3(0.12f * side, 1.54f, 0.3f), new Vector3(0.08f, 0.1f, 0.05f), eyeBlack, false);
+                var t = visual.transform.Find(old);
+                if (t != null) Object.DestroyImmediate(t.gameObject);
             }
+            var model = visual.transform.Find("Model");
+            if (model == null)
+            {
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(ModelImportBuilder.Model("Player"));
+                instance.name = "Model";
+                instance.transform.SetParent(visual.transform, false);
+                model = instance.transform;
+            }
+            var animator = Ensure<Animator>(model.gameObject);
+            animator.runtimeAnimatorController = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(ModelImportBuilder.ControllerPath);
+            animator.applyRootMotion = false;
+            animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
 
             root.layer = PlayerLayers.Player;
             var ghostLook = Lit("MiniGhost", new Color(0.86f, 0.92f, 1f), 0.6f);

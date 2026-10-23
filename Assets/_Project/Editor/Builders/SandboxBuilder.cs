@@ -43,7 +43,7 @@ namespace BooTrayal.Editor.Builders
             var boxes = new[] { new Vector3(-2f, 0.3f, -2f), new Vector3(2f, 0.3f, 2f), new Vector3(2f, 0.3f, -2f), new Vector3(-2f, 0.3f, 2f) };
             for (int i = 0; i < boxes.Length; i++)
                 Item(scene, $"box{i + 1}", PrimitiveType.Cube, boxes[i], Vector3.one * 0.45f, boxMat, 2f, heavy: false);
-            Item(scene, "urn", PrimitiveType.Cylinder, new Vector3(0f, 0.6f, 5f), new Vector3(0.9f, 0.6f, 0.9f), urnMat, 60f, heavy: true);
+            Item(scene, "urn", PrimitiveType.Cylinder, new Vector3(0f, 0.6f, 5f), new Vector3(0.9f, 0.6f, 0.9f), urnMat, 60f, heavy: true, model: "Urn");
 
             var lights = Root(scene, "Lights");
             var moon = Ensure<Light>(Child(lights, "Moon", new Vector3(0f, 10f, 0f)));

@@ -193,6 +193,7 @@ namespace BooTrayal.Editor.Builders
             var bell = Ensure<ShrineBell>(root);
             var approach = Child(root, "Approach", new Vector3(1.5f, 0f, 0f)).transform;
             var body = Primitive(root, "Bell", PrimitiveType.Cylinder, new Vector3(0.65f, 1.2f, 0f), new Vector3(0.22f, 0.12f, 0.22f), gold, true);
+            ModelChild(body, "Bell");
             Part(body, bell, 0, "Bell", approach);
             return approach.position;
         }

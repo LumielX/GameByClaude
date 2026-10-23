@@ -106,6 +106,9 @@ namespace BooTrayal.Editor.Builders
             Primitive(spirit, "Pedestal", PrimitiveType.Cylinder, new Vector3(0f, 0.6f, 0f), new Vector3(0.3f, 0.6f, 0.3f), pillar, true);
             Primitive(spirit, "Shrine", PrimitiveType.Cube, new Vector3(0f, 1.45f, 0f), new Vector3(0.8f, 0.6f, 0.7f), shrine, true);
             Primitive(spirit, "ShrineRoof", PrimitiveType.Cube, new Vector3(0f, 1.9f, 0f), new Vector3(0.7f, 0.7f, 0.9f), roof, false, new Vector3(0f, 0f, 45f));
+            // The Blender model is what players see; the primitives stay as colliders only.
+            foreach (var r in spirit.GetComponentsInChildren<MeshRenderer>()) if (r.transform.parent == spirit.transform) r.enabled = false;
+            ModelChild(spirit, "SpiritHouse", Vector3.zero, hideParentRenderer: false);
             int t = 0;
             foreach (var pos in new[] { new Vector3(-18f, 0f, -12f), new Vector3(18f, 0f, -14f), new Vector3(-17f, 0f, 12f), new Vector3(19f, 0f, 10f) })
             {
@@ -138,11 +141,11 @@ namespace BooTrayal.Editor.Builders
             };
             for (int i = 0; i < points.Length; i++) Ensure<GhostWaypoint>(Child(ghosts, $"Waypoint{i}", points[i])).Index = i;
 
-            Item(scene, "pot1", PrimitiveType.Cylinder, new Vector3(4f, 0.3f, -12f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false);
-            Item(scene, "pot2", PrimitiveType.Cylinder, new Vector3(6f, FloorY + 0.3f, 2f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false);
-            Item(scene, "pot3", PrimitiveType.Cylinder, new Vector3(-6f, FloorY + 0.3f, 3f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false);
-            Item(scene, "incense", PrimitiveType.Cylinder, new Vector3(-6f, FloorY + 0.3f, -3f), new Vector3(0.25f, 0.25f, 0.25f), Lit("ItemIncense", new Color(0.55f, 0.75f, 0.35f)), 1f, heavy: false);
-            Item(scene, "urn", PrimitiveType.Cylinder, new Vector3(0f, FloorY + 0.6f, 2f), new Vector3(0.9f, 0.6f, 0.9f), urnMat, 60f, heavy: true);
+            Item(scene, "pot1", PrimitiveType.Cylinder, new Vector3(4f, 0.3f, -12f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false, model: "ClayPot");
+            Item(scene, "pot2", PrimitiveType.Cylinder, new Vector3(6f, FloorY + 0.3f, 2f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false, model: "ClayPot");
+            Item(scene, "pot3", PrimitiveType.Cylinder, new Vector3(-6f, FloorY + 0.3f, 3f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false, model: "ClayPot");
+            Item(scene, "incense", PrimitiveType.Cylinder, new Vector3(-6f, FloorY + 0.3f, -3f), new Vector3(0.25f, 0.25f, 0.25f), Lit("ItemIncense", new Color(0.55f, 0.75f, 0.35f)), 1f, heavy: false, model: "IncensePot");
+            Item(scene, "urn", PrimitiveType.Cylinder, new Vector3(0f, FloorY + 0.6f, 2f), new Vector3(0.9f, 0.6f, 0.9f), urnMat, 60f, heavy: true, model: "Urn");
 
             var lights = Root(scene, "Lights");
             var moon = Ensure<Light>(Child(lights, "Moon", new Vector3(0f, 20f, 0f)));

@@ -51,21 +51,20 @@ namespace BooTrayal.Editor.Builders
             voice.minDistance = 2f;
             voice.maxDistance = 30f;
 
-            var skin = Lit("KrasueSkin", new Color(0.93f, 0.86f, 0.80f));
-            var hair = Lit("KrasueHair", new Color(0.04f, 0.03f, 0.05f));
-            var eye = Lit("KrasueEye", new Color(0.9f, 0.1f, 0.15f), 0.6f);
-            var glow = Glowing(Lit("KrasueGlow", Neon, 0.4f));
 
             var visual = Child(root, "Visual", Vector3.zero);
             float h = GhostController.HeadHeight;
-            Primitive(visual, "Head", PrimitiveType.Sphere, new Vector3(0f, h, 0f), new Vector3(0.42f, 0.46f, 0.42f), skin, false);
-            Primitive(visual, "Hair", PrimitiveType.Sphere, new Vector3(0f, h + 0.08f, -0.06f), new Vector3(0.5f, 0.5f, 0.5f), hair, false);
-            Primitive(visual, "HairTail", PrimitiveType.Capsule, new Vector3(0f, h - 0.15f, -0.22f), new Vector3(0.32f, 0.3f, 0.12f), hair, false);
-            Primitive(visual, "EyeL", PrimitiveType.Sphere, new Vector3(-0.08f, h + 0.03f, 0.19f), new Vector3(0.08f, 0.06f, 0.05f), eye, false);
-            Primitive(visual, "EyeR", PrimitiveType.Sphere, new Vector3(0.08f, h + 0.03f, 0.19f), new Vector3(0.08f, 0.06f, 0.05f), eye, false);
-            Primitive(visual, "Entrail0", PrimitiveType.Capsule, new Vector3(0f, h - 0.42f, 0f), new Vector3(0.14f, 0.22f, 0.14f), glow, false);
-            Primitive(visual, "Entrail1", PrimitiveType.Capsule, new Vector3(0.07f, h - 0.62f, 0.03f), new Vector3(0.1f, 0.18f, 0.1f), glow, false, new Vector3(0f, 0f, 12f));
-            Primitive(visual, "Entrail2", PrimitiveType.Capsule, new Vector3(-0.06f, h - 0.78f, -0.02f), new Vector3(0.08f, 0.15f, 0.08f), glow, false, new Vector3(0f, 0f, -15f));
+            foreach (var old in new[] { "Head", "Hair", "HairTail", "EyeL", "EyeR", "Entrail0", "Entrail1", "Entrail2" })
+            {
+                var t = visual.transform.Find(old);
+                if (t != null) Object.DestroyImmediate(t.gameObject);
+            }
+            if (visual.transform.Find("Model") == null)
+            {
+                var model = (GameObject)PrefabUtility.InstantiatePrefab(ModelImportBuilder.Model("Krasue"));
+                model.name = "Model";
+                model.transform.SetParent(visual.transform, false);
+            }
             var light = Ensure<Light>(Child(visual, "Glow", new Vector3(0f, h - 0.5f, 0f)));
             light.type = LightType.Point;
             light.color = Neon;

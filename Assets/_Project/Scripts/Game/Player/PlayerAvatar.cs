@@ -17,7 +17,6 @@ namespace BooTrayal.Game.Player
         };
 
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
-        const float KnockdownTilt = 80f;
 
         /// <summary>The name typed in the menu, set by the owner (shown in meetings and summaries).</summary>
         public readonly NetworkVariable<FixedString128Bytes> DisplayName =
@@ -33,14 +32,23 @@ namespace BooTrayal.Game.Player
             return $"Player {clientId}";
         }
 
+        static readonly int SpeedId = Animator.StringToHash("Speed");
+        static readonly int CarryId = Animator.StringToHash("Carry");
+        static readonly int FallId = Animator.StringToHash("Fall");
+
         Transform _visual;
         PlayerMotor _motor;
-        float _tilt;
+        PlayerHands _hands;
+        Animator _animator;
+        Vector3 _lastPos;
+        float _speed;
 
         void Awake()
         {
             _visual = transform.Find("Visual");
             _motor = GetComponent<PlayerMotor>();
+            _hands = GetComponent<PlayerHands>();
+            _animator = _visual != null ? _visual.GetComponentInChildren<Animator>() : null;
         }
 
         public override void OnNetworkSpawn()
@@ -57,16 +65,30 @@ namespace BooTrayal.Game.Player
             foreach (var r in _visual.GetComponentsInChildren<Renderer>())
             {
                 if (r.name == "Body") r.SetPropertyBlock(block);
+                // The Blender model: tint only its "Body" material slot (skin, eyes and shoes keep their colours).
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                    if (mats[i] != null && mats[i].name.EndsWith("_Body")) r.SetPropertyBlock(block, i);
                 if (IsOwner) r.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
             }
         }
 
         void Update()
         {
-            if (_visual == null || _motor == null) return;
-            float target = _motor.IsKnockedDown.Value ? KnockdownTilt : 0f;
-            _tilt = Mathf.MoveTowards(_tilt, target, 400f * Time.deltaTime);
-            _visual.localRotation = Quaternion.Euler(_tilt, 0f, 0f);
+            if (_animator == null || _motor == null || !IsSpawned) return;
+            float dt = Time.deltaTime;
+            if (IsOwner) _speed = _motor.CurrentSpeed;
+            else if (dt > 0f)
+            {
+                // Remote players: the motor's speed is not networked, so measure the synced transform.
+                var d = transform.position - _lastPos;
+                d.y = 0f;
+                _speed = Mathf.Lerp(_speed, d.magnitude / dt, 0.2f);
+            }
+            _lastPos = transform.position;
+            _animator.SetFloat(SpeedId, _speed);
+            _animator.SetBool(CarryId, _hands != null && _hands.HeldItem != null);
+            _animator.SetBool(FallId, _motor.IsKnockedDown.Value);
         }
     }
 }
