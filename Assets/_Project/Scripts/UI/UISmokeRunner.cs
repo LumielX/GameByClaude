@@ -36,6 +36,11 @@ namespace BooTrayal.UI
                 if (name == "settings" || name == "howto") root.CloseSide();
             }
             root.GoMenu("play");
+            _ = svc.JoinRoomAsync("AB1");
+            yield return null;
+            yield return null;
+            Debug.Log($"UI_BADCODE error={root.ErrorKey}");
+            root.CloseError();
             root.ShowError("version_mismatch");
             yield return Visit(root, "error", shots);
             root.CloseError();
@@ -44,6 +49,7 @@ namespace BooTrayal.UI
             svc.StartLocalHost();
             yield return Until(() => UIRoot.InSession && NightDirector.Instance.Phase.Value == SessionPhase.Lobby && Local<PlayerLobby>() != null, 30f);
             yield return Visit(root, "lobby", shots);
+            Cursor("lobby");
 
             var lobby = Local<PlayerLobby>();
             int before = PlayerLobby.ChatLog.Count;
@@ -57,14 +63,17 @@ namespace BooTrayal.UI
             yield return Until(() => NightDirector.Instance.InNight, 15f);
             yield return new WaitForSeconds(1.5f);
             yield return Visit(root, "hud", shots);
+            Cursor("hud");
 
             root.Paused = true;
             yield return Visit(root, "pause", shots);
+            Cursor("pause");
             root.Paused = false;
 
             NightHooks.RingBell?.Invoke(NetworkManager.Singleton.LocalClientId);
             yield return Until(() => NightDirector.Instance.MeetingRunning, 10f);
             yield return Visit(root, "vote", shots);
+            Cursor("vote");
             yield return Until(() => NightDirector.Instance.MeetPhase.Value == MeetingPhase.Vote, 20f);
             Local<PlayerActions>().RequestVote(null);
             yield return Until(() => !NightDirector.Instance.MeetingRunning, 10f);
@@ -73,6 +82,7 @@ namespace BooTrayal.UI
             yield return Until(() => NightDirector.Instance.Phase.Value == SessionPhase.Summary, 90f);
             yield return new WaitForSeconds(0.5f);
             yield return Visit(root, "summary", shots, "summary");
+            Cursor("summary");
             yield return Until(() => NightDirector.Instance.Phase.Value == SessionPhase.GameOver, 90f);
             yield return new WaitForSeconds(0.5f);
             yield return Visit(root, "summary", shots, "ranking");
@@ -101,6 +111,8 @@ namespace BooTrayal.UI
                 }
             }
         }
+
+        static void Cursor(string screen) => Debug.Log($"UI_CURSOR screen={screen} free={PlayerInputReader.CursorFree}");
 
         static IEnumerator Until(Func<bool> condition, float timeout)
         {

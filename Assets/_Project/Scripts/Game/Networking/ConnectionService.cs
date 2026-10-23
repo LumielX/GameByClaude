@@ -39,7 +39,18 @@ namespace BooTrayal.Game.Networking
         public LaunchArgs Args { get; private set; }
         public string PlayerDisplayName { get; private set; }
         public NetStatus Status { get; private set; } = NetStatus.Offline;
-        public string LastMessageKey { get; private set; }
+        public string LastMessageKey
+        {
+            get => _lastMessageKey;
+            private set
+            {
+                _lastMessageKey = value;
+                if (value != null) MessageSerial++;
+            }
+        }
+        string _lastMessageKey;
+        /// <summary>Goes up every time a new message key is reported, even the same one twice (the UI shows each).</summary>
+        public int MessageSerial { get; private set; }
         public string RoomCode { get; private set; }
         public int ConnectedCount { get; private set; }
         /// <summary>Host-side game phase used by the join rules. M5's NightDirector drives it.</summary>

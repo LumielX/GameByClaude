@@ -4,7 +4,7 @@
 
 ## สถานะปัจจุบัน
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
-- **เฟส 3 กำลังทำ** — M0–M5 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
+- **เฟส 3 กำลังทำ** — M0–M6 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
 - ⚠️ ห้ามแก้ไฟล์ข้อความภาษาไทยด้วย PowerShell 5.1 `Get-Content`/`Set-Content` (อ่าน UTF-8 ผิดแล้วไฟล์เสีย) — ใช้ Edit tool หรือ bash
 - **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
 - **M1 เสร็จ (2026-10-22):** กฎเกมทั้งหมดใน `Assets/_Project/Scripts/Core/` (RoomRules, RoleAssigner, VoteResolver, SabotageTracker, NightJudge, ScoreRules/Wallet, FearModel, Stamina, AdrenalineModel, SafeCode/FuseBox/RitualOffering puzzles, MeetingRules, ExorciseEffects, JoinPolicy) — EditMode tests 128/128 ผ่าน (`TestResults/EditMode.xml`), build + smoke ผ่าน
@@ -48,15 +48,20 @@
   - ผ่าน final review (opus) แก้ 3 จุด: คนที่ผีจับอยู่ตอนตีระฆังไม่ตายหลังประชุมแล้ว (ผีปล่อย), ระหว่างประชุมทุกคนยืนนิ่ง ทำภารกิจ/หยิบของ/หนี/ชุบไม่ได้ (กันใช้ระฆังแช่แข็งผี), คนที่หนีหรือตายระหว่างประชุมไม่ถูกนับโหวต/ไม่เกิดดวงวิญญาณซ้ำ
   - deferred minors: โหวตคนที่ตายหลังตีระฆังยังนับได้ (ตอนนี้เกิดไม่ได้เพราะผีหยุด); NameOf ค้นทุกครั้ง; แท่นบูชายังรับของช่วงสรุป; คนที่ออกไปแล้วยังอยู่ในอันดับ; ขาดเทสต์ผู้ตีระฆังหลุด; เครื่องที่ดัดแปลงอ่าน id ร่างทรงจากไอเย็นได้ทุกระยะ
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m5-ledger.md`
-- **ถัดไป: M6 UI เวอร์ชันแรก + 2 ภาษา** — mockup 9 หน้าทำแล้ว (2026-10-23): Artifact canvas https://claude.ai/artifact/DcLKE6kdAw62QMcH9bau33 , ต้นฉบับใน `docs/ui_mockup/project/*.dc.html`
+- **M6 mockup** — mockup 9 หน้าทำแล้ว (2026-10-23): Artifact canvas https://claude.ai/artifact/DcLKE6kdAw62QMcH9bau33 , ต้นฉบับใน `docs/ui_mockup/project/*.dc.html`
   - หน้า: หน้าแรก (Kanit / Mitr เทียบกัน), เล่น (สร้าง/เข้าห้อง/ซ้อมคนเดียว), สร้างห้อง, ล็อบบี้ 8 ช่อง + แชท, HUD, ประชุม/โหวต, สรุปคืน, หยุดเกม + แจ้งข้อผิดพลาด
   - ธีม: พื้นมืด #0E0A16, เขียวนีออน #39FF88, ม่วง #7B3FE4, การ์ด #1B1428
   - ผู้ใช้เลือก **Kanit** + อนุมัติหน้าตาแล้ว (2026-10-23)
-- **M6 กำลังทำ (branch `m6-ui`, ยังไม่ merge)** — แผน `docs/plans/2026-10-23-m6-ui.md`, ledger `.superpowers/sdd/2026-10-23-m6-ui/progress.md` (git-ignored; สำเนาสรุปอยู่ด้านล่าง)
-  - Task 1 เสร็จ: ฟอนต์ Kanit (OFL, `CREDITS.md`), `Core/Localization/Localizer` + ตาราง `Resources/Lang/th.txt` / `en.txt`, `ChatRules`, `LobbyRules` — EditMode 306/306
-  - Task 2 กำลังทำ (WIP commit, compile ผ่านแล้ว แต่ยังไม่ได้ build/ทดสอบ): `UI/Theme.uss`, `UI/Screens/{Title,Play,CreateRoom,Settings,HowTo,Error}.uxml`, `Scripts/UI/UIRoot.cs`, `Scripts/UI/Screens/MenuScreens.cs`, stub `GameScreens.cs`, `Game/Settings/GameSettings.cs`, `ConnectionService.HostConfig/SetPlayerName`, NightDirector ใช้ HostConfig, FearDirector ลดเอฟเฟกต์, PlayerInputReader ไม่จับ Esc แล้ว (UIRoot จับ)
-  - **ทำต่อจากตรงนี้:** เขียน `Editor/Builders/UIBuilder.cs` (PanelSettings + ไฟล์ `.tss` ที่มี `@import url("unity-theme://default");`, ใส่ UIDocument+UIRoot ใน Bootstrap Services, เอา DebugNetMenu/NightHud ออกแล้วลบไฟล์) → builders 2 รอบไม่มี diff → build → net-smoke Local → commit Task 2 → Task 3 (Lobby: PlayerLobby ready/chat, kick) → Task 4 (HUD/Vote/Summary/Pause + NightDirector ส่งข้อมูลแทนข้อความไทย) → Task 5 (ui-smoke, รีวิว, merge, push)
-  - rulings: ใช้ Localizer ของเราเอง (ไฟล์ key=value แก้ง่าย) แทน Unity Localization; "เปิดทุกหน้าไม่มี exception" ตรวจด้วย `-uismoke` ใน build
+- **M6 เสร็จ (2026-10-23):** UI จริงด้วย UI Toolkit + สลับไทย/อังกฤษ (ฟอนต์ Kanit, OFL ใน `CREDITS.md`) — แผน `docs/plans/2026-10-23-m6-ui.md`, ภาพหน้าจอทุกหน้า `docs/ui_screens/`
+  - หน้าจอ: หน้าแรก, เล่น (ชื่อ/สร้างห้อง/เข้าด้วยรหัส/ซ้อมคนเดียว), สร้างห้อง (2–8 คน, ร่างทรง ปิด/1/2, ความยาวคืน, จำนวนคืน, ความยาก — ความยากยังไม่มีผลจนถึง M10), ตั้งค่า (เสียง, ความไวเมาส์, ภาษา, ลดเอฟเฟกต์ภาพ; ไมค์รอ M7), วิธีเล่น, แจ้งปัญหา, ล็อบบี้ 8 ช่อง (พร้อม, host เตะได้, แชท), HUD, ประชุม/โหวต (ไม่โชว์คะแนนระหว่างโหวต), สรุปคืน/อันดับ, หยุดเกม (Esc)
+  - ข้อความทั้งหมดอยู่ใน `Assets/_Project/Resources/Lang/th.txt` และ `en.txt` (แก้คำได้เองหลัง `=`; มีเทสต์ตรวจว่า key ตรงกัน)
+  - เอา IMGUI debug menu ออกแล้ว; เมาส์ปล่อยในทุกเมนู ล็อกเฉพาะตอนเดินใน HUD
+  - หลักฐาน: EditMode 310/310; `tools/unity/ui-smoke.ps1` (12 หน้า × 2 ภาษา, แชท, พร้อม, เมาส์, รหัสผิดมีป๊อปอัป; `-Shots` ถ่ายภาพหน้าจอ), `tools/unity/lobby-smoke.ps1` (2 เครื่อง: คนไม่พร้อมกันเริ่ม, แชทจำกัด 1 ข้อความ/วิ, โดนเตะเห็นป๊อปอัป), night/ghost/player/net Local+Relay ผ่าน
+  - ผ่าน final review (opus) แก้ 5 จุด: เมาส์ล็อกค้างในล็อบบี้ (กดอะไรไม่ได้), รหัสห้องผิดไม่มีป๊อปอัป, แชทห้องเก่าค้าง, เทสต์ล็อบบี้ 2 เครื่อง, แชทกันอักษรซ้อนเกิน/ตัดอีโมจิครึ่งตัว
+  - deferred minors: ชื่อขึ้นต้นด้วย @ ถูกตีความเป็น key; Refresh บางหน้าจองหน่วยความจำทุกเฟรม; บันทึกค่าตั้งค่าทุกครั้งที่ลากสไลเดอร์; subscription ไม่ถอด; AllReady นับเฉพาะ player ที่ spawn แล้ว; เตะไม่มีถามยืนยันและกลับเข้าได้ทันที; แชทส่งได้นอกล็อบบี้ (เครื่องดัดแปลง)
+  - **ต้องทดสอบด้วยมือ (2 เครื่องจริง):** กด Enter ส่งแชท, dropdown ภาษาไทยแสดงถูก, เข้า/ออกห้องหลายรอบ
+  - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m6-ledger.md`
+- **ถัดไป: M7 เสียงคุย Vivox + โมเดล Blender + เสียงประกอบ**
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-23

@@ -75,9 +75,8 @@ namespace BooTrayal.UI
         string _menuBack = "title";
         string _inGameMenu;
         bool _wasInSession;
-        NetStatus _lastStatus = NetStatus.Offline;
-        bool _cursorFree = true;
-        bool _cursorKnown;
+        int _lastSerial;
+        string _pendingError;
 
         public bool Paused { get; set; }
         public string ErrorKey { get; private set; }
@@ -199,7 +198,11 @@ namespace BooTrayal.UI
             else _menu = _menuBack == "settings" || _menuBack == "howto" ? "title" : _menuBack;
         }
 
-        public void ShowError(string key) => ErrorKey = string.IsNullOrEmpty(key) ? null : key;
+        public void ShowError(string key)
+        {
+            ErrorKey = string.IsNullOrEmpty(key) ? null : key;
+            if (ErrorKey != null && Application.isBatchMode) Debug.Log($"UI_ERROR key={ErrorKey}");
+        }
         public void CloseError() => ErrorKey = null;
 
         public static bool InSession
@@ -219,13 +222,20 @@ namespace BooTrayal.UI
             if (_wasInSession && !session) OnSessionEnded();
             _wasInSession = session;
             var svc = ConnectionService.Instance;
-            if (svc != null && svc.Status != _lastStatus)
+            if (svc != null)
             {
-                // A failed create/join, a rejection, a kick or the host leaving: say why, in the player's language.
-                if ((svc.Status == NetStatus.Offline || svc.Status == NetStatus.Failed) && _lastStatus != NetStatus.Offline &&
-                    !string.IsNullOrEmpty(svc.LastMessageKey))
-                    ShowError(svc.LastMessageKey);
-                _lastStatus = svc.Status;
+                // A bad code, a failed create/join, a rejection, a kick or the host leaving: say why, in the player's
+                // language, once the connection has actually stopped.
+                if (svc.MessageSerial != _lastSerial)
+                {
+                    _lastSerial = svc.MessageSerial;
+                    _pendingError = svc.LastMessageKey;
+                }
+                if (_pendingError != null && (svc.Status == NetStatus.Offline || svc.Status == NetStatus.Failed))
+                {
+                    ShowError(_pendingError);
+                    _pendingError = null;
+                }
             }
 
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame) OnEscape(session);
@@ -261,13 +271,9 @@ namespace BooTrayal.UI
             }
             foreach (var s in _screens.Values) if (s.Visible) s.Refresh();
 
+            // Checked against the real state every frame: spawning the local player locks the cursor on its own.
             bool free = !(session && main == "hud" && !vote && !Paused && ErrorKey == null);
-            if (!_cursorKnown || free != _cursorFree)
-            {
-                _cursorKnown = true;
-                _cursorFree = free;
-                if (!Application.isBatchMode) PlayerInputReader.SetCursorFree(free);
-            }
+            if (PlayerInputReader.CursorFree != free) PlayerInputReader.SetCursorFree(free);
         }
 
         static void SetVisible(UIScreen s, bool show)

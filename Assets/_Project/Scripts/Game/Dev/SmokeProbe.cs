@@ -52,6 +52,8 @@ namespace BooTrayal.Game.Dev
                 case "lighter": yield return Lighter(); break;
                 case "coop": yield return Coop(); break;
                 case "spybot": yield return SpyBot(); break;
+                case "lobbyhost": yield return LobbyHost(); break;
+                case "lobbyclient": yield return LobbyClient(); break;
             }
         }
 

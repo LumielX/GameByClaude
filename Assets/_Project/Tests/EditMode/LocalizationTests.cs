@@ -109,6 +109,23 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void Sanitize_CapsCombiningMarksAtTwo()
+        {
+            // Thai keeps a vowel + tone mark on one consonant; a "zalgo" tower is cut to 2 marks.
+            Assert.AreEqual("ที่", ChatRules.Sanitize("ที่"));
+            Assert.AreEqual("á̂b", ChatRules.Sanitize("á̂̃̄̅b"));
+            Assert.IsNull(ChatRules.Sanitize("́̂"), "marks with no base letter are dropped");
+        }
+
+        [Test]
+        public void Sanitize_NeverEndsOnHalfASurrogatePair()
+        {
+            var text = ChatRules.Sanitize(new string('a', ChatRules.MaxLength - 1) + "\U0001F47B");
+            Assert.IsFalse(char.IsHighSurrogate(text[text.Length - 1]));
+            Assert.LessOrEqual(text.Length, ChatRules.MaxLength);
+        }
+
+        [Test]
         public void CanStart_AllReady() => Assert.IsTrue(LobbyRules.CanStart(3, 3));
 
         [Test]

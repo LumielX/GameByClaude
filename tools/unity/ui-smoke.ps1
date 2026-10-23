@@ -30,7 +30,7 @@ try {
         Start-Sleep -Milliseconds 500
     }
     Start-Sleep -Seconds 1
-    $lines = @(Select-String -Path $log -Encoding UTF8 -Pattern 'UI_SCREEN|UI_CHAT|UI_READY|UI_VOTE|UI_SMOKE' | ForEach-Object { $_.Line })
+    $lines = @(Select-String -Path $log -Encoding UTF8 -Pattern 'UI_SCREEN|UI_CHAT|UI_READY|UI_VOTE|UI_SMOKE|UI_CURSOR|UI_BADCODE' | ForEach-Object { $_.Line })
     $lines | ForEach-Object { Write-Host "  $_" }
     if (-not ($lines -match 'UI_SMOKE_OK')) { throw 'UI_SMOKE_OK missing' }
     if ($lines -match 'UI_SMOKE_TIMEOUT') { throw 'a UI step timed out' }
@@ -42,6 +42,12 @@ try {
     # the Thai greeting "sawasdee" as regex escapes (Windows PowerShell reads this script as ANSI).
     if (-not ($lines -match 'UI_CHAT_OK text=\u0E2A\u0E27\u0E31\u0E2A\u0E14\u0E35 hello$')) { throw 'chat was not sanitized and delivered as expected' }
     if (-not ($lines -match 'UI_READY allReady=True')) { throw 'ready did not reach the host' }
+    if (-not ($lines -match 'UI_BADCODE error=code_invalid')) { throw 'an invalid room code showed no error popup' }
+    # The cursor must be free on every menu-like screen and locked only while walking around in the HUD.
+    foreach ($c in 'lobby=True', 'hud=False', 'pause=True', 'vote=True', 'summary=True') {
+        $screen, $free = $c -split '='
+        if (-not ($lines -match "UI_CURSOR screen=$screen free=$free")) { throw "cursor on $screen should be free=$free" }
+    }
     $bad = Select-String -Path $log -Pattern 'Exception|\[Netcode\].*[Ee]rror' | Where-Object { $_.Line -notmatch 'Disconnect Event' }
     if ($bad) { $bad | Select-Object -First 10 | ForEach-Object { Write-Host "  $($_.Line)" }; throw 'exceptions found in the log' }
     $ok = $true

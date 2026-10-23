@@ -82,7 +82,7 @@ namespace BooTrayal.Core.Net
             return cleaned.Length == 0 ? "Player" + fallbackNumber : cleaned;
         }
 
-        static bool IsCombining(UnicodeCategory cat)
+        internal static bool IsCombining(UnicodeCategory cat)
         {
             return cat == UnicodeCategory.NonSpacingMark || cat == UnicodeCategory.SpacingCombiningMark || cat == UnicodeCategory.EnclosingMark;
         }

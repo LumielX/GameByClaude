@@ -31,6 +31,14 @@ namespace BooTrayal.Game.Player
             ChatChanged = null;
         }
 
+        public override void OnNetworkSpawn()
+        {
+            // Our own player spawning means a new room: the previous room's chat must not show up here.
+            if (!IsOwner) return;
+            _log.Clear();
+            ChatChanged?.Invoke();
+        }
+
         static bool InLobby => NightDirector.Instance != null && NightDirector.Instance.Phase.Value == SessionPhase.Lobby;
 
         public void RequestReady(bool ready)
