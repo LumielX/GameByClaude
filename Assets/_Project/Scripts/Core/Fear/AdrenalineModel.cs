@@ -25,6 +25,16 @@ namespace BooTrayal.Core.Fear
         public float SpeedMultiplier { get; private set; } = 1f;
         public float StaminaDrainMultiplier { get; private set; } = 1f;
 
+        /// <summary>Back to normal (night start, revive).</summary>
+        public void Reset()
+        {
+            State = AdrenalineState.Normal;
+            SpeedMultiplier = 1f;
+            StaminaDrainMultiplier = 1f;
+            _farTime = 0f;
+            _windedTime = 0f;
+        }
+
         public void Tick(float dt, float ghostDistance)
         {
             float d = float.IsNaN(ghostDistance) || ghostDistance < 0f ? float.PositiveInfinity : ghostDistance;

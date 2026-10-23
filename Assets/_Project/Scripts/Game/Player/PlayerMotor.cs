@@ -18,6 +18,8 @@ namespace BooTrayal.Game.Player
         public const float StandEyeHeight = 1.55f;
         public const float CrouchEyeHeight = 0.95f;
         const float KnockbackFriction = 10f;
+        /// <summary>Mini ghost float speed up/down (GDD 5.1).</summary>
+        public const float MiniGhostLiftSpeed = 2f;
 
         public readonly NetworkVariable<bool> IsKnockedDown =
             new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
@@ -76,7 +78,6 @@ namespace BooTrayal.Game.Player
         void Update()
         {
             if (!IsSpawned || !IsOwner) return;
-            if (_life != null && _life.Dead.Value) return;
             var input = PlayerInputSource.Get(gameObject);
             float dt = Time.deltaTime;
 
@@ -87,7 +88,9 @@ namespace BooTrayal.Game.Player
 
             var move = input.Move;
             var mi = new MoveInput { X = move.x, Y = move.y, Run = input.Run, Crouch = input.Crouch, Jump = input.JumpPressed };
-            if (_life != null && !_life.CanMove) mi = default; // held by a ghost
+            if (_life != null && !_life.CanMove) mi = default; // held by a ghost, or escaped
+            bool flying = _life != null && _life.IsMiniGhost;
+            if (flying) { mi.Run = false; mi.Crouch = false; mi.Jump = false; }
             bool running = MovementModel.IsRunning(mi, Stamina.CanRun, down);
             float speed = MovementModel.TargetSpeed(mi, Stamina.CanRun, Adrenaline.SpeedMultiplier, Load, down);
             Stamina.Tick(dt, running, Adrenaline.StaminaDrainMultiplier);
@@ -99,7 +102,13 @@ namespace BooTrayal.Game.Player
             _external = Vector3.MoveTowards(_external, Vector3.zero, KnockbackFriction * dt);
 
             ApplyCrouch(mi.Crouch && !down);
-            _vy = MovementModel.NextVerticalVelocity(_vy, _cc.isGrounded, mi.Jump, IsCrouching, Load, down, dt);
+            if (flying)
+            {
+                // Mini ghosts float: Space up, Ctrl down, no gravity.
+                float lift = (input.JumpHeld ? 1f : 0f) - (input.Crouch ? 1f : 0f);
+                _vy = _life.CanMove ? lift * MiniGhostLiftSpeed : 0f;
+            }
+            else _vy = MovementModel.NextVerticalVelocity(_vy, _cc.isGrounded, mi.Jump, IsCrouching, Load, down, dt);
             _cc.Move((horizontal + Vector3.up * _vy) * dt);
 
             CurrentSpeed = new Vector2(horizontal.x, horizontal.z).magnitude;
@@ -134,6 +143,18 @@ namespace BooTrayal.Game.Player
             velocity.y = 0f;
             _external = Vector3.ClampMagnitude(velocity, PushRules.KnockbackSpeed * 2f);
             if (knockdown) _knockdown.Start(PushRules.KnockdownSeconds);
+        }
+
+        /// <summary>Server moves this player (night start, meeting, revive); <paramref name="refill"/> also resets stamina and adrenaline.</summary>
+        [Rpc(SendTo.Owner, InvokePermission = RpcInvokePermission.Server)]
+        public void TeleportRpc(Vector3 position, Quaternion rotation, bool refill)
+        {
+            if (refill)
+            {
+                Stamina.Refill();
+                Adrenaline.Reset();
+            }
+            Teleport(position, rotation);
         }
 
         /// <summary>Owner-side teleport that bypasses interpolation.</summary>

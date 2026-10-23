@@ -64,7 +64,7 @@ namespace BooTrayal.Game.Player
             {
                 var look = PlayerInputSource.Get(gameObject).Look;
                 bool down = _motor != null && _motor.IsKnockedDown.Value;
-                if (!down && (_life == null || _life.CanMove))
+                if (!down && (_life == null || !_life.Grabbed.Value))
                 {
                     _yaw += look.x;
                     _localPitch = Mathf.Clamp(_localPitch - look.y, -MaxPitch, MaxPitch);

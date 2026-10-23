@@ -44,7 +44,7 @@ namespace BooTrayal.Game.Player
                 _serverSpeed = Mathf.Lerp(_serverSpeed, delta.magnitude / Time.deltaTime, 0.2f);
                 _lastServerPos = transform.position;
             }
-            if (!IsOwner || !_life.CanMove || !PlayerInputSource.Get(gameObject).PushPressed) return;
+            if (!IsOwner || !_life.CanAct || !PlayerInputSource.Get(gameObject).PushPressed) return;
             if (Physics.SphereCast(_head.position, 0.3f, _head.forward, out var hit, ClientProbeRange, ~0, QueryTriggerInteraction.Ignore))
             {
                 var target = hit.collider.GetComponentInParent<PlayerMotor>();
@@ -64,7 +64,7 @@ namespace BooTrayal.Game.Player
             if (!targetRef.TryGet(out var no)) return;
             var target = no.GetComponent<PlayerMotor>();
             var targetLife = no.GetComponent<PlayerLife>();
-            if (target == null || !_life.CanMove || (targetLife != null && !targetLife.IsAlive)) return;
+            if (target == null || !_life.CanAct || (targetLife != null && !targetLife.IsAlive)) return;
             var offset = no.transform.position - transform.position;
             offset.y = 0f;
             double now = NetworkManager.ServerTime.Time;

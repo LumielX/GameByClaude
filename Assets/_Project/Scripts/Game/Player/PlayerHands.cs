@@ -18,6 +18,7 @@ namespace BooTrayal.Game.Player
         Transform _hold;
         PlayerMotor _motor;
         PlayerLife _life;
+        PlayerActions _actions;
 
         void Awake()
         {
@@ -25,6 +26,7 @@ namespace BooTrayal.Game.Player
             _hold = transform.Find("HeadPivot/HoldPoint");
             _motor = GetComponent<PlayerMotor>();
             _life = GetComponent<PlayerLife>();
+            _actions = GetComponent<PlayerActions>();
         }
 
         public GrabbableItem HeldItem => Held.Value.TryGet(out var no) ? no.GetComponent<GrabbableItem>() : null;
@@ -38,11 +40,12 @@ namespace BooTrayal.Game.Player
             if (!IsOwner) return;
 
             _motor.Load = item != null ? CarryRules.LoadFor(true, item.Heavy, item.Holders.Count) : CarryLoad.None;
-            if (_life != null && !_life.CanMove) return;
+            if (_life != null && !_life.CanAct) return;
             var input = PlayerInputSource.Get(gameObject);
             if (input.InteractPressed)
             {
                 if (item != null) DropRpc();
+                else if (_actions != null && _actions.TryInteractAimed()) { }
                 else if (FindGrabbable(out var target)) GrabRpc(target.NetworkObject);
             }
             else if (input.ThrowPressed && item != null) ThrowRpc(_head.forward);
@@ -86,7 +89,7 @@ namespace BooTrayal.Game.Player
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         void GrabRpc(NetworkObjectReference itemRef)
         {
-            if ((_life != null && !_life.CanMove) || HeldItem != null || !itemRef.TryGet(out var no)) return;
+            if ((_life != null && !_life.CanAct) || HeldItem != null || !itemRef.TryGet(out var no)) return;
             var item = no.GetComponent<GrabbableItem>();
             if (item == null) return;
             float distance = Vector3.Distance(_hold.position, item.ClosestPoint(_hold.position));

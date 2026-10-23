@@ -10,7 +10,7 @@ namespace BooTrayal.Game.Audio
     public static class ProceduralClips
     {
         const int Rate = 22050;
-        static AudioClip _heartbeat, _wind, _drone, _screech;
+        static AudioClip _heartbeat, _wind, _drone, _screech, _boo;
 
         public static AudioClip Heartbeat() => _heartbeat ??= Make("Heartbeat", 1f, (t, _) =>
         {
@@ -34,6 +34,14 @@ namespace BooTrayal.Game.Audio
             float saw = 2f * (t * f % 1f) - 1f;
             float env = Mathf.Clamp01(t / 0.03f) * Mathf.Exp(-t * 3f);
             return env * (0.6f * saw + 0.25f * (float)(rng.NextDouble() * 2.0 - 1.0));
+        });
+
+        /// <summary>Mini ghost "boo": a wobbly falling hoot.</summary>
+        public static AudioClip Boo() => _boo ??= Make("Boo", 0.7f, (t, _) =>
+        {
+            float f = Mathf.Lerp(420f, 240f, t / 0.7f) * (1f + 0.03f * Mathf.Sin(2f * Mathf.PI * 7f * t));
+            float env = Mathf.Clamp01(t / 0.05f) * Mathf.Clamp01((0.7f - t) / 0.2f);
+            return 0.7f * env * Mathf.Sin(2f * Mathf.PI * f * t);
         });
 
         static float Thump(float t, float start, float freq)

@@ -32,7 +32,8 @@ namespace BooTrayal.Editor.Builders
             }
             var player = PlayerPrefabBuilder.Build();
             var krasue = GhostPrefabBuilder.Build();
-            foreach (var prefab in new[] { stub, player, krasue })
+            var soul = SoulOrbPrefabBuilder.Build();
+            foreach (var prefab in new[] { stub, player, krasue, soul })
             {
                 if (list.Contains(prefab)) continue;
                 list.Add(new NetworkPrefab { Prefab = prefab });

@@ -47,6 +47,7 @@ namespace BooTrayal.Editor.Builders
             Ensure<PlayerPush>(root);
             Ensure<PlayerLife>(root);
             Ensure<PlayerNoise>(root);
+            Ensure<PlayerActions>(root);
             Ensure<BooTrayal.Game.Fear.FearDirector>(root);
 
             var body = Lit("PlayerBody", new Color(0.95f, 0.70f, 0.24f));
@@ -63,6 +64,15 @@ namespace BooTrayal.Editor.Builders
                 Primitive(visual, "Eye" + tag, PrimitiveType.Sphere, new Vector3(0.12f * side, 1.55f, 0.25f), new Vector3(0.17f, 0.2f, 0.1f), eyeWhite, false);
                 Primitive(visual, "Pupil" + tag, PrimitiveType.Sphere, new Vector3(0.12f * side, 1.54f, 0.3f), new Vector3(0.08f, 0.1f, 0.05f), eyeBlack, false);
             }
+
+            root.layer = PlayerLayers.Player;
+            var ghostLook = Lit("MiniGhost", new Color(0.86f, 0.92f, 1f), 0.6f);
+            var mini = Child(root, "MiniGhostVisual", Vector3.zero);
+            Primitive(mini, "Body", PrimitiveType.Sphere, new Vector3(0f, 1.25f, 0f), new Vector3(0.55f, 0.6f, 0.55f), ghostLook, false);
+            Primitive(mini, "Tail", PrimitiveType.Capsule, new Vector3(0f, 0.9f, -0.05f), new Vector3(0.35f, 0.3f, 0.35f), ghostLook, false);
+            Primitive(mini, "EyeL", PrimitiveType.Sphere, new Vector3(-0.1f, 1.32f, 0.24f), new Vector3(0.09f, 0.13f, 0.06f), eyeBlack, false);
+            Primitive(mini, "EyeR", PrimitiveType.Sphere, new Vector3(0.1f, 1.32f, 0.24f), new Vector3(0.09f, 0.13f, 0.06f), eyeBlack, false);
+            mini.SetActive(false);
 
             var head = Child(root, "HeadPivot", new Vector3(0f, PlayerMotor.StandEyeHeight, 0f));
             Child(head, "HoldPoint", new Vector3(0f, -0.25f, 0.8f));

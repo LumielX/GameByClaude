@@ -81,7 +81,7 @@ namespace BooTrayal.Editor.Builders
         }
 
         /// <summary>Turns on URP Lit emission in the material's own colour (no change when already set).</summary>
-        static Material Glowing(Material mat)
+        public static Material Glowing(Material mat)
         {
             var emission = mat.GetColor("_BaseColor") * 2f;
             if (mat.IsKeywordEnabled("_EMISSION") && mat.GetColor("_EmissionColor") == emission) return mat;

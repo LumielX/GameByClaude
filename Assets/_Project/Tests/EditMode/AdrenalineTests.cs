@@ -123,5 +123,19 @@ namespace BooTrayal.Tests
             m.Tick(0.1f, 12f);
             Assert.AreEqual(AdrenalineState.Adrenaline, m.State);
         }
+    
+        [Test]
+        public void Adrenaline_Reset_BackToNormal()
+        {
+            var m = new AdrenalineModel();
+            m.Tick(0.1f, 3f);
+            Assert.AreEqual(AdrenalineState.Adrenaline, m.State);
+            m.Reset();
+            Assert.AreEqual(AdrenalineState.Normal, m.State);
+            Assert.AreEqual(1f, m.SpeedMultiplier);
+            Assert.AreEqual(1f, m.StaminaDrainMultiplier);
+            m.Tick(0.1f, 100f);
+            Assert.AreEqual(AdrenalineState.Normal, m.State, "no leftover winded timer");
+        }
     }
 }

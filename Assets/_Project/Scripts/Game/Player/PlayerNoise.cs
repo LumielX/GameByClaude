@@ -1,4 +1,5 @@
 using BooTrayal.Core.Player;
+using BooTrayal.Game.Audio;
 using BooTrayal.Game.Items;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace BooTrayal.Game.Player
     {
         public const float FootstepInterval = 0.5f;
         public const float ScreamCooldown = 3f;
+        /// <summary>Mini ghost "boo" (GDD 5.1): everyone hears it.</summary>
+        public const float BooCooldown = 8f;
         const float HeadHeight = 1.5f;
 
         PlayerMotor _motor;
@@ -17,6 +20,7 @@ namespace BooTrayal.Game.Player
         float _footTimer;
         float _ownerCooldown;
         double _lastScream = double.NegativeInfinity;
+        double _lastBoo = double.NegativeInfinity;
 
         void Awake()
         {
@@ -31,10 +35,18 @@ namespace BooTrayal.Game.Player
             if (IsOwner)
             {
                 _ownerCooldown -= dt;
-                if (PlayerInputSource.Get(gameObject).ScreamPressed && _life.IsAlive && _ownerCooldown <= 0f)
+                if (PlayerInputSource.Get(gameObject).ScreamPressed && _ownerCooldown <= 0f)
                 {
-                    _ownerCooldown = ScreamCooldown;
-                    ScreamRpc();
+                    if (_life.IsAlive)
+                    {
+                        _ownerCooldown = ScreamCooldown;
+                        ScreamRpc();
+                    }
+                    else if (_life.IsMiniGhost)
+                    {
+                        _ownerCooldown = BooCooldown;
+                        BooRpc();
+                    }
                 }
             }
             if (!IsServer) return;
@@ -60,6 +72,23 @@ namespace BooTrayal.Game.Player
             _lastScream = now;
             Debug.Log($"SCREAM by={OwnerClientId}");
             NoiseBus.Raise(transform.position + Vector3.up * HeadHeight, NoiseRules.FromVoice(1f));
+        }
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+        void BooRpc()
+        {
+            double now = NetworkManager.ServerTime.Time;
+            if (!_life.IsMiniGhost || now - _lastBoo < BooCooldown - 0.2) return;
+            _lastBoo = now;
+            Debug.Log($"BOO by={OwnerClientId}");
+            BooClientRpc();
+        }
+
+        [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
+        void BooClientRpc()
+        {
+            if (Application.isBatchMode) Debug.Log($"BOO_HEARD by={OwnerClientId}");
+            else AudioSource.PlayClipAtPoint(ProceduralClips.Boo(), transform.position + Vector3.up * HeadHeight);
         }
     }
 }

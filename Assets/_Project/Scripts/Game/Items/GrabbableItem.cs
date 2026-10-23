@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using BooTrayal.Core.Player;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 
 namespace BooTrayal.Game.Items
@@ -23,6 +25,13 @@ namespace BooTrayal.Game.Items
         const float SettleSeconds = 1.5f;
 
         public NetworkList<ulong> Holders;
+        /// <summary>Placed on the altar (or otherwise fixed): nobody can pick it up.</summary>
+        public readonly NetworkVariable<bool> Locked =
+            new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+        readonly HashSet<ulong> _carriers = new HashSet<ulong>();
+        Vector3 _homePos;
+        Quaternion _homeRot;
 
         Rigidbody _rb;
         float _dragNoiseTimer;
@@ -46,6 +55,49 @@ namespace BooTrayal.Game.Items
             if (!IsServer) return;
             NetworkManager.OnClientDisconnectCallback += OnClientDisconnect;
             _impactCooldown = SettleSeconds;
+            _homePos = transform.position;
+            _homeRot = transform.rotation;
+        }
+
+        /// <summary>Server: everyone who held it since it was last picked up from rest (ritual delivery credit).</summary>
+        public IReadOnlyCollection<ulong> LastCarriers => _carriers;
+
+        /// <summary>Server: back to where it started the scene (night reset, knocked off the altar).</summary>
+        public void ResetHome()
+        {
+            if (!IsServer) return;
+            DropAll("reset");
+            Locked.Value = false;
+            _carriers.Clear();
+            MoveTo(_homePos, _homeRot);
+            _rb.isKinematic = false;
+            _impactCooldown = SettleSeconds;
+        }
+
+        /// <summary>Server: fix the item at a pose (on the altar) so nobody can take it.</summary>
+        public void Lock(Vector3 position, Quaternion rotation)
+        {
+            if (!IsServer) return;
+            DropAll("locked");
+            Locked.Value = true;
+            _rb.isKinematic = true;
+            MoveTo(position, rotation);
+        }
+
+        void DropAll(string reason)
+        {
+            for (int i = Holders.Count - 1; i >= 0; i--) Release(Holders[i], Vector3.zero, reason);
+        }
+
+        void MoveTo(Vector3 position, Quaternion rotation)
+        {
+            _rb.linearVelocity = Vector3.zero;
+            _rb.angularVelocity = Vector3.zero;
+            var nt = GetComponent<NetworkTransform>();
+            if (nt != null && nt.CanCommitToTransform) nt.Teleport(position, rotation, transform.localScale);
+            else transform.SetPositionAndRotation(position, rotation);
+            _rb.position = position;
+            _rb.rotation = rotation;
         }
 
         public override void OnNetworkDespawn()
@@ -62,9 +114,11 @@ namespace BooTrayal.Game.Items
         /// <summary>Server: tries to add a holder. <paramref name="distance"/> is from the holder's hands.</summary>
         public bool TryGrab(ulong clientId, float distance)
         {
-            if (!IsServer) return false;
+            if (!IsServer || Locked.Value) return false;
             if (!CarryRules.CanGrab(Heavy, Holders.Count, Holders.Contains(clientId), distance)) return false;
+            if (Holders.Count == 0) _carriers.Clear();
             Holders.Add(clientId);
+            _carriers.Add(clientId);
             _rb.isKinematic = true;
             Debug.Log($"ITEM_GRABBED item={ItemId} by={clientId} holders={Holders.Count}");
             if (Heavy && Holders.Count == 2) Debug.Log($"HEAVY_LIFTED item={ItemId}");

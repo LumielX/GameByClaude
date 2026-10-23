@@ -11,12 +11,17 @@ namespace BooTrayal.Game.Player
         bool Run { get; }
         bool Crouch { get; }
         bool JumpPressed { get; }
+        /// <summary>Jump held (mini ghosts fly up).</summary>
+        bool JumpHeld { get; }
         bool InteractPressed { get; }
         bool ThrowPressed { get; }
         bool DropPressed { get; }
         bool PushPressed { get; }
         bool FlashlightPressed { get; }
         bool ScreamPressed { get; }
+        /// <summary>Spy power keys until the M6 power wheel: Q sabotage, X blackout.</summary>
+        bool PowerSabotagePressed { get; }
+        bool PowerBlackoutPressed { get; }
     }
 
     public static class PlayerInputSource
