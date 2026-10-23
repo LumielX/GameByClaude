@@ -47,6 +47,7 @@ namespace BooTrayal.Editor.Builders
             Ensure<ConnectionService>(services);
             Ensure<SessionFlow>(services);
             Ensure<BooTrayal.Game.Voice.VoiceService>(services);
+            Ensure<BooTrayal.Game.Audio.AudioDirector>(services);
             Ensure<SmokeProbe>(services);
             UIBuilder.Wire(services);
 

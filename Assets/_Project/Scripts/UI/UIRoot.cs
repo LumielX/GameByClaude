@@ -70,6 +70,7 @@ namespace BooTrayal.UI
 
         readonly Dictionary<string, UIScreen> _screens = new Dictionary<string, UIScreen>();
         readonly List<(TextElement element, string key)> _keyed = new List<(TextElement, string)>();
+        readonly HashSet<Button> _sounded = new HashSet<Button>();
         VisualElement _root;
         string _menu = "title";
         string _menuBack = "title";
@@ -164,6 +165,12 @@ namespace BooTrayal.UI
                     _keyed.Add((t, key));
                     t.text = L.Get(key);
                 }
+            });
+            view.Query<Button>().ForEach(b =>
+            {
+                if (!_sounded.Add(b)) return;
+                b.RegisterCallback<ClickEvent>(_ => BooTrayal.Game.Audio.AudioDirector.PlayUi(false));
+                b.RegisterCallback<PointerEnterEvent>(_ => { if (b.enabledInHierarchy) BooTrayal.Game.Audio.AudioDirector.PlayUi(true); });
             });
             if (SemiBold != null) view.Query<VisualElement>(className: "semibold").ForEach(e => e.style.unityFontDefinition = FontDefinition.FromFont(SemiBold));
             if (Heavy != null) view.Query<VisualElement>(className: "heavy").ForEach(e => e.style.unityFontDefinition = FontDefinition.FromFont(Heavy));

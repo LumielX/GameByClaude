@@ -31,7 +31,7 @@ namespace BooTrayal.Game.Fear
         GameObject _volumeGo;
         Vignette _vignette;
         ChromaticAberration _chromatic;
-        AudioSource _wind, _heart, _drone;
+        AudioSource _wind, _heart, _drone, _whispers;
         string _band = "none";
         AdrenalineState _adrenaline = AdrenalineState.Normal;
 
@@ -60,6 +60,7 @@ namespace BooTrayal.Game.Fear
             _wind = Layer("Wind", ProceduralClips.Wind());
             _heart = Layer("Heartbeat", ProceduralClips.Heartbeat());
             _drone = Layer("Drone", ProceduralClips.Drone());
+            _whispers = Layer("Whispers", ProceduralClips.Whispers());
             HasLocal = true;
         }
 
@@ -101,6 +102,7 @@ namespace BooTrayal.Game.Fear
             Fade(_wind, 0.6f * levels.Whisper);
             Fade(_heart, levels.Heartbeat);
             Fade(_drone, 0.8f * levels.Shake);
+            Fade(_whispers, 0.5f * levels.Heartbeat);
 
             if (!Application.isBatchMode) return;
             var band = d <= FearModel.NearRadius ? "near" : d <= FearModel.MidRadius ? "mid" : d <= FearModel.FarRadius ? "far" : "none";

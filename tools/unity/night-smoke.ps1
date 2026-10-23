@@ -108,6 +108,7 @@ try {
         Wait-Marker $clients[0] 'BLACKOUT zone=' | Out-Null
         Wait-Marker $hostI 'MEETING_START caller=0' | Out-Null
         Wait-Marker $hostI 'MEETING_VOTE_OPEN' | Out-Null
+        foreach ($inst in $all) { Wait-Marker $inst 'AUDIO_BELL' | Out-Null }
         Wait-Marker $hostI "MEETING_RESULT ejected=$spy1 spy=True" | Out-Null
         Wait-Marker $hostI "PLAYER_MINIGHOST id=$spy1 cause=vote" | Out-Null
         Wait-Marker $hostI 'NIGHT_END night=1 winner=None reason=time_up' | Out-Null
