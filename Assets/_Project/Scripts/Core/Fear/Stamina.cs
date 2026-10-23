@@ -17,6 +17,14 @@ namespace BooTrayal.Core.Fear
         public float Value { get; private set; } = Max;
         public bool CanRun => !_exhausted && Value > 0f;
 
+        /// <summary>Full stamina (night start, revive at the shrine).</summary>
+        public void Refill()
+        {
+            Value = Max;
+            _exhausted = false;
+            _sinceRunInput = float.MaxValue;
+        }
+
         public void Tick(float dt, bool running, float drainMultiplier)
         {
             // Holding sprint while exhausted does not block recovery.
