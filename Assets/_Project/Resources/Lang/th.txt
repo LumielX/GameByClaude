@@ -1,0 +1,173 @@
+# BOO-TRAYAL — ข้อความภาษาไทย (key=ข้อความ)
+# แก้ข้อความหลังเครื่องหมาย = ได้เลย ห้ามแก้ชื่อ key ด้านซ้าย; \n = ขึ้นบรรทัดใหม่; {0} {1} = ค่าที่เกมใส่ให้
+# ทุก key ที่นี่ต้องมีใน en.txt ด้วย (มีเทสต์ตรวจ)
+
+menu.tagline=ผีป่วน เพื่อนแปรพักตร์
+menu.subtitle=ช่วยกันปิดผนึก ทำพิธี แล้ววิ่งหนีให้ทันก่อนรุ่งสาง — แต่ระวัง เพื่อนบางคนอาจเป็นร่างทรง
+menu.play=เล่น
+menu.howto=วิธีเล่น
+menu.settings=ตั้งค่า
+menu.quit=ออกจากเกม
+menu.version=v{0} · เล่นกับเพื่อน 2–8 คน
+lang.th=ไทย
+lang.en=EN
+
+play.title=เล่น
+play.back=กลับ
+play.name=ชื่อของคุณ
+play.host.tag=HOST
+play.host.title=สร้างห้อง
+play.host.desc=ตั้งจำนวนคน ความยาวคืน และร่างทรง แล้วส่งรหัส 6 ตัวให้เพื่อน
+play.host.button=สร้างห้อง
+play.join.tag=JOIN
+play.join.title=เข้าห้องเพื่อน
+play.join.label=รหัสห้องจากเพื่อน
+play.join.button=เข้าห้อง
+play.solo.tag=SOLO
+play.solo.title=ซ้อมคนเดียว
+play.solo.desc=เล่นออฟไลน์ ไม่ต้องล็อกอิน ไม่มีร่างทรง เหมาะกับลองบ้านและผีก่อนชวนเพื่อน
+play.solo.button=เริ่มซ้อม
+
+status.Offline=พร้อมเล่น
+status.SigningIn=กำลังเชื่อมต่อบริการออนไลน์…
+status.Hosting=เปิดห้องแล้ว
+status.Joining=กำลังเข้าห้อง…
+status.Connected=เข้าห้องแล้ว
+status.Failed=เชื่อมต่อไม่สำเร็จ
+
+create.title=สร้างห้อง
+create.maxplayers=ผู้เล่นสูงสุด
+create.spy=ร่างทรง (Spy) — ใช้ได้เมื่อมีผู้เล่น 5 คนขึ้นไป
+create.spy.off=ปิด
+create.spy.one=1 คน
+create.spy.two=2 คน (7–8 คน)
+create.nightlength=ความยาวคืน
+create.minutes={0} นาที
+create.nights=จำนวนคืน
+create.nights.n={0} คืน
+create.difficulty=ความยาก
+diff.Easy=ง่าย
+diff.Normal=ปกติ
+diff.Hard=ยาก
+create.back=กลับ
+create.submit=สร้างห้อง แล้วไปล็อบบี้
+create.summary=คืนละ {0} นาที × {1} คืน\nผนึกต่อคืน: ขึ้นกับจำนวนคน (3–6 จุด)\nร่างทรง: {2}
+create.summary.spy.none=ไม่มี (co-op ล้วน)
+create.summary.spy.n={0} คน (ถ้ามีผู้เล่นครบ 5 คน)
+create.hint=เพื่อนกด "เข้าห้องเพื่อน" แล้วพิมพ์รหัสห้อง ไม่ต้องเปิดพอร์ต ไม่ต้องมีบัญชี
+
+lobby.code=รหัส
+lobby.copy=คัดลอก
+lobby.copied=คัดลอกแล้ว!
+lobby.solo=ซ้อมคนเดียว
+lobby.ready_count=พร้อม {0}/{1} คน · เกมเริ่มได้เมื่อทุกคนกดพร้อม
+lobby.leave=ออกจากห้อง
+lobby.ready=กดพร้อม
+lobby.unready=พร้อมแล้ว ✓
+lobby.start=เริ่มเกม
+lobby.kick=เตะ
+lobby.empty=ว่าง
+lobby.waiting=รอเพื่อน…
+lobby.you=(คุณ)
+lobby.host=(host)
+lobby.state.ready=พร้อม
+lobby.state.not_ready=ยังไม่พร้อม
+lobby.chat=แชท
+lobby.chat.placeholder=พิมพ์ข้อความแล้วกด Enter
+lobby.send=ส่ง
+
+hud.night=คืนที่ {0} / {1}
+hud.tasks=ภารกิจ
+hud.seals={0}/{1} ปิดผนึก
+hud.ritual={0}/{1} ขนของพิธีไปแท่นบูชาข้างศาล
+hud.escape=หนีออกประตูรั้ว
+hud.gate_open=ประตูรั้วเปิดแล้ว! หนีออกไป!
+hud.stamina=แรง
+hud.adrenaline=วิ่งเร็ว! (อะดรีนาลีน)
+hud.winded=หอบ…
+hud.role.crew=คุณคือ ลูกทีม
+hud.role.spy=คุณคือ ร่างทรง — Q ป่วนปริศนาใกล้ ๆ · X ดับไฟทั้งโซน
+hud.partners=เพื่อนร่างทรง: {0}
+hud.minighost=คุณเป็นผีจิ๋ว — Space/Ctrl ลอยขึ้นลง · Z บู้ · ให้เพื่อนพาดวงวิญญาณไปศาล
+hud.escaped=หนีรอดแล้ว! รอเพื่อน ๆ
+hud.grabbed=ผีจับตัวไว้!!
+hud.hold_hint=คลิกซ้าย ขว้าง · G วาง
+part.digit=กดปุ่ม {0}
+part.clear=ล้างรหัส
+part.fuse=ดึงคันโยก
+part.bell=ตีระฆังเรียกประชุม
+item.box=กล่อง
+item.pot=หม้อดิน
+item.urn=โกศ (หนัก)
+item.incense=กระถางธูป
+item.soul=ดวงวิญญาณ
+item.item=ของ
+
+meeting.called_by={0} ตีระฆังที่ศาลพระภูมิ
+meeting.discuss=ประชุม! คุยกันก่อน {0} วิ
+meeting.vote=โหวต {0} วิ
+meeting.who=ใครคือร่างทรง?
+meeting.vote_for=ไล่ {0}
+meeting.skip=ข้าม (ไม่ไล่ใคร)
+meeting.rules=ไล่ถูก: ผีช้าลง + เวลาเพิ่ม 60 วิ · ไล่ผิด: ผีโกรธ 30 วิ และคนนั้นกลายเป็นผีจิ๋ว\nผีจิ๋วโหวตไม่ได้ · โหวตครบแล้วปิดทันที
+meeting.cannot_vote=คุณเป็นผีจิ๋ว โหวตไม่ได้ — ฟังเพื่อนคุยไปก่อน
+result.none=ไม่มีใครถูกไล่
+result.correct={0} คือร่างทรง! ไล่ถูก — ผีอ่อนแรงลง เวลาเพิ่ม 60 วิ
+result.wrong={0} ไม่ใช่ร่างทรง! ผีโกรธ 30 วิ
+
+summary.night_end=คืนที่ {0} จบแล้ว
+summary.win.Crew=ทีมหนีรอด!
+summary.win.Spies=ร่างทรงชนะ!
+summary.win.None=ไม่มีใครชนะ
+reason.escaped=ทำพิธีสำเร็จและหนีออกประตูได้
+reason.time_up=หมดเวลาก่อนรุ่งสาง
+reason.crew_wiped=ลูกทีมกลายเป็นผีจิ๋วหมด
+reason.sabotage_goal=ร่างทรงป่วนสำเร็จครบ
+summary.spy_is=ร่างทรงคืนนี้คือ…
+summary.no_spy=คืนนี้ไม่มีร่างทรง (co-op)
+summary.sabotage=ป่วนสำเร็จ {0}/{1}
+summary.player=ผู้เล่น
+summary.tonight=คืนนี้
+summary.total=รวม
+summary.next=คืนถัดไปกำลังจะเริ่ม…
+gameover.title=จบเกม! อันดับรวม
+gameover.next=กำลังกลับล็อบบี้…
+
+pause.title=หยุดเกม
+pause.note=เกมออนไลน์ไม่หยุดจริง เพื่อนยังเล่นต่อ ระวังผี!
+pause.resume=เล่นต่อ
+pause.settings=ตั้งค่า
+pause.howto=วิธีเล่น
+pause.leave=ออกจากห้อง
+
+settings.title=ตั้งค่า
+settings.volume=เสียงหลัก
+settings.sensitivity=ความไวเมาส์
+settings.language=ภาษา
+settings.reduced=ลดเอฟเฟกต์ภาพ
+settings.reduced.desc=ปิดกล้องสั่นและภาพแยกสี สำหรับคนเวียนหัวง่าย
+settings.mic=ไมโครโฟน
+settings.mic.soon=เสียงคุยในเกมจะมาในเวอร์ชันถัดไป
+settings.back=กลับ
+
+howto.title=วิธีเล่น
+howto.1=ทุกคืนทีมต้องปิดผนึกให้ครบ (ยันต์เรืองแสงบอกตำแหน่ง): ตู้เซฟใช้รหัสจากโน้ตในอีกห้อง กล่องฟิวส์ต้องดึงคันโยก 2 ห้องพร้อมกัน
+howto.2=ปิดผนึกครบแล้ว ขนโกศ (หนัก ต้อง 2 คนยก) กับกระถางธูปไปวางที่แท่นบูชาข้างศาลพระภูมิ ประตูรั้วจะเปิด — วิ่งออกไปให้ทัน!
+howto.3=ผีกระสือได้ยินเสียงกรี๊ด เสียงวิ่ง และของตก มันจะกรีดเตือน 1 วิก่อนไล่ วิ่งหนีด้วย Shift และส่องไฟฉาย (F) ใส่หน้ามันค้างไว้ 2 วิเพื่อไล่มัน
+howto.4=อาจมีเพื่อนเป็นร่างทรงแอบป่วนอยู่ (เล่น 5 คนขึ้นไป) สังเกตไอเย็นออกปาก ตีระฆังที่ศาลเพื่อประชุมแล้วโหวตไล่ — ไล่ถูกได้เปรียบ ไล่ผิดผีโกรธ
+howto.5=โดนผีจับ = กลายเป็นผีจิ๋ว ลอยได้และส่งเสียงบู้ (Z) เพื่อนหยิบดวงวิญญาณไปค้างที่ศาล 3 วิเพื่อชุบชีวิต
+howto.6=ปุ่ม: WASD เดิน · Shift วิ่ง · Space กระโดด · Ctrl ย่อ · E หยิบ/ใช้ · คลิกซ้าย ขว้าง · G วาง · คลิกขวา ผลัก · F ไฟฉาย · Z กรี๊ด · Esc หยุด
+
+error.title=มีปัญหานิดหน่อย
+error.close=ปิด
+error.download=เปิดหน้าดาวน์โหลด
+
+net.version_mismatch=เกมของคุณเป็นคนละเวอร์ชันกับเจ้าของห้อง ดาวน์โหลดเวอร์ชันล่าสุดจากหน้า GitHub Releases แล้วลองใหม่
+net.room_full=ห้องเต็มแล้ว (สูงสุด 8 คน)
+net.game_in_progress=ห้องนี้กำลังเล่นคืนนี้อยู่ รอให้จบคืนแล้วลองเข้าใหม่นะ
+net.bad_payload=ข้อมูลการเชื่อมต่อผิดพลาด ลองเปิดเกมใหม่
+net.host_left=เจ้าของห้องออกจากเกมแล้ว กลับไปหน้าเมนู
+net.code_invalid=รหัสห้องต้องเป็นตัวอักษร/ตัวเลข 6 ตัว
+net.room_not_found=ไม่พบห้องนี้ ตรวจรหัสอีกครั้ง หรือห้องอาจปิดไปแล้ว
+net.services_unavailable=เชื่อมต่อเซิร์ฟเวอร์ Unity ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่
+net.connect_failed=เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง
