@@ -4,7 +4,7 @@
 
 ## สถานะปัจจุบัน
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
-- **เฟส 3 กำลังทำ** — M0–M7 merge เข้า `main` แล้ว, M8 เครื่องมือ + เอกสารปล่อยเกม merge แล้ว (รอปล่อยจริง); บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
+- **เฟส 3 กำลังทำ** — M0–M7 merge เข้า `main` แล้ว, M8 ปล่อย v0.1.0-alpha แล้ว (รอผล playtest); บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
 - ⚠️ ห้ามแก้ไฟล์ข้อความภาษาไทยด้วย PowerShell 5.1 `Get-Content`/`Set-Content` (อ่าน UTF-8 ผิดแล้วไฟล์เสีย) — ใช้ Edit tool หรือ bash
 - **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
 - **M1 เสร็จ (2026-10-22):** กฎเกมทั้งหมดใน `Assets/_Project/Scripts/Core/` (RoomRules, RoleAssigner, VoteResolver, SabotageTracker, NightJudge, ScoreRules/Wallet, FearModel, Stamina, AdrenalineModel, SafeCode/FuseBox/RitualOffering puzzles, MeetingRules, ExorciseEffects, JoinPolicy) — EditMode tests 128/128 ผ่าน (`TestResults/EditMode.xml`), build + smoke ผ่าน
@@ -80,7 +80,7 @@
     7. เลื่อนระดับเสียงคุย → เสียงเพื่อนดัง/เบาตาม; ค่าเริ่มต้นไม่แตก
     8. ออกห้อง แล้วสร้างห้องใหม่ → เสียงคุยกลับมาและชื่อคนพูดถูกคน
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m7-ledger.md`
-- **M8 เครื่องมือปล่อยเกมเสร็จ (2026-10-23) — รอผู้ใช้ปล่อยจริง:** แผน `docs/plans/2026-10-23-m8-release.md`
+- **M8 ปล่อยแล้ว (2026-10-23): https://github.com/LumielX/GameByClaude/releases/tag/v0.1.0-alpha** (pre-release, repo เป็น Public) — แผน `docs/plans/2026-10-23-m8-release.md`
   - `tools/unity/build-windows.ps1 -Zip` → `Builds/BOO-TRAYAL-v0.1.0-win64.zip` (~60 MB) มี `README.txt` (ไทย/อังกฤษ: วิธีเปิด, SmartScreen, Smart App Control, Firewall, สร้าง/เข้าห้อง, ปุ่ม, ที่อยู่ Player.log), `CREDITS.md`, `OFL.txt` (สัญญาอนุญาตฟอนต์ Kanit ต้องแนบไปด้วย) + ไฟล์ `.commit` บอกว่า build จาก commit ไหน
   - `tools/unity/verify-zip.ps1` แตก zip ไปไว้ในโฟลเดอร์ชื่อไทยมีเว้นวรรค แล้วรัน smoke test จากตรงนั้น → `ZIP OK size=… sha256=…`
   - `tools/check-secrets.ps1` ตรวจ secret ทั้งไฟล์ปัจจุบันและ **ทุก commit ในประวัติ** (key/token รูปแบบต่างๆ, Vivox token key ใน Settings.json, ไฟล์ binary ที่ grep ไม่ได้ เช่นไฟล์ UTF-16, ชื่อไฟล์ .pem/.env ฯลฯ); `-SelfTest` ทดสอบกับ repo ปลอม → ตอนนี้ `SECRETS OK`
@@ -91,11 +91,15 @@
   - ผ่าน final review (opus) แก้ 6 จุด: scan ไม่เห็น Vivox key (ชื่อกับค่าอยู่คนละบรรทัด), ไฟล์ binary/UTF-16 หลุด scan, `-SkipBuild` อัปโหลด zip เก่าได้, repo private เพื่อนโหลดไม่ได้, สัญญาอนุญาตฟอนต์ไม่อยู่ใน zip, คู่มือ SmartScreen ภาษาไทย + Smart App Control
   - deferred minors: ชื่อไฟล์ secret แบบอื่น (.env.local, id_rsa, *.key), token แบบ github_pat_/sk-/xox, ไม่ scan ข้อความ commit/merge diff/เนื้อ LFS (ตรวจมือแล้วสะอาด); `gh auth status` ตอนยังไม่ login ขึ้น error แบบดิบ; `git ls-remote` ล้มถูกอ่านว่าไม่มี tag; tag ใช้ `--target main` แทน commit ที่ตรวจ; zip ไม่มีโฟลเดอร์ชั้นบนและใช้ `\` ในชื่อ; `Builds\Windows` ไม่ถูกล้างก่อน build
   - **สิ่งที่จะเป็นสาธารณะเมื่อเปิด Public:** อีเมลผู้เขียนในทุก commit, ชื่อ org ที่มาจากอีเมล (`phutawansaichol-gmail-com`) ใน ProjectSettings/PROGRESS/แผน M2 และในไฟล์เกม, Unity Cloud project id
-  - **ยังต้องทำ (ต้องใช้ผู้ใช้):** 1) `gh auth login` 2) ยืนยันเปิด repo เป็น Public 3) รัน `tools/release.ps1 -MakePublic` 4) เล่นกับเพื่อนตาม `docs/PLAYTEST_CHECKLIST.md` แล้วส่งผล
+  - ปล่อยด้วย `tools/release.ps1 -SkipBuild` จาก commit `763c2cf` (zip build จาก commit เดียวกัน); ไฟล์ `BOO-TRAYAL-v0.1.0-win64.zip` 62,585,828 bytes, sha256 `40e97d17e0bd523d3a99fa20d4201308f03214a6766eedc2af02c184364bc195`; โหลดแบบไม่ login ได้ (HTTP 200) และ checksum ตรง
+  - repo เป็น Public อยู่แล้วตอนที่ gh login สำเร็จ จึงไม่ต้องใช้ `-MakePublic`; การปฏิเสธตอน repo เป็น Private ยังไม่ได้ทดสอบกับของจริง
+  - gh login เก็บ token ใน Windows keyring ของผู้ใช้ `LumielX` (`gh auth status`)
+  - **ยังต้องทำ (ต้องใช้ผู้ใช้):** เล่นกับเพื่อนตาม `docs/PLAYTEST_CHECKLIST.md` (รวมเสียงคุย 2 เครื่องของ M7) แล้วส่งผล → จากนั้นเขียนแผนเฟส 4 (M9+) จากผล playtest
+  - ปล่อยเวอร์ชันถัดไป: แก้ `GameVersion.Current` → เขียน `docs/release/notes-v<ver>-alpha.md` → commit + push main → `tools/release.ps1`
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m8-ledger.md`
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
-- **อัปเดตล่าสุด:** 2026-10-23
+- **อัปเดตล่าสุด:** 2026-10-23 (ปล่อย v0.1.0-alpha)
 
 ## เฟส 0 — สภาพแวดล้อม (เสร็จ)
 | รายการ | ผล |
