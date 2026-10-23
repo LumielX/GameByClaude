@@ -8,8 +8,12 @@
 --------
 1. แตกไฟล์ zip ทั้งโฟลเดอร์ไว้ที่ไหนก็ได้ (อย่าเปิดจากใน zip ตรงๆ)
 2. ดับเบิลคลิก BOO-TRAYAL.exe
-3. ถ้า Windows ขึ้นจอสีฟ้า "Windows protected your PC" ให้กด "More info" แล้วกด "Run anyway"
+3. ถ้า Windows ขึ้นจอสีฟ้า "Windows protected your PC" (ภาษาไทย: "Windows ได้ป้องกันพีซีของคุณ")
+   ให้กด "More info" (ข้อมูลเพิ่มเติม) แล้วกด "Run anyway" (เรียกใช้ต่อไป)
    (เกมยังไม่ได้ซื้อใบรับรองดิจิทัล ไม่ใช่ไวรัส)
+   ถ้าขึ้นว่า "Smart App Control blocked" และไม่มีปุ่มให้กดต่อ: Windows 11 เปิด Smart App Control อยู่
+   ซึ่งบล็อกเกมที่ไม่ได้เซ็นใบรับรองทุกเกม — ปิดได้ที่ Windows Security → App & browser control →
+   Smart App Control (ปิดแล้วเปิดกลับไม่ได้ถ้าไม่ติดตั้ง Windows ใหม่ ตัดสินใจเองนะ)
 4. ถ้ามีหน้าต่าง Firewall ถาม ให้กด "Allow" (อนุญาต) เพื่อให้เล่นออนไลน์ได้
 
 เล่นกับเพื่อน
@@ -46,6 +50,9 @@ Start
 2. Double-click BOO-TRAYAL.exe.
 3. If Windows shows "Windows protected your PC", click "More info", then "Run anyway"
    (the game is not code-signed yet).
+   "Smart App Control blocked" with no way to continue means Windows 11 Smart App Control is on; it
+   blocks every unsigned game (Windows Security -> App & browser control -> Smart App Control; once off it
+   cannot be turned back on without reinstalling Windows, so decide for yourself).
 4. If the firewall asks, click "Allow" so online play works.
 
 Play with friends

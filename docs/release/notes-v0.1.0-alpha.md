@@ -12,7 +12,7 @@
 
 ### ติดตั้ง
 1. ดาวน์โหลด `BOO-TRAYAL-v0.1.0-win64.zip` ด้านล่าง แล้วแตกไฟล์ทั้งโฟลเดอร์
-2. เปิด `BOO-TRAYAL.exe` — ถ้าขึ้น "Windows protected your PC" กด **More info → Run anyway**
+2. เปิด `BOO-TRAYAL.exe` — ถ้าขึ้น "Windows protected your PC" (ไทย: "Windows ได้ป้องกันพีซีของคุณ") กด **More info → Run anyway** (ข้อมูลเพิ่มเติม → เรียกใช้ต่อไป); ถ้า Smart App Control บล็อก ดูวิธีใน README.txt
 3. Firewall ถาม ให้กด **Allow**
 4. คนหนึ่ง **สร้างห้อง** แล้วส่งรหัส 6 ตัว ให้เพื่อน **เข้าห้อง** (ทุกคนต้องใช้เวอร์ชันเดียวกัน)
 
@@ -23,6 +23,8 @@
 - ท่าถือของ ขาไม่ขยับ
 - ความยากในหน้าสร้างห้องยังไม่มีผล
 - เตะคนออกแล้วเข้ากลับได้ทันที
+- ถ้าเครื่องเพื่อนเด้งออกจากเกม ช่องของเขาอาจค้างในล็อบบี้; คนที่ออกไปแล้วยังอยู่ในตารางอันดับ
+- หยิบของทะลุกำแพงบางมุมได้
 
 ### เจอบั๊ก
 แนบไฟล์ `%USERPROFILE%\AppData\LocalLow\LumielX\BOO-TRAYAL\Player.log` แล้วแจ้งที่ [Issues](https://github.com/LumielX/GameByClaude/issues) — รายการทดสอบอยู่ใน [docs/PLAYTEST_CHECKLIST.md](https://github.com/LumielX/GameByClaude/blob/main/docs/PLAYTEST_CHECKLIST.md)

@@ -48,6 +48,9 @@ if ($Zip) {
     $staging = Join-Path $ProjectPath 'Builds\Windows'
     # Players read this first: how to start, SmartScreen/firewall, how to join, where the log is.
     Copy-Item (Join-Path $ProjectPath 'docs\release\README.txt') (Join-Path $staging 'README.txt') -Force
+    # Credits, and the Kanit license that must travel with every copy of the font (SIL OFL 1.1).
+    Copy-Item (Join-Path $ProjectPath 'CREDITS.md') (Join-Path $staging 'CREDITS.md') -Force
+    Copy-Item (Join-Path $ProjectPath 'Assets\_Project\UI\Fonts\OFL.txt') (Join-Path $staging 'OFL.txt') -Force
     # Exclude the debug-symbols folder Unity writes next to the player.
     $items = Get-ChildItem $staging | Where-Object { $_.Name -notlike '*_BurstDebugInformation_DoNotShip' -and $_.Name -notlike '*_BackUpThisFolder_ButDontShipItWithYourGame' }
     Compress-Archive -Path $items.FullName -DestinationPath $zipPath

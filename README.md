@@ -11,7 +11,8 @@
 1. ไปที่หน้า [Releases](https://github.com/LumielX/GameByClaude/releases) แล้วโหลดไฟล์ `BOO-TRAYAL-v…-win64.zip` ของเวอร์ชันล่าสุด
 2. แตกไฟล์ zip ทั้งโฟลเดอร์ไว้ที่ไหนก็ได้ (อย่าเปิดจากใน zip ตรงๆ)
 3. ดับเบิลคลิก `BOO-TRAYAL.exe`
-   - ถ้าขึ้นจอสีฟ้า **"Windows protected your PC"** ให้กด **More info** แล้ว **Run anyway** (เกมยังไม่ได้เซ็นใบรับรอง)
+   - ถ้าขึ้นจอสีฟ้า **"Windows protected your PC"** (ไทย: "Windows ได้ป้องกันพีซีของคุณ") ให้กด **More info / ข้อมูลเพิ่มเติม** แล้ว **Run anyway / เรียกใช้ต่อไป** (เกมยังไม่ได้เซ็นใบรับรอง)
+   - ถ้าขึ้น **"Smart App Control blocked"** แบบไม่มีปุ่มให้ไปต่อ แปลว่า Windows 11 เปิด Smart App Control ไว้ ซึ่งบล็อกเกมที่ไม่ได้เซ็นทุกเกม (ปิดได้ที่ Windows Security → App & browser control → Smart App Control แต่ปิดแล้วเปิดกลับไม่ได้ถ้าไม่ลง Windows ใหม่)
    - ถ้า Firewall ถาม ให้กด **Allow** เพื่อเล่นออนไลน์ได้
 
 **เครื่องที่ใช้ได้:** Windows 10/11 64 บิต, การ์ดจอที่รองรับ DirectX 11/12, อินเทอร์เน็ต (สำหรับเล่นออนไลน์), ไมค์ไม่บังคับ
@@ -38,6 +39,8 @@
 - ภาพยังเป็นงานชั่วคราว: บ้านเป็นทรงเรขาคณิต, เส้นขอบโมเดลแตกตรงมุมบางจุด, ท่าถือของขาไม่ขยับ
 - ความยากในหน้าสร้างห้องยังไม่มีผล
 - เตะคนออกแล้วเข้ากลับได้ทันที
+- ถ้าเครื่องเพื่อนเด้งออกจากเกม ช่องของเขาอาจค้างในล็อบบี้; คนที่ออกไปแล้วยังอยู่ในตารางอันดับ
+- หยิบของทะลุกำแพงบางมุมได้
 
 ## เจอบั๊ก / ให้ความเห็น
 - แจ้งที่ [Issues](https://github.com/LumielX/GameByClaude/issues) พร้อมแนบไฟล์ log:
@@ -63,7 +66,7 @@ Close the seals, carry the urn and incense pot to the shrine altar, and outrun t
 
 **Install:**
 1. Download `BOO-TRAYAL-v…-win64.zip` from [Releases](https://github.com/LumielX/GameByClaude/releases) and unzip it.
-2. Run `BOO-TRAYAL.exe`. On a SmartScreen warning, click **More info → Run anyway**.
+2. Run `BOO-TRAYAL.exe`. On a SmartScreen warning, click **More info → Run anyway**. "Smart App Control blocked" means Windows 11 Smart App Control is on and blocks all unsigned apps.
 3. Allow the firewall prompt.
 
 The game needs Windows 10/11 64-bit with a DirectX 11/12 GPU.

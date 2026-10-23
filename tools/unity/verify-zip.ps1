@@ -26,7 +26,8 @@ New-Item -ItemType Directory -Force $root | Out-Null
 $ok = $false
 try {
     Expand-Archive -Path $Zip -DestinationPath $root -Force
-    foreach ($name in @('BOO-TRAYAL.exe', 'README.txt', 'BOO-TRAYAL_Data', 'UnityPlayer.dll')) {
+    # OFL.txt: the Kanit font license must travel with every copy of the font (SIL OFL 1.1).
+    foreach ($name in @('BOO-TRAYAL.exe', 'README.txt', 'CREDITS.md', 'OFL.txt', 'BOO-TRAYAL_Data', 'UnityPlayer.dll')) {
         if (-not (Test-Path (Join-Path $root $name))) { Fail "$name is missing from the zip root" }
     }
     $noShip = Get-ChildItem $root -Recurse -Directory | Where-Object { $_.Name -match 'DoNotShip|DontShip' }
