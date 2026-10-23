@@ -19,6 +19,7 @@ namespace BooTrayal.Game.Networking
             { "code_invalid", ("รหัสห้องต้องเป็นตัวอักษร/ตัวเลข 6 ตัว", "Room codes are 6 letters or numbers.") },
             { "room_not_found", ("ไม่พบห้องนี้ ตรวจรหัสอีกครั้ง หรือห้องอาจปิดไปแล้ว", "Room not found. Check the code; the room may have closed.") },
             { "services_unavailable", ("เชื่อมต่อเซิร์ฟเวอร์ Unity ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่", "Could not reach Unity services. Check your internet and try again.") },
+            { "kicked", ("เจ้าของห้องเชิญคุณออกจากห้อง", "The host removed you from the room.") },
             { "connect_failed", ("เชื่อมต่อไม่สำเร็จ ลองใหม่อีกครั้ง", "Could not connect. Please try again.") },
         };
 

@@ -64,6 +64,14 @@ namespace BooTrayal.Game.Networking
             PlayerDisplayName = PlayerName.Sanitize(Args.PlayerName, UnityEngine.Random.Range(1, 10000));
         }
 
+        /// <summary>Host only, in the lobby: remove a player; they see the localized "kicked" message.</summary>
+        public void Kick(ulong clientId)
+        {
+            if (Net == null || !Net.IsServer || clientId == Net.LocalClientId || Phase != SessionPhase.Lobby) return;
+            Debug.Log($"KICK id={clientId}");
+            Net.DisconnectClient(clientId, BooTrayal.Core.Net.DisconnectClassifier.Kicked);
+        }
+
         /// <summary>The name typed on the Play screen (sanitized like every other name; used for the next connection).</summary>
         public void SetPlayerName(string raw)
         {

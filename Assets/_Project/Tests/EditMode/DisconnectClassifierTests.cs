@@ -40,5 +40,12 @@ namespace BooTrayal.Tests
             Assert.IsTrue(DisconnectClassifier.IsRejection("game_in_progress"));
             Assert.IsFalse(DisconnectClassifier.IsRejection("host_left"));
         }
+
+        [Test]
+        public void Kicked_WhileConnected_IsKicked()
+        {
+            Assert.AreEqual("kicked", DisconnectClassifier.Classify(true, "kicked"));
+            Assert.IsFalse(DisconnectClassifier.IsRejection("kicked"), "a kick is not a join rejection");
+        }
     }
 }

@@ -48,6 +48,7 @@ namespace BooTrayal.Editor.Builders
             Ensure<PlayerLife>(root);
             Ensure<PlayerNoise>(root);
             Ensure<PlayerActions>(root);
+            Ensure<PlayerLobby>(root);
             Ensure<BooTrayal.Game.Fear.FearDirector>(root);
 
             var body = Lit("PlayerBody", new Color(0.95f, 0.70f, 0.24f));

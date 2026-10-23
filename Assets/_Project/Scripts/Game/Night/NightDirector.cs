@@ -141,10 +141,22 @@ namespace BooTrayal.Game.Night
             Debug.Log($"PHASE phase={phase} night={NightNumber.Value}");
         }
 
-        /// <summary>Host only: start a game from the lobby (HUD button or -autostart).</summary>
-        public void StartGame()
+        /// <summary>Everyone in the room has pressed Ready (GDD 11 lobby).</summary>
+        public bool AllReady
         {
-            if (!IsServer || Phase.Value != SessionPhase.Lobby) return;
+            get
+            {
+                var all = FindObjectsByType<PlayerLobby>();
+                int ready = 0;
+                foreach (var p in all) if (p.IsSpawned && p.Ready.Value) ready++;
+                return LobbyRules.CanStart(all.Length, ready);
+            }
+        }
+
+        /// <summary>Host only: start a game from the lobby once everyone is ready (-autostart skips the check).</summary>
+        public void StartGame(bool force = false)
+        {
+            if (!IsServer || Phase.Value != SessionPhase.Lobby || (!force && !AllReady)) return;
             _cfg = ConnectionService.Instance != null ? ConnectionService.Instance.HostConfig : new GameConfig();
             var cfg = _cfg;
             int nights = Args.Nights > 0 ? Args.Nights : cfg.Nights;
@@ -220,7 +232,7 @@ namespace BooTrayal.Game.Night
                     if (!_autoStarted && Args.AutoStart > 0 && NetworkManager.ConnectedClientsIds.Count >= Args.AutoStart)
                     {
                         _autoStarted = true;
-                        StartGame();
+                        StartGame(force: true);
                     }
                     break;
                 case SessionPhase.InNight:
@@ -378,6 +390,7 @@ namespace BooTrayal.Game.Night
             if (Altar != null) Altar.Accepting.Value = false;
             GateOpen.Value = false;
             NightNumber.Value = 0;
+            foreach (var p in FindObjectsByType<PlayerLobby>()) p.ServerReset();
             SetPhase(SessionPhase.Lobby);
         }
 

@@ -407,7 +407,7 @@ MonoBehaviour:
   SettingsUxml: {fileID: 9197481963319205126, guid: bff649b1c6ae0c347904b4ce08d27d27, type: 3}
   HowToUxml: {fileID: 9197481963319205126, guid: 23a3bff0a5159d3468278746cdd4115d, type: 3}
   ErrorUxml: {fileID: 9197481963319205126, guid: 2bb60ebdff2a9c249b92b564b3a9a480, type: 3}
-  LobbyUxml: {fileID: 0}
+  LobbyUxml: {fileID: 9197481963319205126, guid: a3fc665abffe2394e910d154accd3e51, type: 3}
   HudUxml: {fileID: 0}
   VoteUxml: {fileID: 0}
   SummaryUxml: {fileID: 0}

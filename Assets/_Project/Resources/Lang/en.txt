@@ -170,4 +170,5 @@ net.host_left=The host left the game. Back to the menu.
 net.code_invalid=Room codes are 6 letters or numbers.
 net.room_not_found=Room not found. Check the code; the room may have closed.
 net.services_unavailable=Could not reach Unity services. Check your internet and try again.
+net.kicked=The host removed you from the room.
 net.connect_failed=Could not connect. Please try again.

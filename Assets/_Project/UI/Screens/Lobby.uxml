@@ -1,0 +1,29 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="lobby" class="screen col" style="padding: 44px 60px;">
+    <ui:VisualElement class="row" style="margin-bottom: 22px;">
+      <ui:Label text="@menu.play" name="heading" class="h1 heavy grow" />
+      <ui:Label name="code" text="" class="muted" style="font-size: 22px; margin-right: 14px;" />
+      <ui:Button name="copy" text="@lobby.copy" class="btn btn-small" />
+    </ui:VisualElement>
+    <ui:VisualElement class="row grow" style="align-items: stretch;">
+      <ui:VisualElement class="col grow" style="margin-right: 22px;">
+        <ui:VisualElement name="row1" class="row" style="align-items: stretch;" />
+        <ui:VisualElement name="row2" class="row" style="align-items: stretch;" />
+      </ui:VisualElement>
+      <ui:VisualElement class="card col" style="width: 380px; padding: 18px;">
+        <ui:Label text="@lobby.chat" class="field-label" />
+        <ui:ScrollView name="chat-list" class="grow" style="margin-bottom: 10px;" />
+        <ui:VisualElement class="row">
+          <ui:TextField name="chat-input" max-length="120" class="bt-input grow" style="margin-right: 8px;" />
+          <ui:Button name="send" text="@lobby.send" class="btn btn-small" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement class="row" style="margin-top: 22px;">
+      <ui:Label name="ready-count" text="" class="muted grow" />
+      <ui:Button name="leave" text="@lobby.leave" class="btn" style="margin-right: 12px;" />
+      <ui:Button name="ready" text="@lobby.ready" class="btn heavy" style="margin-right: 12px;" />
+      <ui:Button name="start" text="@lobby.start" class="btn btn-primary heavy" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

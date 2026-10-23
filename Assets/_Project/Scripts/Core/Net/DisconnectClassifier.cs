@@ -13,11 +13,14 @@ namespace BooTrayal.Core.Net
             "version_mismatch", "room_full", "game_in_progress", "bad_payload"
         };
 
+        /// <summary>Sent by the host when it removes a player from the lobby.</summary>
+        public const string Kicked = "kicked";
+
         public static bool IsRejection(string key) => key != null && Rejections.Contains(key);
 
         public static string Classify(bool wasConnected, string disconnectReason)
         {
-            if (IsRejection(disconnectReason)) return disconnectReason;
+            if (IsRejection(disconnectReason) || disconnectReason == Kicked) return disconnectReason;
             return wasConnected ? "host_left" : "connect_failed";
         }
     }
