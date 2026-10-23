@@ -45,10 +45,9 @@ namespace BooTrayal.Editor.Builders
             EnsurePrefabInstance(scene, "NetworkManager", NetworkPrefabBuilder.NetworkManagerPath);
             var services = Root(scene, "Services");
             Ensure<ConnectionService>(services);
-            Ensure<DebugNetMenu>(services);
             Ensure<SessionFlow>(services);
             Ensure<SmokeProbe>(services);
-            Ensure<BooTrayal.Game.Night.NightHud>(services);
+            UIBuilder.Wire(services);
 
             EditorSceneManager.SaveScene(scene, BootstrapPath);
         }

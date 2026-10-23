@@ -322,9 +322,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1775321583}
   - component: {fileID: 1775321582}
-  - component: {fileID: 1775321581}
   - component: {fileID: 1775321585}
   - component: {fileID: 1775321584}
+  - component: {fileID: 1775321587}
   - component: {fileID: 1775321586}
   m_Layer: 0
   m_Name: Services
@@ -333,18 +333,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1775321581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1775321580}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afc61e1329afd014e8b754bc61b8dea4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: BooTrayal.Game::BooTrayal.Game.Networking.DebugNetMenu
 --- !u!114 &1775321582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -405,9 +393,48 @@ MonoBehaviour:
   m_GameObject: {fileID: 1775321580}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ea9e3e10b351c514cbef0f712e870884, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b0bc4a794cb27c4e8d56f69ab5550bd, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: BooTrayal.Game::BooTrayal.Game.Night.NightHud
+  m_EditorClassIdentifier: BooTrayal.UI::BooTrayal.UI.UIRoot
+  Panel: {fileID: 11400000, guid: 4d23b6d4bb122cf41863361ae3b95a02, type: 2}
+  Theme: {fileID: 7433441132597879392, guid: 4a95fdc4362e1674fa0b8a46be400ccf, type: 3}
+  Regular: {fileID: 12800000, guid: e20bde4c47a9ea14e93b174e0d2b7ef5, type: 3}
+  SemiBold: {fileID: 12800000, guid: ab498c6f7e84d604f9f2a233ab78b85d, type: 3}
+  Heavy: {fileID: 12800000, guid: 1309610f5b919fd4d95c97e002d7eead, type: 3}
+  TitleUxml: {fileID: 9197481963319205126, guid: 8ae873c7f710c9f4b8618fdf2fa9b3b2, type: 3}
+  PlayUxml: {fileID: 9197481963319205126, guid: 7e606308d10641443a1f19319119e408, type: 3}
+  CreateUxml: {fileID: 9197481963319205126, guid: 2308112591c4d06498f462b1c3fe74cc, type: 3}
+  SettingsUxml: {fileID: 9197481963319205126, guid: bff649b1c6ae0c347904b4ce08d27d27, type: 3}
+  HowToUxml: {fileID: 9197481963319205126, guid: 23a3bff0a5159d3468278746cdd4115d, type: 3}
+  ErrorUxml: {fileID: 9197481963319205126, guid: 2bb60ebdff2a9c249b92b564b3a9a480, type: 3}
+  LobbyUxml: {fileID: 0}
+  HudUxml: {fileID: 0}
+  VoteUxml: {fileID: 0}
+  SummaryUxml: {fileID: 0}
+  PauseUxml: {fileID: 0}
+--- !u!114 &1775321587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1775321580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: 4d23b6d4bb122cf41863361ae3b95a02, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 0}
+  m_SortingOrder: 10
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
