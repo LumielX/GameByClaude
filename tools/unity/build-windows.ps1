@@ -51,5 +51,9 @@ if ($Zip) {
     # Exclude the debug-symbols folder Unity writes next to the player.
     $items = Get-ChildItem $staging | Where-Object { $_.Name -notlike '*_BurstDebugInformation_DoNotShip' -and $_.Name -notlike '*_BackUpThisFolder_ButDontShipItWithYourGame' }
     Compress-Archive -Path $items.FullName -DestinationPath $zipPath
-    Write-Host "Zipped $zipPath"
+    # Which commit this zip was built from, so release.ps1 never uploads a zip from older code.
+    $commit = (git -C $ProjectPath rev-parse HEAD).Trim()
+    if (git -C $ProjectPath status --porcelain) { $commit += '-dirty' }
+    [IO.File]::WriteAllText("$zipPath.commit", $commit)
+    Write-Host "Zipped $zipPath (commit $commit)"
 }

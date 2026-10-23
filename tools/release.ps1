@@ -65,10 +65,30 @@ try {
         if (git status --porcelain) { Stop-Release 'the build changed tracked files; commit them and run again' }
     }
     if (-not (Test-Path $zip)) { Stop-Release "zip missing: $zip (run without -SkipBuild)" }
+    $built = if (Test-Path "$zip.commit") { (Get-Content "$zip.commit" -Raw).Trim() } else { '' }
+    if ($built -ne $head) { Stop-Release "the zip was not built from this commit (zip: '$built', main: $head); run without -SkipBuild" }
 
     Step 'zip check (extract + smoke test)'
     & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $ProjectPath 'tools\unity\verify-zip.ps1') -Zip $zip
     if ($LASTEXITCODE -ne 0) { Stop-Release 'the zip check failed' }
+
+    # Release files on a private repo are 404 for everyone but collaborators: friends could not download anything.
+    Step 'repo visibility'
+    $visibility = $null
+    if ($gh) {
+        $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+        $visibility = (& $gh repo view $RepoSlug --json visibility --jq .visibility 2>$null) -join ''
+        if ($LASTEXITCODE -ne 0) { $visibility = $null }
+        $ErrorActionPreference = $old
+    }
+    if (-not $visibility) {
+        if (-not $DryRun) { Stop-Release "cannot read the visibility of $RepoSlug" }
+        Write-Host '  unknown (gh not logged in) - a real run checks it' -ForegroundColor Yellow
+    }
+    elseif ($visibility -ne 'PUBLIC' -and -not $MakePublic) {
+        Stop-Release "$RepoSlug is ${visibility}: friends cannot download its releases. Run with -MakePublic (after the owner agrees)"
+    }
+    else { Write-Host "  $visibility$(if ($MakePublic -and $visibility -ne 'PUBLIC') { ' -> PUBLIC' })" }
 
     $title = "BOO-TRAYAL $Tag"
     $createArgs = @('release', 'create', $Tag, $zip, '--repo', $RepoSlug, '--prerelease', '--target', 'main', '--title', $title, '--notes-file', $notes)
