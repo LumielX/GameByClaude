@@ -101,5 +101,19 @@ namespace BooTrayal.Tests
             Assert.IsNotNull(shader);
             Assert.IsFalse(ShaderUtil.ShaderHasError(shader), "BooTrayal/Toon has compile errors");
         }
+
+        [Test]
+        public void ToonShader_HasOwnDepthAndShadowPasses()
+        {
+            // SSAO and the depth texture need DepthNormals/DepthOnly; the SRP Batcher needs every pass to share the
+            // Toon UnityPerMaterial buffer, so none of them may be borrowed from Lit with UsePass.
+            var shader = Shader.Find("BooTrayal/Toon");
+            var modes = Enumerable.Range(0, shader.passCount)
+                .Select(i => shader.FindPassTagValue(i, new UnityEngine.Rendering.ShaderTagId("LightMode")).name.ToUpperInvariant()).ToList();
+            // Tag ids are interned engine-wide, so their spelling can come back in another case.
+            CollectionAssert.IsSubsetOf(new[] { "UNIVERSALFORWARD", "SRPDEFAULTUNLIT", "SHADOWCASTER", "DEPTHONLY", "DEPTHNORMALS" }, modes);
+            var source = System.IO.File.ReadAllText("Assets/_Project/Art/Shaders/Toon.shader");
+            StringAssert.DoesNotContain("UsePass", source);
+        }
     }
 }

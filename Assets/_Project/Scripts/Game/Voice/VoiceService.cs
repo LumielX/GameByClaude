@@ -22,6 +22,7 @@ namespace BooTrayal.Game.Voice
     public class VoiceService : MonoBehaviour
     {
         const float ApplyInterval = 0.25f;
+        const float RetryDelay = 10f;
 
         public static VoiceService Instance { get; private set; }
 
@@ -37,7 +38,10 @@ namespace BooTrayal.Game.Voice
         bool _busy;
         bool _initialized;
         bool _muted;
+        bool _lost;
+        int _generation; // bumped by every stop/failure: async work started before it must not touch the new state
         float _timer;
+        float _retryAt;
         double _lastSend = double.NegativeInfinity;
         float _appliedVolume = -1f;
 
@@ -52,6 +56,12 @@ namespace BooTrayal.Game.Voice
         void OnDestroy()
         {
             if (_svc != null) _svc.Changed -= OnConnectionChanged;
+            if (_initialized)
+            {
+                VivoxService.Instance.ChannelLeft -= OnChannelLeft;
+                VivoxService.Instance.LoggedOut -= OnLost;
+                VivoxService.Instance.ConnectionFailedToRecover -= OnLost;
+            }
             if (Instance == this) Instance = null;
         }
 
@@ -63,14 +73,27 @@ namespace BooTrayal.Game.Voice
         void OnConnectionChanged()
         {
             if (!WantVoice) LastError = null; // a new room gets a fresh try
-            if (WantVoice && _code != _svc.RoomCode) _ = StartAsync(_svc.RoomCode);
+            if (WantVoice && _code != _svc.RoomCode && LastError == null) _ = StartAsync(_svc.RoomCode);
             else if (!WantVoice && _code != null) _ = StopAsync();
+        }
+
+        // Vivox can drop a channel or the whole login on its own; forget what it dropped so the next tick rejoins.
+        void OnChannelLeft(string name)
+        {
+            _joined.Remove(name);
+            if (_transmit == name) _transmit = null;
+        }
+
+        void OnLost()
+        {
+            if (Active) _lost = true;
         }
 
         async Task StartAsync(string code)
         {
             if (_busy) return;
             _busy = true;
+            int gen = _generation;
             _code = code;
             try
             {
@@ -78,61 +101,96 @@ namespace BooTrayal.Game.Voice
                 {
                     await VivoxService.Instance.InitializeAsync();
                     _initialized = true;
+                    VivoxService.Instance.ChannelLeft += OnChannelLeft;
+                    VivoxService.Instance.LoggedOut += OnLost;
+                    VivoxService.Instance.ConnectionFailedToRecover += OnLost;
                 }
-                if (!VivoxService.Instance.IsLoggedIn)
+                // A login left over from another room carries an old display name (= old NGO client id).
+                if (VivoxService.Instance.IsLoggedIn) await VivoxService.Instance.LogoutAsync();
+                if (gen != _generation) return;
+                var net = NetworkManager.Singleton;
+                await VivoxService.Instance.LoginAsync(new LoginOptions
                 {
-                    var net = NetworkManager.Singleton;
-                    await VivoxService.Instance.LoginAsync(new LoginOptions
-                    {
-                        // The NGO client id lets the HUD map Vivox speakers back to players.
-                        DisplayName = net != null ? net.LocalClientId.ToString() : "0",
-                        ParticipantUpdateFrequency = ParticipantPropertyUpdateFrequency.FivePerSecond
-                    });
-                }
+                    // The NGO client id lets the HUD map Vivox speakers back to players.
+                    DisplayName = net != null ? net.LocalClientId.ToString() : "0",
+                    ParticipantUpdateFrequency = ParticipantPropertyUpdateFrequency.FivePerSecond
+                });
+                if (gen != _generation) return; // stopped while logging in: StopAsync logs out after us
+                _lost = false;
                 Active = true;
                 LastError = null;
                 Debug.Log($"VOICE_LOGGED_IN room={code}");
             }
-            catch (Exception e) { Fail(e); }
+            catch (Exception e)
+            {
+                if (gen == _generation) Fail(e);
+            }
             finally { _busy = false; }
         }
 
         async Task StopAsync()
         {
+            _generation++;
             Active = false;
             _code = null;
             _speaking.Clear();
             if (!_initialized) return;
             while (_busy) await Task.Yield();
             _busy = true;
-            try
-            {
-                if (_joined.Count > 0) await VivoxService.Instance.LeaveAllChannelsAsync();
-                if (VivoxService.Instance.IsLoggedIn) await VivoxService.Instance.LogoutAsync();
-            }
-            catch (Exception e) { Debug.LogWarning($"VOICE_STOP_WARNING {e.Message}"); }
+            try { await ShutDownVivoxAsync(); }
             finally
             {
-                _joined.Clear();
-                _transmit = null;
                 _busy = false;
                 Debug.Log("VOICE_STOPPED");
             }
         }
 
+        /// <summary>Best effort: stop transmitting first, then leave every channel, then log out; each step on its own.</summary>
+        async Task ShutDownVivoxAsync()
+        {
+            var vivox = VivoxService.Instance;
+            try { if (vivox.IsLoggedIn && _transmit != null) await vivox.SetChannelTransmissionModeAsync(TransmissionMode.None); }
+            catch (Exception e) { Debug.LogWarning($"VOICE_STOP_WARNING transmit {e.Message}"); }
+            try { if (vivox.ActiveChannels.Count > 0) await vivox.LeaveAllChannelsAsync(); }
+            catch (Exception e) { Debug.LogWarning($"VOICE_STOP_WARNING leave {e.Message}"); }
+            try { if (vivox.IsLoggedIn) await vivox.LogoutAsync(); }
+            catch (Exception e) { Debug.LogWarning($"VOICE_STOP_WARNING logout {e.Message}"); }
+            _joined.Clear();
+            _transmit = null;
+        }
+
+        /// <summary>
+        /// Voice broke: never leave a stale state behind (a dead player still heard on the positional channel), so tear
+        /// everything down, show why in Settings and try the room again a little later.
+        /// </summary>
         void Fail(Exception e)
         {
+            _generation++;
             Active = false;
+            _code = null;
+            _speaking.Clear();
             LastError = e.Message;
+            _retryAt = Time.unscaledTime + RetryDelay;
             Debug.LogWarning($"VOICE_FAILED reason={e.GetType().Name}: {e.Message}");
+            _ = TearDownAfterFailAsync();
+        }
+
+        async Task TearDownAfterFailAsync()
+        {
+            while (_busy) await Task.Yield();
+            _busy = true;
+            try { await ShutDownVivoxAsync(); }
+            finally { _busy = false; }
         }
 
         void Update()
         {
+            if (_lost) { _lost = false; Fail(new Exception("voice connection lost")); }
             // Events can arrive before the room code is known (joining clients), so also re-check here.
             if (!_busy && _svc != null)
             {
-                if (WantVoice && _code != _svc.RoomCode && LastError == null) _ = StartAsync(_svc.RoomCode);
+                bool mayTry = LastError == null || Time.unscaledTime >= _retryAt;
+                if (WantVoice && _code != _svc.RoomCode && mayTry) _ = StartAsync(_svc.RoomCode);
                 else if (!WantVoice && _code != null) _ = StopAsync();
             }
             if (!Active) return;
@@ -168,68 +226,89 @@ namespace BooTrayal.Game.Voice
         async Task ApplyAsync()
         {
             _busy = true;
+            int gen = _generation;
+            string code = _code;
+            var vivox = VivoxService.Instance;
             try
             {
                 var life = LocalLife();
                 var state = life != null ? life.State.Value : LifeState.Disconnected;
                 bool meeting = NightDirector.Instance != null && NightDirector.Instance.MeetingRunning;
-                var desired = VoiceRules.Joined(state).Select(c => (c, VoiceRules.ChannelName(_code, c))).ToList();
+                var desired = VoiceRules.Joined(state).Select(c => (c, VoiceRules.ChannelName(code, c))).ToList();
+                var to = VoiceRules.TransmitTo(state, meeting);
+                var transmit = to.HasValue ? VoiceRules.ChannelName(code, to.Value) : null;
+
+                // Stop talking into a channel we may no longer use before the slow joins (a new mini ghost must not
+                // be heard by the living while the ghost channel connects).
+                if (_transmit != null && _transmit != transmit)
+                {
+                    await vivox.SetChannelTransmissionModeAsync(TransmissionMode.None);
+                    if (gen != _generation) return;
+                    _transmit = null;
+                    Debug.Log("VOICE_TRANSMIT channel=-");
+                }
 
                 foreach (var (channel, name) in desired)
                 {
                     if (_joined.Contains(name)) continue;
                     if (channel == VoiceChannel.Positional)
-                        await VivoxService.Instance.JoinPositionalChannelAsync(name, ChatCapability.AudioOnly,
+                        await vivox.JoinPositionalChannelAsync(name, ChatCapability.AudioOnly,
                             new Channel3DProperties(VoiceRules.AudibleDistance, VoiceRules.ConversationalDistance, 1f, AudioFadeModel.InverseByDistance));
                     else
-                        await VivoxService.Instance.JoinGroupChannelAsync(name, ChatCapability.AudioOnly);
+                        await vivox.JoinGroupChannelAsync(name, ChatCapability.AudioOnly);
+                    if (gen != _generation) return;
                     _joined.Add(name);
                     _appliedVolume = -1f;
                     Debug.Log($"VOICE_JOINED channel={name}");
                 }
                 foreach (var name in _joined.Where(n => desired.All(d => d.Item2 != n)).ToList())
                 {
-                    await VivoxService.Instance.LeaveChannelAsync(name);
+                    await vivox.LeaveChannelAsync(name);
+                    if (gen != _generation) return;
                     _joined.Remove(name);
                     Debug.Log($"VOICE_LEFT channel={name}");
                 }
 
-                var to = VoiceRules.TransmitTo(state, meeting);
-                var transmit = to.HasValue ? VoiceRules.ChannelName(_code, to.Value) : null;
-                if (transmit != _transmit && (transmit == null || _joined.Contains(transmit)))
+                if (transmit != null && transmit != _transmit && _joined.Contains(transmit))
                 {
-                    if (transmit == null) await VivoxService.Instance.SetChannelTransmissionModeAsync(TransmissionMode.None);
-                    else await VivoxService.Instance.SetChannelTransmissionModeAsync(TransmissionMode.Single, transmit);
+                    await vivox.SetChannelTransmissionModeAsync(TransmissionMode.Single, transmit);
+                    if (gen != _generation) return;
                     _transmit = transmit;
-                    Debug.Log($"VOICE_TRANSMIT channel={transmit ?? "-"}");
+                    Debug.Log($"VOICE_TRANSMIT channel={transmit}");
                 }
 
                 if (!Mathf.Approximately(_appliedVolume, GameSettings.VoiceVolume))
                 {
                     _appliedVolume = GameSettings.VoiceVolume;
-                    int v = Mathf.RoundToInt(Mathf.Lerp(-50f, 50f, GameSettings.VoiceVolume));
-                    foreach (var name in _joined) await VivoxService.Instance.SetChannelVolumeAsync(name, v);
+                    int v = VoiceRules.ChannelVolume(GameSettings.VoiceVolume);
+                    foreach (var name in _joined.ToList()) await vivox.SetChannelVolumeAsync(name, v);
+                    if (gen != _generation) return;
                 }
 
-                UpdatePosition(life);
-                ReadSpeakers(life);
+                UpdatePosition(life, code);
+                ReadSpeakers(life, code, meeting);
             }
-            catch (Exception e) { Fail(e); }
+            catch (Exception e)
+            {
+                if (gen == _generation) Fail(e);
+            }
             finally { _busy = false; }
         }
 
-        void UpdatePosition(PlayerLife life)
+        void UpdatePosition(PlayerLife life, string code)
         {
-            var pos = VoiceRules.ChannelName(_code, VoiceChannel.Positional);
+            var pos = VoiceRules.ChannelName(code, VoiceChannel.Positional);
             if (life == null || !_joined.Contains(pos)) return;
             var head = life.transform.Find("HeadPivot");
             VivoxService.Instance.Set3DPosition(head != null ? head.gameObject : life.gameObject, pos);
         }
 
-        void ReadSpeakers(PlayerLife life)
+        void ReadSpeakers(PlayerLife life, string code, bool meeting)
         {
             _speaking.Clear();
             var channels = VivoxService.Instance.ActiveChannels;
+            var positional = VoiceRules.ChannelName(code, VoiceChannel.Positional);
+            var spawn = NetworkManager.Singleton != null ? NetworkManager.Singleton.SpawnManager : null;
             foreach (var name in _joined)
             {
                 if (!channels.TryGetValue(name, out var participants)) continue;
@@ -239,7 +318,8 @@ namespace BooTrayal.Game.Voice
                     if (p.IsSelf)
                     {
                         // Loud talking is a noise the Krasue hears (GDD 6.4); quiet talk is safe.
-                        if (name == _transmit && life != null && Time.realtimeSinceStartupAsDouble - _lastSend >= VoiceRules.ClientSendInterval)
+                        // Meetings pause the Krasue, so no noise reports then.
+                        if (!meeting && name == _transmit && life != null && Time.realtimeSinceStartupAsDouble - _lastSend >= VoiceRules.ClientSendInterval)
                         {
                             float level = VoiceRules.LoudnessFromEnergy(p.AudioEnergy);
                             if (level > 0f)
@@ -250,7 +330,14 @@ namespace BooTrayal.Game.Voice
                         }
                         continue;
                     }
-                    if (ulong.TryParse(p.DisplayName, out var id)) _speaking.Add(id);
+                    if (!ulong.TryParse(p.DisplayName, out var id)) continue;
+                    // Positional speech beyond earshot must not reveal who is talking across the house.
+                    if (name == positional && life != null && spawn != null)
+                    {
+                        var other = spawn.GetPlayerNetworkObject(id);
+                        if (other != null && Vector3.Distance(other.transform.position, life.transform.position) > VoiceRules.AudibleDistance) continue;
+                    }
+                    _speaking.Add(id);
                 }
             }
         }

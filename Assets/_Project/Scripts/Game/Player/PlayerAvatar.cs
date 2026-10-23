@@ -43,6 +43,9 @@ namespace BooTrayal.Game.Player
         Vector3 _lastPos;
         float _speed;
 
+        // Faster than anyone can run: a spawn or a meeting warp, not walking.
+        const float TeleportSpeed = 12f;
+
         void Awake()
         {
             _visual = transform.Find("Visual");
@@ -55,6 +58,7 @@ namespace BooTrayal.Game.Player
         {
             if (IsOwner && ConnectionService.Instance != null && !string.IsNullOrEmpty(ConnectionService.Instance.PlayerDisplayName))
                 DisplayName.Value = new FixedString128Bytes(ConnectionService.Instance.PlayerDisplayName); // names are capped at 96 UTF-8 bytes
+            _lastPos = transform.position;
             var mini = transform.Find("MiniGhostVisual");
             if (IsOwner && mini != null)
                 foreach (var r in mini.GetComponentsInChildren<Renderer>(true)) r.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
@@ -83,7 +87,8 @@ namespace BooTrayal.Game.Player
                 // Remote players: the motor's speed is not networked, so measure the synced transform.
                 var d = transform.position - _lastPos;
                 d.y = 0f;
-                _speed = Mathf.Lerp(_speed, d.magnitude / dt, 0.2f);
+                float measured = d.magnitude / dt;
+                if (measured < TeleportSpeed) _speed = Mathf.Lerp(_speed, measured, 0.2f);
             }
             _lastPos = transform.position;
             _animator.SetFloat(SpeedId, _speed);

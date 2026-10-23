@@ -37,10 +37,10 @@ Shader "BooTrayal/Toon"
             #pragma vertex Vert
             #pragma fragment Frag
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
-            #pragma multi_compile _ _ADDITIONAL_LIGHTS_VERTEX _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS
             #pragma multi_compile_fragment _ _ADDITIONAL_LIGHT_SHADOWS
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #pragma multi_compile _ _FORWARD_PLUS _CLUSTER_LIGHT_LOOP
+            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
             #pragma multi_compile_fog
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -76,6 +76,12 @@ Shader "BooTrayal/Toon"
                 return ndl > 0.45h ? 1.0h : (ndl > 0.05h ? 0.72h : _Shade);
             }
 
+            half3 AdditionalToon(half3 baseColor, float3 n, Light light)
+            {
+                half d = saturate(dot(n, light.direction)) * light.distanceAttenuation * light.shadowAttenuation;
+                return baseColor * light.color * (d > 0.2h ? d * 1.2h : d * 0.5h);
+            }
+
             half4 Frag(Varyings i) : SV_Target
             {
                 float3 n = normalize(i.normalWS);
@@ -91,11 +97,18 @@ Shader "BooTrayal/Toon"
                 inputData.positionWS = i.positionWS;
                 inputData.normalWS = n;
                 inputData.normalizedScreenSpaceUV = GetNormalizedScreenSpaceUV(i.positionCS);
+                #if USE_CLUSTER_LIGHT_LOOP
+                // The cluster loop below skips extra directional lights; URP lists them first.
+                [loop] for (uint dirIndex = 0; dirIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); dirIndex++)
+                {
+                    Light light = GetAdditionalLight(dirIndex, i.positionWS, half4(1, 1, 1, 1));
+                    color += AdditionalToon(baseColor, n, light);
+                }
+                #endif
                 uint lightCount = GetAdditionalLightsCount();
                 LIGHT_LOOP_BEGIN(lightCount)
                     Light light = GetAdditionalLight(lightIndex, i.positionWS, half4(1, 1, 1, 1));
-                    half d = saturate(dot(n, light.direction)) * light.distanceAttenuation * light.shadowAttenuation;
-                    color += baseColor * light.color * (d > 0.2h ? d * 1.2h : d * 0.5h);
+                    color += AdditionalToon(baseColor, n, light);
                 LIGHT_LOOP_END
                 #endif
 
@@ -139,8 +152,117 @@ Shader "BooTrayal/Toon"
             ENDHLSL
         }
 
-        UsePass "Universal Render Pipeline/Lit/ShadowCaster"
-        UsePass "Universal Render Pipeline/Lit/DepthOnly"
+        // Own shadow/depth passes (not borrowed from Lit): every pass shares this shader's UnityPerMaterial layout, which
+        // the SRP Batcher needs, and DepthNormals puts toon objects into SSAO and the depth-normals texture.
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags { "LightMode" = "ShadowCaster" }
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            // Set by URP per light: the direction for directional lights, the position for spot/point lights.
+            float3 _LightDirection;
+            float3 _LightPosition;
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+            };
+
+            float4 Vert(Attributes input) : SV_POSITION
+            {
+                float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
+                #if defined(_CASTING_PUNCTUAL_LIGHT_SHADOW)
+                float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+                #else
+                float3 lightDirectionWS = _LightDirection;
+                #endif
+                return ApplyShadowClamping(TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS)));
+            }
+
+            half4 Frag() : SV_Target
+            {
+                return 0;
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "DepthOnly"
+            Tags { "LightMode" = "DepthOnly" }
+            ZWrite On
+            ColorMask R
+
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
+
+            float4 Vert(float4 positionOS : POSITION) : SV_POSITION
+            {
+                return TransformObjectToHClip(positionOS.xyz);
+            }
+
+            half Frag(float4 positionCS : SV_POSITION) : SV_Target
+            {
+                return positionCS.z;
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags { "LightMode" = "DepthNormals" }
+            ZWrite On
+
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment Frag
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+            };
+
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float3 normalWS : TEXCOORD0;
+            };
+
+            Varyings Vert(Attributes input)
+            {
+                Varyings o;
+                o.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                o.normalWS = TransformObjectToWorldNormal(input.normalOS);
+                return o;
+            }
+
+            half4 Frag(Varyings i) : SV_Target
+            {
+                float3 normalWS = normalize(i.normalWS);
+                #if defined(_GBUFFER_NORMALS_OCT)
+                float2 octNormalWS = PackNormalOctQuadEncode(normalWS);
+                return half4(PackFloat2To888(saturate(octNormalWS * 0.5 + 0.5)), 0.0);
+                #else
+                return half4(normalWS, 0.0);
+                #endif
+            }
+            ENDHLSL
+        }
     }
     FallBack Off
 }

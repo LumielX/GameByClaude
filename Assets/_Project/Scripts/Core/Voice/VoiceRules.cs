@@ -63,6 +63,20 @@ namespace BooTrayal.Core.Voice
             return (float)Math.Min(1.0, (energy - EnergyThreshold) / (EnergyFull - EnergyThreshold));
         }
 
+        /// <summary>
+        /// Volume setting 0..1 → Vivox channel volume (-50..50, 0 = as recorded). The default 0.8 is unity gain; above it
+        /// is a mild boost, below fades to the quietest level.
+        /// </summary>
+        public static int ChannelVolume(float setting)
+        {
+            if (float.IsNaN(setting)) return 0;
+            float x = Math.Max(0f, Math.Min(1f, setting));
+            double v = x <= DefaultVolume ? -50.0 * (1.0 - x / DefaultVolume) : 20.0 * (x - DefaultVolume) / (1.0 - DefaultVolume);
+            return (int)Math.Round(v);
+        }
+
+        public const float DefaultVolume = 0.8f;
+
         /// <summary>Server-side flood guard for mic reports.</summary>
         public static bool AcceptVoice(double now, double lastAccepted) =>
             !double.IsNaN(now) && now - lastAccepted >= ServerAcceptInterval - 1e-6;

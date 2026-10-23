@@ -18,6 +18,7 @@ namespace BooTrayal.Game.Audio
         AudioSource _ambience;
         AudioSource _oneShots;
         MeetingPhase _lastMeeting;
+        bool _seenHouse;
 
         void Awake()
         {
@@ -48,8 +49,10 @@ namespace BooTrayal.Game.Audio
             else if (_ambience.volume <= 0f && _ambience.isPlaying) _ambience.Stop();
 
             var meeting = inHouse ? d.MeetPhase.Value : MeetingPhase.None;
-            if (meeting == MeetingPhase.Discuss && _lastMeeting != MeetingPhase.Discuss) PlayBell();
+            // The first frame in the House only records the phase: joining mid-meeting rings no bell.
+            if (_seenHouse && meeting == MeetingPhase.Discuss && _lastMeeting != MeetingPhase.Discuss) PlayBell();
             _lastMeeting = meeting;
+            _seenHouse = inHouse;
         }
 
         public void PlayBell()

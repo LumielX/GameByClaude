@@ -281,6 +281,8 @@ namespace BooTrayal.UI
             // Checked against the real state every frame: spawning the local player locks the cursor on its own.
             bool free = !(session && main == "hud" && !vote && !Paused && ErrorKey == null);
             if (PlayerInputReader.CursorFree != free) PlayerInputReader.SetCursorFree(free);
+            var focused = _root.focusController?.focusedElement as VisualElement;
+            PlayerInputReader.TextFocused = focused != null && (focused is TextField || focused.GetFirstAncestorOfType<TextField>() != null);
         }
 
         static void SetVisible(UIScreen s, bool show)

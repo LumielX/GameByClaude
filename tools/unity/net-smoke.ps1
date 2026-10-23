@@ -82,6 +82,10 @@ try {
     Stop-Process -Id $host1.Process.Id -Force
     $line = Wait-Marker $c1 'NET_HOST_LOST|NET_FAILED'
     if ($line -notmatch 'NET_HOST_LOST') { throw "expected NET_HOST_LOST, got: $line" }
+    if ($Voice -and (Select-String -Path $c1.Log -Pattern 'VOICE_LOGGED_IN' -Quiet)) {
+        Write-Host '-- voice shuts down with the room'
+        Wait-Marker $c1 'VOICE_STOPPED' | Out-Null
+    }
 
     $ok = $true
 }

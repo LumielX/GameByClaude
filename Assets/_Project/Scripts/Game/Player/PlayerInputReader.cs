@@ -11,6 +11,8 @@ namespace BooTrayal.Game.Player
 
         /// <summary>True while a menu needs the mouse (Esc toggles). Gameplay input reads as idle.</summary>
         public static bool CursorFree { get; private set; }
+        /// <summary>A UI text field has keyboard focus (set by the UI); talk keys must not fire while typing.</summary>
+        public static bool TextFocused { get; set; }
 
         InputAction _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _scream, _powerSabotage, _powerBlackout, _talk, _escape;
         bool _active;
@@ -107,6 +109,7 @@ namespace BooTrayal.Game.Player
         public bool ScreamPressed => Live && _scream.WasPressedThisFrame();
         public bool PowerSabotagePressed => Live && _powerSabotage.WasPressedThisFrame();
         public bool PowerBlackoutPressed => Live && _powerBlackout.WasPressedThisFrame();
-        public bool TalkHeld => Live && _talk.IsPressed();
+        // Push-to-talk also works with the cursor free: meetings are where talking matters most (GDD 7.4).
+        public bool TalkHeld => _active && !TextFocused && _talk.IsPressed();
     }
 }

@@ -57,5 +57,17 @@ namespace BooTrayal.Tests
             Assert.IsTrue(VoiceRules.AcceptVoice(10.4, 10.0));
             Assert.IsFalse(VoiceRules.AcceptVoice(double.NaN, 10.0));
         }
+
+        [Test]
+        public void ChannelVolume_DefaultIsUnityGain()
+        {
+            Assert.AreEqual(-50, VoiceRules.ChannelVolume(0f), "slider at 0 is the quietest Vivox level");
+            Assert.AreEqual(0, VoiceRules.ChannelVolume(0.8f), "the default setting plays voices as recorded");
+            Assert.AreEqual(20, VoiceRules.ChannelVolume(1f), "the top of the slider is a mild boost");
+            Assert.AreEqual(-25, VoiceRules.ChannelVolume(0.4f));
+            Assert.AreEqual(-50, VoiceRules.ChannelVolume(-1f));
+            Assert.AreEqual(20, VoiceRules.ChannelVolume(2f));
+            Assert.AreEqual(0, VoiceRules.ChannelVolume(float.NaN), "a broken setting falls back to unity gain");
+        }
     }
 }

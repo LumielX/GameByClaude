@@ -35,6 +35,7 @@ namespace BooTrayal.UI.Screens
     public class HudScreen : UIScreen
     {
         Label _night, _timer, _seals, _ritual, _escape, _hintText, _banner, _toast, _adrenaline, _heldName, _role, _speaking;
+        int _speakingKey = int.MinValue;
         VisualElement _hint, _bannerRow, _toastRow, _staminaFill, _held;
 
         protected override void Bind()
@@ -104,10 +105,17 @@ namespace BooTrayal.UI.Screens
             else _role.text = L.Get("hud.role.crew");
             _role.style.display = _role.text.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
 
+            // Rebuilt only when the set of speakers changes, not every frame someone talks.
             var voice = BooTrayal.Game.Voice.VoiceService.Instance;
-            _speaking.text = voice != null && voice.Speaking.Count > 0
-                ? string.Join("\n", voice.Speaking.Select(id => L.Format("hud.speaking", PlayerAvatar.NameOf(id))))
-                : "";
+            int key = 17;
+            if (voice != null) foreach (var id in voice.Speaking) key = unchecked(key * 31 + (int)id + 1);
+            if (key != _speakingKey)
+            {
+                _speakingKey = key;
+                _speaking.text = voice != null && voice.Speaking.Count > 0
+                    ? string.Join("\n", voice.Speaking.OrderBy(id => id).Select(id => L.Format("hud.speaking", PlayerAvatar.NameOf(id))))
+                    : "";
+            }
         }
 
         static string PartText(Interactable part)
