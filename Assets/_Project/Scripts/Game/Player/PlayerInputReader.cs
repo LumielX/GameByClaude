@@ -12,7 +12,7 @@ namespace BooTrayal.Game.Player
         /// <summary>True while a menu needs the mouse (Esc toggles). Gameplay input reads as idle.</summary>
         public static bool CursorFree { get; private set; }
 
-        InputAction _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _escape;
+        InputAction _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _scream, _escape;
         bool _active;
 
         void Awake()
@@ -31,6 +31,7 @@ namespace BooTrayal.Game.Player
             _drop = Button("Drop", "<Keyboard>/g", "<Gamepad>/buttonNorth");
             _push = Button("Push", "<Mouse>/rightButton", "<Gamepad>/leftTrigger");
             _flashlight = Button("Flashlight", "<Keyboard>/f", "<Gamepad>/dpad/up");
+            _scream = Button("Scream", "<Keyboard>/z", "<Gamepad>/rightShoulder");
             _escape = Button("Escape", "<Keyboard>/escape", "<Gamepad>/start");
         }
 
@@ -74,7 +75,7 @@ namespace BooTrayal.Game.Player
             Cursor.visible = free;
         }
 
-        InputAction[] All() => new[] { _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _escape };
+        InputAction[] All() => new[] { _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _scream, _escape };
 
         bool Live => _active && !CursorFree;
 
@@ -99,5 +100,6 @@ namespace BooTrayal.Game.Player
         public bool DropPressed => Live && _drop.WasPressedThisFrame();
         public bool PushPressed => Live && _push.WasPressedThisFrame();
         public bool FlashlightPressed => Live && _flashlight.WasPressedThisFrame();
+        public bool ScreamPressed => Live && _scream.WasPressedThisFrame();
     }
 }

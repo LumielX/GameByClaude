@@ -28,6 +28,7 @@ namespace BooTrayal.Game.Player
 
         readonly Knockdown _knockdown = new Knockdown();
         CharacterController _cc;
+        PlayerLife _life;
         Transform _head;
         Vector3 _external;
         float _vy;
@@ -45,6 +46,7 @@ namespace BooTrayal.Game.Player
         void Awake()
         {
             _cc = GetComponent<CharacterController>();
+            _life = GetComponent<PlayerLife>();
             _head = transform.Find("HeadPivot");
         }
 
@@ -74,6 +76,7 @@ namespace BooTrayal.Game.Player
         void Update()
         {
             if (!IsSpawned || !IsOwner) return;
+            if (_life != null && _life.Dead.Value) return;
             var input = PlayerInputSource.Get(gameObject);
             float dt = Time.deltaTime;
 
@@ -84,6 +87,7 @@ namespace BooTrayal.Game.Player
 
             var move = input.Move;
             var mi = new MoveInput { X = move.x, Y = move.y, Run = input.Run, Crouch = input.Crouch, Jump = input.JumpPressed };
+            if (_life != null && !_life.CanMove) mi = default; // held by a ghost
             bool running = MovementModel.IsRunning(mi, Stamina.CanRun, down);
             float speed = MovementModel.TargetSpeed(mi, Stamina.CanRun, Adrenaline.SpeedMultiplier, Load, down);
             Stamina.Tick(dt, running, Adrenaline.StaminaDrainMultiplier);

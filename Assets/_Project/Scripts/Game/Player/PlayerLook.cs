@@ -15,6 +15,7 @@ namespace BooTrayal.Game.Player
 
         Transform _head;
         PlayerMotor _motor;
+        PlayerLife _life;
         float _yaw;
         float _localPitch;
         float _roll;
@@ -25,6 +26,7 @@ namespace BooTrayal.Game.Player
         {
             _head = transform.Find("HeadPivot");
             _motor = GetComponent<PlayerMotor>();
+            _life = GetComponent<PlayerLife>();
         }
 
         public override void OnNetworkSpawn()
@@ -55,7 +57,7 @@ namespace BooTrayal.Game.Player
             {
                 var look = PlayerInputSource.Get(gameObject).Look;
                 bool down = _motor != null && _motor.IsKnockedDown.Value;
-                if (!down)
+                if (!down && (_life == null || _life.CanMove))
                 {
                     _yaw += look.x;
                     _localPitch = Mathf.Clamp(_localPitch - look.y, -MaxPitch, MaxPitch);

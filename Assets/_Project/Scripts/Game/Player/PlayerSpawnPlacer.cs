@@ -30,11 +30,18 @@ namespace BooTrayal.Game.Player
 
         void TryPlace()
         {
+            var point = PointFor(OwnerClientId);
+            if (point == null) return;
+            GetComponent<PlayerMotor>().Teleport(point.position, point.rotation);
+            Debug.Log($"PLAYER_PLACED owner={OwnerClientId} spawn={point.GetComponent<SpawnPoint>().Index}");
+        }
+
+        /// <summary>The spawn point for a client in the loaded scene, or null if there is none.</summary>
+        public static Transform PointFor(ulong clientId)
+        {
             var points = FindObjectsByType<SpawnPoint>().OrderBy(p => p.Index).ToArray();
-            if (points.Length == 0) return;
-            var point = points[(int)(OwnerClientId % (ulong)points.Length)];
-            GetComponent<PlayerMotor>().Teleport(point.transform.position, point.transform.rotation);
-            Debug.Log($"PLAYER_PLACED owner={OwnerClientId} spawn={point.Index}");
+            if (points.Length == 0) return null;
+            return points[(int)(clientId % (ulong)points.Length)].transform;
         }
     }
 }

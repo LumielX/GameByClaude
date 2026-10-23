@@ -2,13 +2,13 @@ using UnityEngine;
 
 namespace BooTrayal.Game.Player
 {
-    public enum BotButton { Jump, Interact, Throw, Drop, Push, Flashlight }
+    public enum BotButton { Jump, Interact, Throw, Drop, Push, Flashlight, Scream }
 
     /// <summary>Scripted input for smoke tests. Disabled unless a SmokeProbe turns it on.</summary>
     [DefaultExecutionOrder(-100)]
     public class BotInput : MonoBehaviour, IPlayerInput
     {
-        const int ButtonCount = 6;
+        const int ButtonCount = 7;
 
         // Presses requested by coroutines (which run after Update) become visible on the next frame's Update.
         readonly bool[] _pending = new bool[ButtonCount];
@@ -24,6 +24,7 @@ namespace BooTrayal.Game.Player
         public bool DropPressed => _active[(int)BotButton.Drop];
         public bool PushPressed => _active[(int)BotButton.Push];
         public bool FlashlightPressed => _active[(int)BotButton.Flashlight];
+        public bool ScreamPressed => _active[(int)BotButton.Scream];
 
         /// <summary>Presses a button for exactly one frame (the next one).</summary>
         public void Press(BotButton button) => _pending[(int)button] = true;

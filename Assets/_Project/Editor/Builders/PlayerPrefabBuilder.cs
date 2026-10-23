@@ -45,6 +45,8 @@ namespace BooTrayal.Editor.Builders
             Ensure<PlayerAvatar>(root);
             Ensure<PlayerHands>(root);
             Ensure<PlayerPush>(root);
+            Ensure<PlayerLife>(root);
+            Ensure<PlayerNoise>(root);
 
             var body = Lit("PlayerBody", new Color(0.95f, 0.70f, 0.24f));
             var skin = Lit("PlayerSkin", new Color(1f, 0.85f, 0.72f));

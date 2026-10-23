@@ -16,6 +16,7 @@ namespace BooTrayal.Game.Player
         bool DropPressed { get; }
         bool PushPressed { get; }
         bool FlashlightPressed { get; }
+        bool ScreamPressed { get; }
     }
 
     public static class PlayerInputSource

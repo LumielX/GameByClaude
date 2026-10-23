@@ -52,6 +52,8 @@ GameObject:
   - component: {fileID: 8454479890432471271}
   - component: {fileID: 1845311767415326353}
   - component: {fileID: 6621714940617515828}
+  - component: {fileID: 4206305322193199984}
+  - component: {fileID: 7753187777118597450}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -288,6 +290,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e203b739c021ac94c85a329702e90911, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BooTrayal.Game::BooTrayal.Game.Player.PlayerPush
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &4206305322193199984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052667321648745176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ed57bbdaf7968d46a6e16f466cf17a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BooTrayal.Game::BooTrayal.Game.Player.PlayerLife
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &7753187777118597450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2052667321648745176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508cbebcc3fdef14da6f6ba255b1b2c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BooTrayal.Game::BooTrayal.Game.Player.PlayerNoise
   ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &2174870329552891540
 GameObject:
