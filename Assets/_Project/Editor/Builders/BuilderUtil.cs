@@ -96,21 +96,22 @@ namespace BooTrayal.Editor.Builders
         /// </summary>
         public static GameObject ModelChild(GameObject parent, string modelName, Vector3 localPos = default, bool hideParentRenderer = true)
         {
-            var existing = parent.transform.Find("Model");
-            GameObject go;
-            if (existing != null) go = existing.gameObject;
-            else
-            {
-                go = (GameObject)PrefabUtility.InstantiatePrefab(ModelImportBuilder.Model(modelName), parent.scene);
-                go.name = "Model";
-                go.transform.SetParent(parent.transform, false);
-            }
+            // An unrotated holder undoes the parent's (often non-uniform) scale; the FBX instance inside keeps its own
+            // import rotation. Counter-scaling a rotated child directly would skew it.
+            var old = parent.transform.Find("Model");
+            if (old != null && PrefabUtility.IsAnyPrefabInstanceRoot(old.gameObject)) Object.DestroyImmediate(old.gameObject);
+            var holder = Child(parent, "Model", localPos);
+            holder.transform.localRotation = Quaternion.identity;
             var s = parent.transform.lossyScale;
-            go.transform.localPosition = localPos;
-            go.transform.localRotation = Quaternion.identity;
-            go.transform.localScale = new Vector3(1f / s.x, 1f / s.y, 1f / s.z);
+            holder.transform.localScale = new Vector3(1f / s.x, 1f / s.y, 1f / s.z);
+            if (holder.transform.Find(modelName) == null)
+            {
+                var instance = (GameObject)PrefabUtility.InstantiatePrefab(ModelImportBuilder.Model(modelName), parent.scene);
+                instance.name = modelName;
+                instance.transform.SetParent(holder.transform, false);
+            }
             if (hideParentRenderer && parent.TryGetComponent<Renderer>(out var r)) r.enabled = false;
-            return go;
+            return holder;
         }
 
         public static Material Lit(string name, Color color, float smoothness = 0.15f)

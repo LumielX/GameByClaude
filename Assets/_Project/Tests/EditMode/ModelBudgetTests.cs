@@ -72,6 +72,29 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void HouseModels_StandUpright()
+        {
+            var scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/_Project/Scenes/House.unity");
+            try
+            {
+                // Each placed model is taller than it is wide (pots, urn, incense, bell, spirit house).
+                foreach (var path in new[] { "Item_pot1/Model", "Item_urn/Model", "Item_incense/Model", "ShrineBell/Bell/Model", "Environment/Yard/SpiritHouse/Model" })
+                {
+                    var root = path.Split('/')[0];
+                    var top = scene.GetRootGameObjects().First(g => g.name == root).transform;
+                    var model = path.Contains("/") ? top.Find(path.Substring(root.Length + 1)) : top;
+                    Assert.IsNotNull(model, path);
+                    var renderers = model.GetComponentsInChildren<Renderer>();
+                    Assert.IsNotEmpty(renderers, $"{path} has no renderer");
+                    var b = renderers[0].bounds;
+                    foreach (var r in renderers) b.Encapsulate(r.bounds);
+                    Assert.Greater(b.size.y, 0.9f * Mathf.Max(b.size.x, b.size.z), $"{path} is lying down: {b.size}");
+                }
+            }
+            finally { UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.EmptyScene); }
+        }
+
+        [Test]
         public void ToonShader_Compiles()
         {
             var shader = Shader.Find("BooTrayal/Toon");
