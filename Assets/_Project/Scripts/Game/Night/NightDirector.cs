@@ -59,6 +59,9 @@ namespace BooTrayal.Game.Night
         public string LastSummary { get; private set; } = "";
         public string LastMeetingResult { get; private set; } = "";
         public float MeetingResultUntil { get; private set; }
+        /// <summary>Who showed the cold breath most recently, and how many traces this peer has seen (smoke bots use these).</summary>
+        public ulong? LastSpyTraceId { get; private set; }
+        public int SpyTraceCount { get; private set; }
 
         // ---- Server state ----
         GameSession _game;
@@ -547,6 +550,8 @@ namespace BooTrayal.Game.Night
         [Rpc(SendTo.Everyone, InvokePermission = RpcInvokePermission.Server)]
         void SpyTraceRpc(ulong spy)
         {
+            LastSpyTraceId = spy;
+            SpyTraceCount++;
             if (Application.isBatchMode) Debug.Log($"SPY_TRACE id={spy}");
             var player = NetworkManager.SpawnManager.GetPlayerNetworkObject(spy);
             if (player != null) NightEffects.ShowColdBreath(player.transform, SpyPowerRules.TraceSeconds);

@@ -58,6 +58,8 @@ namespace BooTrayal.Game.Items
         public override void OnNetworkSpawn()
         {
             if (!_all.Contains(this)) _all.Add(this);
+            Holders.OnListChanged += OnHoldersChanged;
+            RefreshHolderCollisions();
             if (!IsServer) return;
             NetworkManager.OnClientDisconnectCallback += OnClientDisconnect;
             _impactCooldown = SettleSeconds;
@@ -112,7 +114,26 @@ namespace BooTrayal.Game.Items
         public override void OnNetworkDespawn()
         {
             _all.Remove(this);
+            Holders.OnListChanged -= OnHoldersChanged;
             if (IsServer && NetworkManager != null) NetworkManager.OnClientDisconnectCallback -= OnClientDisconnect;
+        }
+
+        void OnHoldersChanged(NetworkListEvent<ulong> change) => RefreshHolderCollisions();
+
+        /// <summary>
+        /// A carried item must not block its own carriers' CharacterControllers (a dragged urn sits right in front of
+        /// the holder). Runs on every peer, because each owner moves its own controller.
+        /// </summary>
+        void RefreshHolderCollisions()
+        {
+            var cols = GetComponentsInChildren<Collider>();
+            if (cols.Length == 0 || NetworkManager == null || NetworkManager.SpawnManager == null) return;
+            foreach (var no in NetworkManager.SpawnManager.SpawnedObjectsList)
+            {
+                if (!no.IsPlayerObject || !no.TryGetComponent<CharacterController>(out var cc)) continue;
+                bool holding = Holders.Contains(no.OwnerClientId);
+                foreach (var c in cols) Physics.IgnoreCollision(c, cc, holding);
+            }
         }
 
         public Vector3 ClosestPoint(Vector3 from)

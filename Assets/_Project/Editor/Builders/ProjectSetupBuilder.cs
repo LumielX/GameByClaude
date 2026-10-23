@@ -10,6 +10,23 @@ namespace BooTrayal.Editor.Builders
     {
         const int InputSystemOnly = 1;
 
+        /// <summary>
+        /// The Humanoid NavMesh agent climbs only what the player's CharacterController can step (0.4 m), so paths
+        /// (bots, ghost) never go up the side of a ramp a player cannot climb.
+        /// </summary>
+        static void SetNavMeshAgentClimb(float climb)
+        {
+            var assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/NavMeshAreas.asset");
+            if (assets.Length == 0) return;
+            var so = new SerializedObject(assets[0]);
+            var first = so.FindProperty("m_Settings").GetArrayElementAtIndex(0);
+            var prop = first.FindPropertyRelative("agentClimb");
+            if (Mathf.Approximately(prop.floatValue, climb)) return;
+            prop.floatValue = climb;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            AssetDatabase.SaveAssets();
+        }
+
         public static void Apply()
         {
             PlayerSettings.companyName = "LumielX";
@@ -23,6 +40,7 @@ namespace BooTrayal.Editor.Builders
             // Several game instances on one PC must keep simulating while unfocused.
             PlayerSettings.runInBackground = true;
             PlayerSettings.visibleInBackground = true;
+            SetNavMeshAgentClimb(0.4f);
             PlayerSettings.usePlayerLog = true;
             PlayerSettings.colorSpace = ColorSpace.Linear;
             SetActiveInputHandler(InputSystemOnly);

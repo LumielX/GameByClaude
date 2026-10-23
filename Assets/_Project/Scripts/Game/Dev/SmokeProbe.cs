@@ -19,7 +19,7 @@ namespace BooTrayal.Game.Dev
     /// Roles: host (watches remote players), walker (walk, grab a box, throw it), lifter (grab the urn), holder (grab a box and keep it),
     /// waller, pusher (player-smoke); victim (sneak behind the ghost and scream), lighter (shine a flashlight in its face) for ghost-smoke.
     /// </summary>
-    public class SmokeProbe : MonoBehaviour
+    public partial class SmokeProbe : MonoBehaviour
     {
         const float MovedThreshold = 2f;
 
@@ -50,6 +50,8 @@ namespace BooTrayal.Game.Dev
                 case "pusher": yield return Pusher(); break;
                 case "victim": yield return Victim(); break;
                 case "lighter": yield return Lighter(); break;
+                case "coop": yield return Coop(); break;
+                case "spybot": yield return SpyBot(); break;
             }
         }
 
