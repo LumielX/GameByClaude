@@ -38,6 +38,15 @@ namespace BooTrayal.Core.Player
             return running && !crouching ? Make(RunLoudness) : new Noise(0f, 0f);
         }
 
+        /// <summary>Voice level 0..1 (scream = 1, later the mic level from Vivox). Krasue hears this (GDD 6.4).</summary>
+        public static Noise FromVoice(float level)
+        {
+            if (float.IsNaN(level) || level < MinVoiceLevel) return new Noise(0f, 0f);
+            return Make(Math.Min(1f, level));
+        }
+
+        public const float MinVoiceLevel = 0.05f;
+
         static Noise Make(float loudness) => new Noise(loudness, BaseRadius + RadiusPerLoudness * loudness);
     }
 }
