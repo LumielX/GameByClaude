@@ -15,6 +15,8 @@ namespace BooTrayal.Game.World
         public NetworkBehaviour Station;
         public int Part;
         public string Label = "";
+        /// <summary>Where a player stands to use this part (on the NavMesh; smoke bots walk here).</summary>
+        public Transform Approach;
 
         /// <summary>Closest point of this part's collider to <paramref name="from"/>.</summary>
         public Vector3 ClosestPoint(Vector3 from)

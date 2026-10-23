@@ -50,8 +50,14 @@ namespace BooTrayal.Game.Items
         float _radius;
         float _halfHeight;
 
+        static readonly List<GrabbableItem> _all = new List<GrabbableItem>();
+
+        /// <summary>Every spawned item on this peer.</summary>
+        public static IReadOnlyList<GrabbableItem> All => _all;
+
         public override void OnNetworkSpawn()
         {
+            if (!_all.Contains(this)) _all.Add(this);
             if (!IsServer) return;
             NetworkManager.OnClientDisconnectCallback += OnClientDisconnect;
             _impactCooldown = SettleSeconds;
@@ -102,6 +108,7 @@ namespace BooTrayal.Game.Items
 
         public override void OnNetworkDespawn()
         {
+            _all.Remove(this);
             if (IsServer && NetworkManager != null) NetworkManager.OnClientDisconnectCallback -= OnClientDisconnect;
         }
 

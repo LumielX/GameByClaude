@@ -140,6 +140,7 @@ namespace BooTrayal.Editor.Builders
             Item(scene, "pot1", PrimitiveType.Cylinder, new Vector3(4f, 0.3f, -12f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false);
             Item(scene, "pot2", PrimitiveType.Cylinder, new Vector3(6f, FloorY + 0.3f, 2f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false);
             Item(scene, "pot3", PrimitiveType.Cylinder, new Vector3(-6f, FloorY + 0.3f, 3f), new Vector3(0.4f, 0.25f, 0.4f), potMat, 2f, heavy: false);
+            Item(scene, "incense", PrimitiveType.Cylinder, new Vector3(-6f, FloorY + 0.3f, -3f), new Vector3(0.25f, 0.25f, 0.25f), Lit("ItemIncense", new Color(0.55f, 0.75f, 0.35f)), 1f, heavy: false);
             Item(scene, "urn", PrimitiveType.Cylinder, new Vector3(0f, FloorY + 0.6f, 2f), new Vector3(0.9f, 0.6f, 0.9f), urnMat, 60f, heavy: true);
 
             var lights = Root(scene, "Lights");
@@ -155,11 +156,13 @@ namespace BooTrayal.Editor.Builders
             Lamp(lights, "LampKitchen", new Vector3(6.5f, FloorY + 2f, 0f), new Color(0.65f, 0.35f, 1f), 8f, 2f, true);
             Lamp(lights, "LampUnder", new Vector3(0f, 2f, 0f), new Color(0.3f, 1f, 0.55f), 9f, 1.2f, true);
 
+            var stationPoints = HouseStationsBuilder.Build(scene, env);
             BakeNavMesh(env);
             EditorSceneManager.SaveScene(scene, ScenePath);
             ResaveScene(ScenePath);
             var tri = NavMesh.CalculateTriangulation();
             CheckReachable(new Vector3(-5.25f, 0f, -21f), points);
+            CheckReachable(new Vector3(-5.25f, 0f, -21f), stationPoints.ToArray());
             Debug.Log($"[HouseBuilder] House scene ready triangles={tri.indices.Length / 3}");
         }
 
