@@ -1,0 +1,8 @@
+# model triangles budget (written by tools/blender/build_models.py)
+Player 824 3000
+Krasue 664 2500
+Urn 336 800
+IncensePot 164 800
+ClayPot 144 800
+Bell 196 800
+SpiritHouse 180 1500
