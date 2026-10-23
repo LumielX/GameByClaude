@@ -32,7 +32,9 @@
   - ฉาก `House` (ค่าเริ่มต้น; `-playscene Sandbox` ใช้ฉากทดสอบเดิม): ใต้ถุน เสา ลังของ, ชั้นบน ห้องนอน/ห้องพระ/ชาน/ครัว, บันไดหน้า+หลัง (วิ่งวนหนีได้), ลานบ้าน ศาลพระภูมิ รั้ว ประตูหนี (ยังปิด), bake NavMesh ด้วยโค้ด + ตรวจว่าผีเดินถึงทุกจุด
   - Game: `GhostController` (server: มอง/ได้ยิน/ไฟฉาย → brain → NavMeshAgent), `GhostView` (ลอยขึ้นลง, ไส้เรืองแสงแรงขึ้นตอนไล่, เสียงกรีดตอนเตือน), `FearDirector` (vignette/chromatic/กล้องสั่น/เสียงลม-หัวใจ-เสียงหลอนแบบ cross-fade/ไฟกะพริบ + ส่งระยะผีให้ Adrenaline), `PlayerLife` (ถูกจับ/ตาย; **ชั่วคราว** เกิดใหม่ใน 5 วิ จนกว่า M5 จะทำผีจิ๋ว), `PlayerNoise` (วิ่งมีเสียงเท้า, Z กรี๊ด cooldown 3 วิ)
   - เสียงทั้งหมดสังเคราะห์ด้วยโค้ด (`ProceduralClips`) ยังไม่มีไฟล์เสียงจากภายนอก
-  - หลักฐาน: EditMode 250/250; `tools/unity/ghost-smoke.ps1` (ผีได้ยินเสียงกรี๊ด → เตือน 1 วิ → ไล่ → จับ → ตาย 2 วิต่อมา → cooldown → เกิดใหม่; client ได้ FEAR band=near + Adrenaline; ไฟฉายส่องจนผีหนี) ผ่าน; player-smoke, net-smoke Local ผ่าน; builder รันซ้ำไม่มี diff
+  - หลักฐาน: EditMode 252/252; `tools/unity/ghost-smoke.ps1` (ผีได้ยินเสียงกรี๊ด → เตือน 1 วิ → ไล่ → จับ → ตาย 2 วิต่อมา → cooldown → เกิดใหม่; client ได้ FEAR band=near + Adrenaline; ไฟฉายส่องจนผีหนี) ผ่าน; player-smoke, net-smoke Local + Relay ผ่าน; builder รันซ้ำไม่มี diff
+  - ผ่าน final review (opus) แก้ 2 จุด: ผีเลิกสืบเสียงกลางทาง (วัดถึงจุดเสียงจริง), ไฟฉายตอนผีพักทำให้พักสั้นลง (หนีแล้วกลับไปพักต่อจนครบ 10 วิ)
+  - deferred minors: ไม่ null-check HeadPivot ของไฟฉาย; scream รับทุก 2.8 วิ + log SCREAM_DENIED ไม่จำกัด; GhostBrain สร้าง list ทุก tick ตอนมีคนถูกเมิน; static ไม่ reset เมื่อปิด domain reload (เฉพาะ editor); NavMeshAgent ใน prefab เปิดไว้; ผีค้างเงียบถ้าไม่อยู่บน NavMesh; Teleport เปิด collider ของคนตายชั่วครู่; log Spared อ่าน TargetNet
   - บั๊กที่เจอ: โกศบนชานตกกระทบพื้นตอนโหลดฉากทำให้ผีได้ยิน (ของเพิ่งเกิดไม่ส่งเสียง 1.5 วิ)
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m4-ledger.md`
 - **ถัดไป: M5 วงจรหนึ่งคืน** (NightDirector, สุ่ม Spy, ปริศนา 3 แบบ, พิธี, ประตูหนี, พลัง Spy, ประชุม/โหวต, ผีจิ๋ว, สรุปคืน)
