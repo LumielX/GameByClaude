@@ -56,6 +56,7 @@ create.summary.spy.none=none (pure co-op)
 create.summary.spy.n={0} (with 5+ players)
 create.hint=Friends press "Join a friend" and type the room code. No port forwarding, no accounts.
 
+lobby.title=Lobby
 lobby.code=Code
 lobby.copy=Copy
 lobby.copied=Copied!

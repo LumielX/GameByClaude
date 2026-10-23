@@ -14,11 +14,12 @@
       </ui:VisualElement>
       <ui:Label name="version" text="v0" class="faint" />
     </ui:VisualElement>
-    <ui:VisualElement class="grow" style="align-items: center; justify-content: center;">
-      <ui:VisualElement class="pill-group" style="position: absolute; top: 40px; right: 48px;">
+    <ui:VisualElement class="grow col" style="padding: 40px 48px; align-self: stretch;">
+      <ui:VisualElement class="pill-group" style="align-self: flex-end;">
         <ui:Button name="lang-th" text="@lang.th" class="pill semibold" />
         <ui:Button name="lang-en" text="@lang.en" class="pill semibold" />
       </ui:VisualElement>
+      <ui:VisualElement class="grow" style="align-items: center; justify-content: center;">
       <ui:VisualElement name="krasue" style="width: 300px; height: 380px; align-items: center;">
         <ui:VisualElement style="width: 200px; height: 200px; border-radius: 100px; background-color: rgb(234, 223, 214); margin-top: 20px; border-top-width: 26px; border-top-color: rgb(16, 10, 20);" />
         <ui:VisualElement class="row" style="position: absolute; top: 120px; width: 120px; justify-content: space-between;">
@@ -31,6 +32,7 @@
         </ui:VisualElement>
       </ui:VisualElement>
       <ui:VisualElement style="width: 260px; height: 26px; border-radius: 130px; background-color: rgba(57, 255, 136, 0.18);" />
+      </ui:VisualElement>
     </ui:VisualElement>
   </ui:VisualElement>
 </ui:UXML>

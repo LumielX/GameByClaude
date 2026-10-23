@@ -80,8 +80,8 @@ namespace BooTrayal.UI.Screens
             var svc = ConnectionService.Instance;
             var net = NetworkManager.Singleton;
             if (svc == null || net == null) return;
-            bool solo = string.IsNullOrEmpty(svc.RoomCode);
-            _heading.text = solo ? L.Get("lobby.solo") : L.Get("menu.play");
+            bool solo = string.IsNullOrEmpty(svc.RoomCode) || svc.RoomCode == ConnectionService.LocalCode;
+            _heading.text = solo ? L.Get("lobby.solo") : L.Get("lobby.title");
             _code.text = solo ? "" : $"{L.Get("lobby.code")} {svc.RoomCode}";
             _copy.style.display = solo ? DisplayStyle.None : DisplayStyle.Flex;
             _copy.text = Time.unscaledTime < _copiedUntil ? L.Get("lobby.copied") : L.Get("lobby.copy");

@@ -25,6 +25,8 @@ namespace BooTrayal.Game.Networking
     {
         public const string LocalAddress = "127.0.0.1";
         public const ushort LocalPort = 7777;
+        /// <summary>RoomCode of a localhost room (Solo / same-PC tests): there is no code to share.</summary>
+        public const string LocalCode = "LOCAL";
         const string VersionProperty = "ver";
 
         readonly ConnectionTracker _tracker = new ConnectionTracker();
@@ -184,7 +186,7 @@ namespace BooTrayal.Game.Networking
                 _ = FailOnceAsync("connect_failed");
                 return false;
             }
-            OnHosting("LOCAL");
+            OnHosting(LocalCode);
             return true;
         }
 

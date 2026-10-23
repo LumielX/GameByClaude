@@ -56,6 +56,7 @@ create.summary.spy.none=ไม่มี (co-op ล้วน)
 create.summary.spy.n={0} คน (ถ้ามีผู้เล่นครบ 5 คน)
 create.hint=เพื่อนกด "เข้าห้องเพื่อน" แล้วพิมพ์รหัสห้อง ไม่ต้องเปิดพอร์ต ไม่ต้องมีบัญชี
 
+lobby.title=ล็อบบี้
 lobby.code=รหัส
 lobby.copy=คัดลอก
 lobby.copied=คัดลอกแล้ว!
