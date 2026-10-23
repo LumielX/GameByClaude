@@ -46,6 +46,8 @@ if ($Zip) {
     $zipPath = Join-Path $ProjectPath "Builds\BOO-TRAYAL-v$version-win64.zip"
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
     $staging = Join-Path $ProjectPath 'Builds\Windows'
+    # Players read this first: how to start, SmartScreen/firewall, how to join, where the log is.
+    Copy-Item (Join-Path $ProjectPath 'docs\release\README.txt') (Join-Path $staging 'README.txt') -Force
     # Exclude the debug-symbols folder Unity writes next to the player.
     $items = Get-ChildItem $staging | Where-Object { $_.Name -notlike '*_BurstDebugInformation_DoNotShip' -and $_.Name -notlike '*_BackUpThisFolder_ButDontShipItWithYourGame' }
     Compress-Archive -Path $items.FullName -DestinationPath $zipPath

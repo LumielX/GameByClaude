@@ -5,7 +5,8 @@ namespace BooTrayal.Game.Networking
     /// <summary>Player-facing text for network reason keys. Replaced by Unity Localization tables in M6.</summary>
     public static class NetMessages
     {
-        public const string ReleasesUrl = "https://github.com/LumielX/GameByClaude/releases/latest";
+        // Not /releases/latest: GitHub leaves pre-releases out of "latest", and the alphas are pre-releases.
+        public const string ReleasesUrl = "https://github.com/LumielX/GameByClaude/releases";
         const string Fallback = "connect_failed";
 
         static readonly Dictionary<string, (string th, string en)> Table = new Dictionary<string, (string, string)>

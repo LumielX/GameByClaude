@@ -26,8 +26,16 @@ namespace BooTrayal.Tests
         [Test]
         public void VersionMismatch_HasReleaseLink()
         {
-            StringAssert.Contains("https://github.com/LumielX/GameByClaude/releases/latest", NetMessages.Thai("version_mismatch"));
-            StringAssert.Contains("https://github.com/LumielX/GameByClaude/releases/latest", NetMessages.English("version_mismatch"));
+            StringAssert.Contains(NetMessages.ReleasesUrl, NetMessages.Thai("version_mismatch"));
+            StringAssert.Contains(NetMessages.ReleasesUrl, NetMessages.English("version_mismatch"));
+        }
+
+        [Test]
+        public void ReleasesUrl_ShowsPrereleases()
+        {
+            // GitHub's /releases/latest skips pre-releases, so an alpha-only repo would show a 404 there.
+            Assert.AreEqual("https://github.com/LumielX/GameByClaude/releases", NetMessages.ReleasesUrl);
+            StringAssert.DoesNotEndWith("/latest", NetMessages.ReleasesUrl);
         }
 
         [Test]
