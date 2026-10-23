@@ -77,6 +77,8 @@ namespace BooTrayal.Game.Night
 
         LaunchArgs Args => ConnectionService.Instance != null ? ConnectionService.Instance.Args : LaunchArgs.Parse(new string[0]);
         public bool InNight => Phase.Value == SessionPhase.InNight;
+        /// <summary>Discussion or vote in progress (everyone stands at the shrine).</summary>
+        public bool MeetingRunning => MeetPhase.Value == MeetingPhase.Discuss || MeetPhase.Value == MeetingPhase.Vote;
 
         public override void OnNetworkSpawn()
         {
@@ -90,6 +92,7 @@ namespace BooTrayal.Game.Night
             NightHooks.Power = OnPower;
             NightHooks.Vote = OnVote;
             NightHooks.RingBell = OnRing;
+            NightHooks.MeetingActive = () => _night != null && _night.MeetingActive;
             NetworkManager.OnClientDisconnectCallback += OnClientLeft;
             _stations = FindObjectsByType<SealStation>().OrderBy(s => s.StationIndex).ToArray();
             foreach (var s in _stations) s.SolvedServer += OnSealSolved;
@@ -111,6 +114,7 @@ namespace BooTrayal.Game.Night
             NightHooks.Power = null;
             NightHooks.Vote = null;
             NightHooks.RingBell = null;
+            NightHooks.MeetingActive = null;
             GhostTargeting.IsHarmable = _ => true;
             if (NetworkManager != null) NetworkManager.OnClientDisconnectCallback -= OnClientLeft;
             foreach (var s in _stations) if (s != null) s.SolvedServer -= OnSealSolved;
@@ -456,6 +460,14 @@ namespace BooTrayal.Game.Night
                 Debug.Log($"BELL_DENIED by={caller} chased={chased}");
                 return;
             }
+            if (ghost != null)
+            {
+                // The bell saves whoever the ghost was holding; it forgets its target.
+                if (ghost.Brain.State == GhostState.Grab)
+                    NetworkManager.SpawnManager.GetPlayerNetworkObject(ghost.Brain.TargetId)?.GetComponent<PlayerLife>().SetGrabbed(false);
+                ghost.Brain.Interrupt();
+            }
+            foreach (var item in GrabbableItem.All.ToList()) item.ForceDropAll();
             int i = 0;
             foreach (var id in _night.ActiveMeeting.Voters.OrderBy(x => x))
             {
@@ -483,7 +495,9 @@ namespace BooTrayal.Game.Night
             else
             {
                 var player = NetworkManager.SpawnManager.GetPlayerNetworkObject(o.Target);
-                MakeMiniGhost(o.Target, player != null ? player.transform.position : Shrine.position, "vote");
+                // Only if the vote itself made them a mini ghost (not someone who died or left meanwhile).
+                if (_night.StateOf(o.Target) == LifeState.MiniGhost && !_orbs.ContainsKey(o.Target) && player != null)
+                    MakeMiniGhost(o.Target, player.transform.position, "vote");
                 text = o.WasSpy
                     ? $"{PlayerAvatar.NameOf(o.Target)} คือร่างทรง! ไล่ถูก ผีอ่อนแรงลง +60 วิ (Correct!)"
                     : $"{PlayerAvatar.NameOf(o.Target)} ไม่ใช่ร่างทรง! ผีโกรธ 30 วิ (Wrong!)";

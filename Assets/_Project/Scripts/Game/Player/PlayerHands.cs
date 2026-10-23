@@ -89,7 +89,7 @@ namespace BooTrayal.Game.Player
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         void GrabRpc(NetworkObjectReference itemRef)
         {
-            if ((_life != null && !_life.CanAct) || HeldItem != null || !itemRef.TryGet(out var no)) return;
+            if ((_life != null && !_life.CanAct) || BooTrayal.Game.Night.NightHooks.MeetingActive?.Invoke() == true || HeldItem != null || !itemRef.TryGet(out var no)) return;
             var item = no.GetComponent<GrabbableItem>();
             if (item == null) return;
             float distance = Vector3.Distance(_hold.position, item.ClosestPoint(_hold.position));

@@ -19,6 +19,8 @@ namespace BooTrayal.Game.Night
         public static Action<ulong, ulong?> Vote;
         /// <summary>(client) asks to ring the shrine bell.</summary>
         public static Action<ulong> RingBell;
+        /// <summary>True while a meeting runs: interacting and grabbing are refused (GDD 7.4).</summary>
+        public static Func<bool> MeetingActive;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Reset()
@@ -27,6 +29,7 @@ namespace BooTrayal.Game.Night
             Power = null;
             Vote = null;
             RingBell = null;
+            MeetingActive = null;
         }
     }
 }

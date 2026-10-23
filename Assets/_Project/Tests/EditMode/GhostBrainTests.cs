@@ -159,6 +159,27 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void Interrupt_DuringGrab_Wander_NoKill()
+        {
+            var b = Chasing();
+            b.Tick(0.1f, Target(1f));
+            Assert.AreEqual(GhostState.Grab, b.State);
+            b.Interrupt();
+            Assert.AreEqual(GhostState.Wander, b.State);
+            Assert.IsFalse(b.HasTarget);
+            Assert.AreNotEqual(GhostEvent.Killed, Run(b, 3f, Target(1f)));
+        }
+
+        [Test]
+        public void Interrupt_WhileCooldownOrFlee_KeepsState()
+        {
+            var b = new GhostBrain();
+            Run(b, 2f, Lit);
+            b.Interrupt();
+            Assert.AreEqual(GhostState.Flee, b.State, "only hunting states are interrupted");
+        }
+
+        [Test]
         public void Lit2s_Flee3s_ThenWander()
         {
             var b = Chasing();

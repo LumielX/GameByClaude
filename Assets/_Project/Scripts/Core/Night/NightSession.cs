@@ -66,6 +66,7 @@ namespace BooTrayal.Core.Night
         public int SealsClosed { get; private set; }
         public Meeting ActiveMeeting { get; private set; }
         public bool Ended => _ended;
+        public bool MeetingActive => ActiveMeeting != null;
 
         public float GhostSpeedMultiplier => _modifiers.Aggregate(1f, (m, x) => m * x.Effect.SpeedMul);
         public float GhostHearingMultiplier => _modifiers.Aggregate(1f, (m, x) => m * x.Effect.HearingMul);
@@ -167,7 +168,8 @@ namespace BooTrayal.Core.Night
 
         public bool Revive(ulong id)
         {
-            if (!CanRevive(id)) return false;
+            // A meeting is a gathering, not a safe window for chores (GDD 7.4).
+            if (!CanRevive(id) || ActiveMeeting != null) return false;
             Find(id).State = LifeState.Alive;
             return true;
         }
@@ -175,8 +177,9 @@ namespace BooTrayal.Core.Night
         public bool Escape(ulong id)
         {
             var p = Find(id);
-            if (p == null || p.State != LifeState.Alive || !RitualComplete) return false;
+            if (p == null || p.State != LifeState.Alive || !RitualComplete || ActiveMeeting != null) return false;
             p.State = LifeState.Escaped;
+            ActiveMeeting?.RemoveVoter(id);
             return true;
         }
 

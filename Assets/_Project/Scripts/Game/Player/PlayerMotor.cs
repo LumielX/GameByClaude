@@ -89,6 +89,7 @@ namespace BooTrayal.Game.Player
             var move = input.Move;
             var mi = new MoveInput { X = move.x, Y = move.y, Run = input.Run, Crouch = input.Crouch, Jump = input.JumpPressed };
             if (_life != null && !_life.CanMove) mi = default; // held by a ghost, or escaped
+            if (BooTrayal.Game.Night.NightDirector.Instance != null && BooTrayal.Game.Night.NightDirector.Instance.MeetingRunning) mi = default; // gathered at the shrine
             bool flying = _life != null && _life.IsMiniGhost;
             if (flying) { mi.Run = false; mi.Crouch = false; mi.Jump = false; }
             bool running = MovementModel.IsRunning(mi, Stamina.CanRun, down);

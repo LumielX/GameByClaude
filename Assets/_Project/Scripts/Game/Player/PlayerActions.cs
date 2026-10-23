@@ -77,7 +77,7 @@ namespace BooTrayal.Game.Player
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
         void InteractRpc(NetworkObjectReference stationRef, int part)
         {
-            if (!_life.CanAct || !stationRef.TryGet(out var no)) return;
+            if (!_life.CanAct || NightHooks.MeetingActive?.Invoke() == true || !stationRef.TryGet(out var no)) return;
             Interactable target = null;
             foreach (var p in no.GetComponentsInChildren<Interactable>())
                 if (p.Part == part) { target = p; break; }

@@ -46,6 +46,13 @@ namespace BooTrayal.Core.Ghosts
 
         public bool IsIgnoring(ulong id) => _ignore.ContainsKey(id);
 
+        /// <summary>A meeting was called: drop whoever is being investigated, warned about, chased or held.</summary>
+        public void Interrupt()
+        {
+            if (State == GhostState.Investigate || State == GhostState.Alert || State == GhostState.Chase || State == GhostState.Grab)
+                Enter(GhostState.Wander);
+        }
+
         /// <summary>A noise <paramref name="distance"/> metres away with hearing <paramref name="radius"/>. True = go investigate it.</summary>
         public bool OnNoise(float distance, float radius)
         {

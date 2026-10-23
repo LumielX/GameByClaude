@@ -4,7 +4,7 @@
 
 ## สถานะปัจจุบัน
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
-- **เฟส 3 กำลังทำ** — M0–M4 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
+- **เฟส 3 กำลังทำ** — M0–M5 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
 - ⚠️ ห้ามแก้ไฟล์ข้อความภาษาไทยด้วย PowerShell 5.1 `Get-Content`/`Set-Content` (อ่าน UTF-8 ผิดแล้วไฟล์เสีย) — ใช้ Edit tool หรือ bash
 - **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
 - **M1 เสร็จ (2026-10-22):** กฎเกมทั้งหมดใน `Assets/_Project/Scripts/Core/` (RoomRules, RoleAssigner, VoteResolver, SabotageTracker, NightJudge, ScoreRules/Wallet, FearModel, Stamina, AdrenalineModel, SafeCode/FuseBox/RitualOffering puzzles, MeetingRules, ExorciseEffects, JoinPolicy) — EditMode tests 128/128 ผ่าน (`TestResults/EditMode.xml`), build + smoke ผ่าน
@@ -37,7 +37,18 @@
   - deferred minors: ไม่ null-check HeadPivot ของไฟฉาย; scream รับทุก 2.8 วิ + log SCREAM_DENIED ไม่จำกัด; GhostBrain สร้าง list ทุก tick ตอนมีคนถูกเมิน; static ไม่ reset เมื่อปิด domain reload (เฉพาะ editor); NavMeshAgent ใน prefab เปิดไว้; ผีค้างเงียบถ้าไม่อยู่บน NavMesh; Teleport เปิด collider ของคนตายชั่วครู่; log Spared อ่าน TargetNet
   - บั๊กที่เจอ: โกศบนชานตกกระทบพื้นตอนโหลดฉากทำให้ผีได้ยิน (ของเพิ่งเกิดไม่ส่งเสียง 1.5 วิ)
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m4-ledger.md`
-- **ถัดไป: M5 วงจรหนึ่งคืน** (NightDirector, สุ่ม Spy, ปริศนา 3 แบบ, พิธี, ประตูหนี, พลัง Spy, ประชุม/โหวต, ผีจิ๋ว, สรุปคืน)
+- **M5 เสร็จ (2026-10-23):** เล่นครบ 1 เกม (หลายคืน) ได้จริงในเรือนไทย — แผน `docs/plans/2026-10-23-m5-night-loop.md`
+  - Core/Night: `NightSession` (บทบาท, สถานะชีวิต Alive/MiniGhost/Escaped/Disconnected, ผนึก+ของพิธี+เหรียญ, ระฆังประชุม, พลัง Spy + cooldown, ผลโหวตถูก/ผิด → ผีช้า/ผีโกรธ, +60 วิ), `Meeting` (คุย 45 + โหวต 15, ปิดเร็วเมื่อโหวตครบ, โหวตล่าสุดนับ), `SpyPowers`, `GameSession` (กระเป๋าเงิน + อันดับ), `SealPlanner` (สุ่มผนึก; 2 คนได้ปริศนา 2 คนไม่เกิน 1)
+  - ในเรือน: ตู้เซฟ 3 ตู้ (โน้ตรหัสอยู่อีกห้อง), กล่องฟิวส์ 3 ชุด (คันโยก 2 จุดคนละห้อง ดึงห่างกัน ≤ 1 วิ หรือวางของค้างคันโยก), แท่นบูชาข้างศาล (โกศ + ธูป), ระฆังที่ศาลพระภูมิ, ยันต์เรืองแสงบอกผนึกที่ต้องปิด, 5 โซนสำหรับดับไฟ, 8 จุดยืนประชุม
+  - `NightDirector`: Lobby → คืน → สรุป 12 วิ → … → จบเกม 15 วิ → Lobby; บทบาทส่งเฉพาะเจ้าตัว (targeted RPC); ผีเกิดตอนเริ่มคืน หยุดตอนประชุม; ประตูเปิดเมื่อพิธีครบ แล้วเดินออกนอกรั้ว = หนีรอด; ตาย → ผีจิ๋ว (ลอยได้ ทะลุคนแต่ไม่ทะลุกำแพง, Z บู้) + ดวงวิญญาณ → เพื่อนถือไปศาลค้าง 3 วิ = ชุบ
+  - พลัง Spy ชั่วคราว (ก่อนมีวงล้อใน M6): Q ป่วนปริศนาใกล้ ≤ 3 m, X ดับไฟทั้งโซน 10 วิ; ใช้แล้วมีไอเย็นออกปาก 3 วิ
+  - HUD ชั่วคราว (IMGUI): เวลา, ผนึก, ของพิธี, บทบาท, ปุ่มเริ่มเกมของ host, ปุ่มโหวต, หน้าสรุปคืน/อันดับ
+  - หลักฐาน: EditMode 293/293; `tools/unity/night-smoke.ps1 -Scenario Coop` (2 คน: ปิดผนึก 3, ขนโกศ+ธูป, ประตูเปิด, หนีรอด → ทีมชนะคืน 1; คืน 2 หมดเวลา; จบเกม; กลับล็อบบี้) และ `-Scenario Spy` (5 คน: Spy ป่วนตู้เซฟ + ดับไฟ นับสำเร็จ, ทุกคนเห็นไอเย็น, ตีระฆัง โหวตไล่ Spy ถูก; คืน 2 โหวตผิด → ชุบที่ศาล → Spy ชนะเพราะหมดเวลา +150; บทบาทไม่รั่วไปเครื่องอื่น) ผ่าน; ghost/player/net smoke ผ่าน; builder รันซ้ำไม่มี diff
+  - บั๊กที่เจอ: NavMesh ให้ก้าวขึ้น 0.75 m แต่ตัวละครก้าวได้ 0.4 m (บอทติดข้างบันได — ตั้ง agentClimb 0.4), ของที่ถือ/ลากชนตัวคนถือเองจนเดินไม่ได้ (โกศลากไม่ไป — ตอนนี้ไม่ชนคนที่ถืออยู่)
+  - ผ่าน final review (opus) แก้ 3 จุด: คนที่ผีจับอยู่ตอนตีระฆังไม่ตายหลังประชุมแล้ว (ผีปล่อย), ระหว่างประชุมทุกคนยืนนิ่ง ทำภารกิจ/หยิบของ/หนี/ชุบไม่ได้ (กันใช้ระฆังแช่แข็งผี), คนที่หนีหรือตายระหว่างประชุมไม่ถูกนับโหวต/ไม่เกิดดวงวิญญาณซ้ำ
+  - deferred minors: โหวตคนที่ตายหลังตีระฆังยังนับได้ (ตอนนี้เกิดไม่ได้เพราะผีหยุด); NameOf ค้นทุกครั้ง; แท่นบูชายังรับของช่วงสรุป; คนที่ออกไปแล้วยังอยู่ในอันดับ; ขาดเทสต์ผู้ตีระฆังหลุด; เครื่องที่ดัดแปลงอ่าน id ร่างทรงจากไอเย็นได้ทุกระยะ
+  - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m5-ledger.md`
+- **ถัดไป: M6 UI เวอร์ชันแรก + 2 ภาษา** — ต้องทำ mockup HTML ให้ผู้ใช้ดูก่อน (ต้องใช้ความเห็นผู้ใช้)
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-23

@@ -322,6 +322,35 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void Escape_And_Revive_DuringMeeting_Refused()
+        {
+            var s = Make(new ulong[] { 0, 1, 2 }, 0);
+            s.CompleteRitual();
+            s.Kill(2);
+            s.RingBell(0, false, 45f, 15f);
+            Assert.IsFalse(s.Escape(1), "a meeting is not a free escape window");
+            Assert.IsFalse(s.Revive(2), "nor a free revive");
+            Run(s, 61f);
+            Assert.IsTrue(s.Escape(1));
+            Assert.IsTrue(s.Revive(2));
+        }
+
+        [Test]
+        public void Meeting_EjectsTargetWhoDied_StaysMiniGhostOnce()
+        {
+            var s = Make(Five, 1);
+            var crew = CrewOf(s);
+            OpenVote(s, crew[0]);
+            foreach (var p in Five) s.ActiveMeeting?.Cast(p, crew[1]);
+            s.Kill(crew[1]);
+            s.Tick(0.5f);
+            var o = s.TakeOutcome().Value;
+            Assert.IsTrue(o.Ejected);
+            Assert.AreEqual(LifeState.MiniGhost, s.StateOf(crew[1]));
+            Assert.IsTrue(s.CanRevive(crew[1]));
+        }
+
+        [Test]
         public void Meeting_VoterLeaves_StillCloses()
         {
             var s = Make(Five, 1);
