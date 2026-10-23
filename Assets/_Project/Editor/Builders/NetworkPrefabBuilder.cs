@@ -31,7 +31,8 @@ namespace BooTrayal.Editor.Builders
                 AssetDatabase.CreateAsset(list, PrefabListPath);
             }
             var player = PlayerPrefabBuilder.Build();
-            foreach (var prefab in new[] { stub, player })
+            var krasue = GhostPrefabBuilder.Build();
+            foreach (var prefab in new[] { stub, player, krasue })
             {
                 if (list.Contains(prefab)) continue;
                 list.Add(new NetworkPrefab { Prefab = prefab });

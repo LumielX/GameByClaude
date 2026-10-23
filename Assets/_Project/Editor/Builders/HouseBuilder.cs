@@ -123,7 +123,12 @@ namespace BooTrayal.Editor.Builders
             }
 
             var ghosts = Root(scene, "Ghosts");
-            Child(ghosts, "GhostSpawn", new Vector3(0f, 0f, 3f)).transform.rotation = Quaternion.identity;
+            var ghostSpawn = Child(ghosts, "GhostSpawn", new Vector3(0f, 0f, 3f));
+            ghostSpawn.transform.rotation = Quaternion.identity;
+            Ensure<Unity.Netcode.NetworkObject>(ghostSpawn);
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(GhostPrefabBuilder.PrefabPath);
+            if (prefab == null) throw new System.InvalidOperationException($"Missing {GhostPrefabBuilder.PrefabPath}; run NetworkPrefabBuilder.Build first");
+            Ensure<GhostSpawner>(ghostSpawn).Prefab = prefab;
             var points = new[]
             {
                 new Vector3(-6f, 0f, -1f), new Vector3(6f, 0f, 1f), new Vector3(0f, 0f, 4f),

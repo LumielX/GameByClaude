@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 namespace BooTrayal.Game.Player
 {
@@ -21,6 +22,8 @@ namespace BooTrayal.Game.Player
         float _roll;
 
         public Camera Camera { get; private set; }
+        /// <summary>Camera shake offset (local metres), set by FearDirector each frame.</summary>
+        public Vector3 ShakeOffset { get; set; }
 
         void Awake()
         {
@@ -41,8 +44,12 @@ namespace BooTrayal.Game.Player
             Camera.backgroundColor = new Color(0.02f, 0.01f, 0.04f);
             Camera.clearFlags = CameraClearFlags.SolidColor;
             camGo.AddComponent<AudioListener>();
+            Camera.GetUniversalAdditionalCameraData().renderPostProcessing = true;
             camGo.tag = "MainCamera";
         }
+
+        /// <summary>Owner-side pitch (test hook for smoke bots aiming the flashlight).</summary>
+        public void SetPitch(float pitch) => _localPitch = Mathf.Clamp(pitch, -MaxPitch, MaxPitch);
 
         public void SetYaw(float yaw)
         {
@@ -66,6 +73,7 @@ namespace BooTrayal.Game.Player
                 _roll = Mathf.MoveTowards(_roll, down ? KnockdownRoll : 0f, 120f * Time.deltaTime);
                 _head.localRotation = Quaternion.Euler(_localPitch, 0f, _roll);
                 if (Mathf.Abs(_localPitch - _pitch.Value) > PitchSyncThreshold) _pitch.Value = _localPitch;
+                if (Camera != null) Camera.transform.localPosition = ShakeOffset;
             }
             else
             {

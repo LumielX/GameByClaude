@@ -1,0 +1,68 @@
+using System;
+using UnityEngine;
+
+namespace BooTrayal.Game.Audio
+{
+    /// <summary>
+    /// Placeholder sounds synthesized in code (self-made, nothing to license) until real audio in M7.
+    /// Loops use whole numbers of cycles so they repeat without clicks. Clips are cached.
+    /// </summary>
+    public static class ProceduralClips
+    {
+        const int Rate = 22050;
+        static AudioClip _heartbeat, _wind, _drone, _screech;
+
+        public static AudioClip Heartbeat() => _heartbeat ??= Make("Heartbeat", 1f, (t, _) =>
+        {
+            // lub-dub: two low thumps per second
+            float a = Thump(t, 0f, 55f) + 0.7f * Thump(t, 0.28f, 48f);
+            return a * 0.9f;
+        });
+
+        public static AudioClip Wind() => _wind ??= MakeNoise("Wind", 4f, 0.02f, t => 0.35f + 0.25f * Mathf.Sin(2f * Mathf.PI * t / 4f));
+
+        public static AudioClip Drone() => _drone ??= Make("Drone", 4f, (t, _) =>
+        {
+            float tremolo = 0.6f + 0.4f * Mathf.Sin(2f * Mathf.PI * 0.5f * t);
+            return tremolo * (0.35f * Mathf.Sin(2f * Mathf.PI * 55f * t) + 0.25f * Mathf.Sin(2f * Mathf.PI * 82.5f * t)
+                              + 0.1f * Mathf.Sin(2f * Mathf.PI * 110.25f * t));
+        });
+
+        public static AudioClip Screech() => _screech ??= Make("Screech", 0.8f, (t, rng) =>
+        {
+            float f = Mathf.Lerp(1800f, 900f, t / 0.8f);
+            float saw = 2f * (t * f % 1f) - 1f;
+            float env = Mathf.Clamp01(t / 0.03f) * Mathf.Exp(-t * 3f);
+            return env * (0.6f * saw + 0.25f * (float)(rng.NextDouble() * 2.0 - 1.0));
+        });
+
+        static float Thump(float t, float start, float freq)
+        {
+            float x = t - start;
+            if (x < 0f) return 0f;
+            return Mathf.Sin(2f * Mathf.PI * freq * x) * Mathf.Exp(-x * 18f);
+        }
+
+        static AudioClip Make(string name, float seconds, Func<float, System.Random, float> sample)
+        {
+            int n = Mathf.RoundToInt(seconds * Rate);
+            var data = new float[n];
+            var rng = new System.Random(name.Length * 7919);
+            for (int i = 0; i < n; i++) data[i] = Mathf.Clamp(sample(i / (float)Rate, rng), -1f, 1f);
+            var clip = AudioClip.Create(name, n, 1, Rate, false);
+            clip.SetData(data, 0);
+            return clip;
+        }
+
+        /// <summary>Low-passed noise with a slow envelope; <paramref name="smoothing"/> is the one-pole filter coefficient.</summary>
+        static AudioClip MakeNoise(string name, float seconds, float smoothing, Func<float, float> envelope)
+        {
+            float y = 0f;
+            return Make(name, seconds, (t, rng) =>
+            {
+                y += smoothing * ((float)(rng.NextDouble() * 2.0 - 1.0) - y);
+                return y * 8f * envelope(t);
+            });
+        }
+    }
+}
