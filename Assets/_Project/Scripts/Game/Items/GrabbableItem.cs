@@ -19,6 +19,8 @@ namespace BooTrayal.Game.Items
         const float DragNoiseInterval = 0.5f;
         const float ImpactNoiseCooldown = 0.2f;
         const float DragImpulseEquivalent = 6f;
+        /// <summary>Items settling onto the floor when the scene loads must not wake the ghost.</summary>
+        const float SettleSeconds = 1.5f;
 
         public NetworkList<ulong> Holders;
 
@@ -41,7 +43,9 @@ namespace BooTrayal.Game.Items
 
         public override void OnNetworkSpawn()
         {
-            if (IsServer) NetworkManager.OnClientDisconnectCallback += OnClientDisconnect;
+            if (!IsServer) return;
+            NetworkManager.OnClientDisconnectCallback += OnClientDisconnect;
+            _impactCooldown = SettleSeconds;
         }
 
         public override void OnNetworkDespawn()

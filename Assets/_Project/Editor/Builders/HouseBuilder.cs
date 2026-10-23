@@ -117,7 +117,7 @@ namespace BooTrayal.Editor.Builders
             var spawns = Root(scene, "SpawnPoints");
             for (int i = 0; i < 8; i++)
             {
-                var sp = Child(spawns, $"Spawn{i}", new Vector3(-5.25f + 1.5f * i, 0f, -20f));
+                var sp = Child(spawns, $"Spawn{i}", new Vector3(-5.25f + 1.5f * i, 0f, -21f));
                 sp.transform.rotation = Quaternion.identity;
                 Ensure<SpawnPoint>(sp).Index = i;
             }
@@ -159,7 +159,7 @@ namespace BooTrayal.Editor.Builders
             EditorSceneManager.SaveScene(scene, ScenePath);
             ResaveScene(ScenePath);
             var tri = NavMesh.CalculateTriangulation();
-            CheckReachable(new Vector3(-5.25f, 0f, -20f), points);
+            CheckReachable(new Vector3(-5.25f, 0f, -21f), points);
             Debug.Log($"[HouseBuilder] House scene ready triangles={tri.indices.Length / 3}");
         }
 

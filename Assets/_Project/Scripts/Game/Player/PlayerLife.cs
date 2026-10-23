@@ -52,7 +52,7 @@ namespace BooTrayal.Game.Player
             Grabbed.Value = false;
             Dead.Value = true;
             GetComponent<PlayerHands>()?.ForceRelease("death");
-            Debug.Log($"PLAYER_KILLED id={OwnerClientId}");
+            Debug.Log($"PLAYER_KILLED id={OwnerClientId} t={Time.time:0.00}");
             StartCoroutine(RespawnLater());
         }
 

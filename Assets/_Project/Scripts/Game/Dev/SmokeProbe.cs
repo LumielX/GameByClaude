@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BooTrayal.Core.Ghosts;
 using BooTrayal.Game.Flow;
+using BooTrayal.Game.Ghosts;
 using BooTrayal.Game.Items;
 using BooTrayal.Game.Networking;
 using BooTrayal.Game.Player;
@@ -13,7 +15,8 @@ namespace BooTrayal.Game.Dev
 {
     /// <summary>
     /// Scripted bots for tools/unity/player-smoke.ps1. Does nothing unless the game runs with -smokeprobe ROLE.
-    /// Roles: host (watches remote players), walker (walk, grab a box, throw it), lifter (grab the urn), holder (grab a box and keep it).
+    /// Roles: host (watches remote players), walker (walk, grab a box, throw it), lifter (grab the urn), holder (grab a box and keep it),
+    /// waller, pusher (player-smoke); victim (sneak behind the ghost and scream), lighter (shine a flashlight in its face) for ghost-smoke.
     /// </summary>
     public class SmokeProbe : MonoBehaviour
     {
@@ -38,6 +41,8 @@ namespace BooTrayal.Game.Dev
                 case "holder": yield return Grab(heavy: false); break;
                 case "waller": yield return Waller(); break;
                 case "pusher": yield return Pusher(); break;
+                case "victim": yield return Victim(); break;
+                case "lighter": yield return Lighter(); break;
             }
         }
 
@@ -109,6 +114,49 @@ namespace BooTrayal.Game.Dev
             yield return null;
             push.RequestPush(target);
             Debug.Log("PROBE_PUSH_AGAIN");
+        }
+
+        /// <summary>Walks around the spirit house to a spot behind the waiting ghost, then screams once.</summary>
+        IEnumerator Victim()
+        {
+            yield return WalkTo(new Vector3(6f, 0f, -14f), 0.3f, 15f);
+            yield return WalkTo(new Vector3(2.5f, 0f, -6f), 0.3f, 15f);
+            yield return new WaitForSeconds(1f);
+            EnableBot().Press(BotButton.Scream);
+            Debug.Log("PROBE_SCREAM");
+        }
+
+        /// <summary>Waits for the ghost's cooldown, walks up to it and keeps the flashlight on its face until it flees.</summary>
+        IEnumerator Lighter()
+        {
+            var player = LocalPlayer;
+            var bot = EnableBot();
+            var look = player.GetComponent<PlayerLook>();
+            var flash = player.GetComponent<PlayerFlashlight>();
+            GhostController ghost = null;
+            while (ghost == null || ghost.StateNet.Value != GhostState.Cooldown)
+            {
+                ghost = FindAnyObjectByType<GhostController>();
+                yield return null;
+            }
+            Debug.Log("PROBE_LIGHTER_GO");
+            yield return WalkTo(new Vector3(-4f, 0f, -14f), 0.3f, 10f);
+            bot.Press(BotButton.Flashlight);
+            float t = 0f;
+            while (t < 30f && ghost != null && ghost.StateNet.Value != GhostState.Flee)
+            {
+                var head = ghost.transform.position + Vector3.up * GhostController.HeadHeight;
+                var eye = player.transform.Find("HeadPivot").position;
+                var d = head - eye;
+                var flat = new Vector3(d.x, 0f, d.z);
+                if (flat.sqrMagnitude > 1e-4f) look.SetYaw(Quaternion.LookRotation(flat).eulerAngles.y);
+                look.SetPitch(-Mathf.Atan2(d.y, flat.magnitude) * Mathf.Rad2Deg);
+                bot.Move = flat.magnitude > 6f ? new Vector2(0f, 1f) : Vector2.zero;
+                t += Time.deltaTime;
+                yield return null;
+            }
+            bot.Move = Vector2.zero;
+            Debug.Log($"PROBE_LIGHTER_DONE flee={(ghost != null && ghost.StateNet.Value == GhostState.Flee)} light={flash.On.Value} t={t:0.0}");
         }
 
         /// <summary>Carries a box into the east wall and drops it there (it must stay inside the room).</summary>
