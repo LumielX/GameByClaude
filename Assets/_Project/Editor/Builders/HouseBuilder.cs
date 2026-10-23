@@ -107,7 +107,7 @@ namespace BooTrayal.Editor.Builders
             Primitive(spirit, "Shrine", PrimitiveType.Cube, new Vector3(0f, 1.45f, 0f), new Vector3(0.8f, 0.6f, 0.7f), shrine, true);
             Primitive(spirit, "ShrineRoof", PrimitiveType.Cube, new Vector3(0f, 1.9f, 0f), new Vector3(0.7f, 0.7f, 0.9f), roof, false, new Vector3(0f, 0f, 45f));
             // The Blender model is what players see; the primitives stay as colliders only.
-            foreach (var r in spirit.GetComponentsInChildren<MeshRenderer>()) if (r.transform.parent == spirit.transform) r.enabled = false;
+            foreach (var r in spirit.GetComponentsInChildren<MeshRenderer>()) if (r.transform.parent == spirit.transform && r.name != "Model") r.enabled = false;
             ModelChild(spirit, "SpiritHouse", Vector3.zero, hideParentRenderer: false);
             int t = 0;
             foreach (var pos in new[] { new Vector3(-18f, 0f, -12f), new Vector3(18f, 0f, -14f), new Vector3(-17f, 0f, 12f), new Vector3(19f, 0f, 10f) })
