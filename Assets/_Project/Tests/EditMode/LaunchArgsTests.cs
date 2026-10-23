@@ -51,5 +51,19 @@ namespace BooTrayal.Tests
             Assert.IsNull(a.AutoJoinCode);
             Assert.AreEqual("main", a.Profile);
         }
+
+        [Test]
+        public void PlayScene_DefaultNull_ParsesValue()
+        {
+            Assert.IsNull(LaunchArgs.Parse(new[] { "x.exe" }).PlayScene);
+            Assert.AreEqual("Sandbox", LaunchArgs.Parse(new[] { "x.exe", "-playscene", "Sandbox" }).PlayScene);
+        }
+
+        [Test]
+        public void GhostWait_Flag()
+        {
+            Assert.IsFalse(LaunchArgs.Parse(new[] { "x.exe" }).GhostWait);
+            Assert.IsTrue(LaunchArgs.Parse(new[] { "x.exe", "-ghostwait" }).GhostWait);
+        }
     }
 }

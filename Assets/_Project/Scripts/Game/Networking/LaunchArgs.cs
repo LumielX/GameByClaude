@@ -13,6 +13,10 @@ namespace BooTrayal.Game.Networking
         public string PlayerName { get; private set; }
         /// <summary>Smoke-test bot role (see Game/Dev/SmokeProbe).</summary>
         public string SmokeProbe { get; private set; }
+        /// <summary>Scene the host loads (default: SessionFlow.DefaultPlayScene).</summary>
+        public string PlayScene { get; private set; }
+        /// <summary>Smoke only: the ghost holds still until it first hears or sees someone.</summary>
+        public bool GhostWait { get; private set; }
 
         public static LaunchArgs Parse(string[] args)
         {
@@ -30,6 +34,8 @@ namespace BooTrayal.Game.Networking
                     case "-codefile": a.CodeFile = Value(args, ref i); break;
                     case "-name": a.PlayerName = Value(args, ref i); break;
                     case "-smokeprobe": a.SmokeProbe = Value(args, ref i); break;
+                    case "-playscene": a.PlayScene = Value(args, ref i); break;
+                    case "-ghostwait": a.GhostWait = true; break;
                 }
             }
             return a;

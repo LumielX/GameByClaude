@@ -22,11 +22,13 @@ namespace BooTrayal.Editor.Builders
             BuildBootstrap();
             BuildMenu();
             SandboxBuilder.Build();
+            HouseBuilder.Build();
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene(BootstrapPath, true),
                 new EditorBuildSettingsScene(MenuPath, true),
-                new EditorBuildSettingsScene(SandboxBuilder.ScenePath, true)
+                new EditorBuildSettingsScene(SandboxBuilder.ScenePath, true),
+                new EditorBuildSettingsScene(HouseBuilder.ScenePath, true)
             };
             AssetDatabase.SaveAssets();
             Debug.Log("[SceneBuilder] All scenes ready");

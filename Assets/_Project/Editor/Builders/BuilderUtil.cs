@@ -1,3 +1,6 @@
+using BooTrayal.Game.Items;
+using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -114,6 +117,40 @@ namespace BooTrayal.Editor.Builders
                 mat = AssetDatabase.LoadAssetAtPath<Material>(path);
             }
             return mat;
+        }
+
+        /// <summary>In-scene networked grabbable at scene root (NGO in-scene placed object).</summary>
+        public static void Item(Scene scene, string id, PrimitiveType type, Vector3 pos, Vector3 scale,
+            Material mat, float mass, bool heavy)
+        {
+            var name = "Item_" + id;
+            GameObject go = null;
+            foreach (var root in scene.GetRootGameObjects())
+                if (root.name == name) go = root;
+            if (go == null)
+            {
+                go = GameObject.CreatePrimitive(type);
+                go.name = name;
+                SceneManager.MoveGameObjectToScene(go, scene);
+            }
+            go.transform.SetPositionAndRotation(pos, Quaternion.identity);
+            go.transform.localScale = scale;
+            go.GetComponent<Renderer>().sharedMaterial = mat;
+
+            var rb = Ensure<Rigidbody>(go);
+            rb.mass = mass;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+            rb.collisionDetectionMode = heavy ? CollisionDetectionMode.Discrete : CollisionDetectionMode.ContinuousDynamic;
+
+            var no = Ensure<NetworkObject>(go);
+            no.DontDestroyWithOwner = true;
+            var nt = Ensure<NetworkTransform>(go);
+            nt.AuthorityMode = NetworkTransform.AuthorityModes.Server;
+            nt.SyncScaleX = nt.SyncScaleY = nt.SyncScaleZ = false;
+            Ensure<NetworkRigidbody>(go);
+            var item = Ensure<GrabbableItem>(go);
+            item.Heavy = heavy;
+            item.ItemId = id;
         }
     }
 }

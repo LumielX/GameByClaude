@@ -41,7 +41,7 @@ function Wait-Marker($inst, [string]$pattern, [int]$after = 0) {
 $ok = $false
 try {
     Write-Host '== Player smoke =='
-    $hostI = Start-Instance 'host' @('-autohost-local', '-smokeprobe', 'host')
+    $hostI = Start-Instance 'host' @('-autohost-local', '-smokeprobe', 'host', '-playscene', 'Sandbox')
     Wait-Marker $hostI 'PLAYER_PLACED owner=0' | Out-Null
 
     Write-Host '-- 1. walker moves, grabs a box and throws it (noise)'

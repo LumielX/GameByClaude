@@ -13,7 +13,17 @@ namespace BooTrayal.Game.Flow
     public class SessionFlow : MonoBehaviour
     {
         public const string MenuScene = "Menu";
-        public const string PlayScene = "Sandbox";
+        public const string DefaultPlayScene = "House";
+
+        /// <summary>The scene the host loads: -playscene NAME, else the Thai house.</summary>
+        public static string CurrentPlayScene
+        {
+            get
+            {
+                var args = ConnectionService.Instance != null ? ConnectionService.Instance.Args : null;
+                return args != null && !string.IsNullOrEmpty(args.PlayScene) ? args.PlayScene : DefaultPlayScene;
+            }
+        }
 
         ConnectionService _svc;
         NetStatus _last = NetStatus.Offline;
@@ -51,7 +61,7 @@ namespace BooTrayal.Game.Flow
             if (status == NetStatus.Hosting && net != null && net.IsServer && !_playSceneRequested)
             {
                 _playSceneRequested = true;
-                net.SceneManager.LoadScene(PlayScene, LoadSceneMode.Single);
+                net.SceneManager.LoadScene(CurrentPlayScene, LoadSceneMode.Single);
             }
             else if (status == NetStatus.Offline && _last != NetStatus.Offline)
             {
