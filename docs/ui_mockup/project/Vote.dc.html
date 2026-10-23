@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ประชุมและโหวต</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#39FF88}a:hover{color:#8CFFC0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; padding: 40px 64px; background: #120C1C; color: #F2EEF8; font-family: 'Kanit', sans-serif; display: flex; flex-direction: column; gap: 22px">
+  <header style="display: flex; align-items: flex-end; gap: 24px">
+    <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 16px; color: #B9B0CC">ต้น ตีระฆังที่ศาลพระภูมิ</div>
+      <h1 style="margin: 0; font-size: 40px; font-weight: 800">ใครคือร่างทรง?</h1>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px">
+      <div style="font-size: 16px; color: #B9B0CC">เวลาโหวต</div>
+      <div style="font-size: 44px; font-weight: 800; line-height: 1; color: #FFC24B">0:11</div>
+    </div>
+  </header>
+  <div role="img" aria-label="เวลาโหวตเหลือ 11 จาก 15 วินาที" style="height: 8px; border-radius: 4px; background: #2A2038; overflow: hidden"><div style="width: 73%; height: 100%; background: #FFC24B"></div></div>
+  <ul aria-label="เลือกคนที่จะไล่" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+    <sc-for list="{{people}}" as="p" hint-placeholder-count="6">
+      <li style="display: flex">
+        <button type="button" aria-pressed="{{p.pressed}}" style="{{p.style}}">
+          <span aria-hidden="true" style="{{p.dot}}"></span>
+          <span style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; flex: 1 1 auto"><span style="font-size: 21px; font-weight: 600">{{p.name}}</span><span style="font-size: 15px; color: #B9B0CC">{{p.note}}</span></span>
+          <span style="font-size: 18px; font-weight: 800; color: #FFC24B">{{p.votes}}</span>
+        </button>
+      </li>
+    </sc-for>
+  </ul>
+  <div style="display: flex; align-items: center; gap: 16px; margin-top: auto">
+    <div style="flex: 1 1 auto; font-size: 17px; color: #B9B0CC; line-height: 1.5">ไล่ถูก: ผีช้าลง + เวลาเพิ่ม 60 วิ · ไล่ผิด: ผีโกรธ 30 วิ และคนนั้นกลายเป็นผีจิ๋ว<br>ผีจิ๋วโหวตไม่ได้ · โหวตครบแล้วปิดทันที</div>
+    <button type="button" style="height: 60px; padding: 0 40px; border: 2px solid #3A2E52; border-radius: 14px; background: #1B1428; color: #F2EEF8; font-family: inherit; font-size: 21px; font-weight: 600; cursor: pointer">ข้าม (ไม่ไล่ใคร)</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const list = [
+      ['พิม', '#F2B33D', 'อยู่ใกล้ตู้เซฟตอนรหัสเปลี่ยน', 2, false],
+      ['ต้น', '#7B3FE4', 'คนตีระฆัง', 0, false],
+      ['ฝน', '#39FF88', 'เห็นไอเย็นออกปาก!', 3, true],
+      ['บอส', '#FF4FA3', '', 0, false],
+      ['แนน', '#45B5FF', 'ไฟดับตอนเดินผ่าน', 1, false],
+      ['กาย (ผีจิ๋ว)', '#6B6380', 'โหวตไม่ได้', 0, false]
+    ];
+    const people = list.map(([name, color, note, votes, mine]) => ({
+      name, note: note || ' ', votes: votes ? `${votes} เสียง` : '',
+      pressed: mine ? 'true' : 'false',
+      dot: `width: 44px; height: 54px; border-radius: 22px 22px 14px 14px; background: ${color}; flex: 0 0 auto`,
+      style: `width: 100%; min-height: 84px; display: flex; align-items: center; gap: 14px; padding: 12px 18px; border-radius: 16px; font-family: inherit; color: #F2EEF8; text-align: left; cursor: pointer; border: 2px solid ${mine ? '#FFC24B' : '#3A2E52'}; background: ${mine ? 'rgba(255,194,75,0.12)' : '#1B1428'}`
+    }));
+    return { people };
+  }
+}
+</script>
+</body>
+</html>

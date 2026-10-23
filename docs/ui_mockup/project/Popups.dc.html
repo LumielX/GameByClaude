@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>หยุดเกมและแจ้งข้อผิดพลาด</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#39FF88}a:hover{color:#8CFFC0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; padding: 56px 64px; background: #0B0812; color: #F2EEF8; font-family: 'Kanit', sans-serif; display: flex; gap: 48px; align-items: center; justify-content: center">
+  <section aria-label="หยุดเกม" style="width: 440px; background: #1B1428; border: 2px solid #3A2E52; border-radius: 24px; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+    <h2 style="margin: 0 0 6px; font-size: 34px; font-weight: 800">หยุดเกม</h2>
+    <p style="margin: 0 0 6px; font-size: 16px; color: #B9B0CC">เกมออนไลน์ไม่หยุดจริง เพื่อนยังเล่นต่อ ระวังผี!</p>
+    <button type="button" style="height: 56px; border: 0; border-radius: 14px; background: #39FF88; color: #0E0A16; font-family: inherit; font-size: 20px; font-weight: 800; cursor: pointer">เล่นต่อ</button>
+    <button type="button" style="height: 52px; border: 2px solid #3A2E52; border-radius: 14px; background: transparent; color: #F2EEF8; font-family: inherit; font-size: 19px; cursor: pointer">ตั้งค่า</button>
+    <button type="button" style="height: 52px; border: 2px solid #3A2E52; border-radius: 14px; background: transparent; color: #F2EEF8; font-family: inherit; font-size: 19px; cursor: pointer">วิธีเล่น</button>
+    <button type="button" style="height: 52px; border: 2px solid #5A2A38; border-radius: 14px; background: transparent; color: #FF8A9B; font-family: inherit; font-size: 19px; cursor: pointer">ออกจากห้อง</button>
+  </section>
+  <section role="alertdialog" aria-labelledby="errtitle" style="width: 520px; background: #1B1428; border: 2px solid #FFC24B; border-radius: 24px; padding: 32px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 L22 20 H2 Z" stroke="#FFC24B" stroke-width="2" fill="none" stroke-linejoin="round"></path><path d="M12 10 V14" stroke="#FFC24B" stroke-width="2" stroke-linecap="round"></path><circle cx="12" cy="17" r="1.2" fill="#FFC24B"></circle></svg>
+      <h2 id="errtitle" style="margin: 0; font-size: 30px; font-weight: 800">เวอร์ชันเกมไม่ตรงกัน</h2>
+    </div>
+    <p style="margin: 0; font-size: 18px; line-height: 1.55; color: #D9D2E6">ห้องนี้ใช้เกมเวอร์ชัน 0.2.0 แต่เครื่องคุณเป็น 0.1.0 — ดาวน์โหลดเวอร์ชันใหม่จากหน้า GitHub Releases แล้วลองเข้าใหม่</p>
+    <div style="display: flex; gap: 12px; margin-top: 8px">
+      <a href="https://github.com/LumielX/GameByClaude/releases" style="height: 52px; padding: 0 22px; border-radius: 14px; background: #FFC24B; color: #0E0A16; font-size: 19px; font-weight: 800; display: flex; align-items: center; text-decoration: none">เปิดหน้าดาวน์โหลด</a>
+      <button type="button" style="height: 52px; padding: 0 22px; border: 2px solid #3A2E52; border-radius: 14px; background: transparent; color: #F2EEF8; font-family: inherit; font-size: 19px; cursor: pointer">ปิด</button>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

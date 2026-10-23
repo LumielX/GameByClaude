@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>ล็อบบี้</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#39FF88}a:hover{color:#8CFFC0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; padding: 40px 56px; background: #0E0A16; color: #F2EEF8; font-family: 'Kanit', sans-serif; display: flex; flex-direction: column; gap: 24px">
+  <header style="display: flex; align-items: center; gap: 24px">
+    <h1 style="margin: 0; font-size: 36px; font-weight: 800; flex: 1 1 auto">บ้านผีแก๊งเรา</h1>
+    <div style="font-size: 18px; color: #B9B0CC">รหัส <span style="color: #39FF88; font-weight: 800; letter-spacing: 4px">K7Q2XP</span></div>
+    <button type="button" style="height: 44px; padding: 0 18px; border: 2px solid #3A2E52; border-radius: 12px; background: #1B1428; color: #F2EEF8; font-family: inherit; font-size: 17px; cursor: pointer">คัดลอก</button>
+  </header>
+  <div style="display: flex; gap: 24px; flex: 1 1 auto; min-height: 0">
+    <ul aria-label="ผู้เล่นในห้อง" style="list-style: none; margin: 0; padding: 0; flex: 1 1 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px">
+      <sc-for list="{{slots}}" as="p" hint-placeholder-count="8">
+        <li style="{{p.card}}">
+          <div style="{{p.avatar}}"></div>
+          <div style="font-size: 19px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.name}}</div>
+          <div style="{{p.tagStyle}}">{{p.tag}}</div>
+          <sc-if value="{{p.kickable}}" hint-placeholder-val="{{ false }}">
+            <button type="button" aria-label="เตะผู้เล่นออก" style="height: 36px; padding: 0 12px; border: 0; border-radius: 10px; background: transparent; color: #FF8A9B; font-family: inherit; font-size: 15px; cursor: pointer">เตะ</button>
+          </sc-if>
+        </li>
+      </sc-for>
+    </ul>
+    <section aria-label="แชท" style="flex: 0 0 320px; background: #1B1428; border: 2px solid #3A2E52; border-radius: 18px; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+      <div style="font-size: 17px; color: #B9B0CC">แชท</div>
+      <div style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 8px; font-size: 16px; line-height: 1.4">
+        <div><span style="color: #39FF88; font-weight: 600">พิม:</span> ใครเป็นร่างทรงบอกมาเลยนะ 555</div>
+        <div><span style="color: #A98BFF; font-weight: 600">ต้น:</span> ขอเวลาไปเอาน้ำแป๊บ</div>
+        <div><span style="color: #FF8AC8; font-weight: 600">ฝน:</span> พร้อม!</div>
+      </div>
+      <label for="chat" style="font-size: 14px; color: #8E85A3">พิมพ์ข้อความ</label>
+      <input id="chat" placeholder="ข้อความ…" style="height: 46px; box-sizing: border-box; border: 2px solid #3A2E52; border-radius: 12px; background: #0E0A16; color: #F2EEF8; font-family: inherit; font-size: 17px; padding: 0 14px">
+    </section>
+  </div>
+  <footer style="display: flex; align-items: center; gap: 16px">
+    <div style="font-size: 17px; color: #B9B0CC; flex: 1 1 auto">พร้อม 4/6 คน · เกมเริ่มได้เมื่อทุกคนกดพร้อม</div>
+    <button type="button" style="height: 58px; padding: 0 28px; border: 2px solid #3A2E52; border-radius: 14px; background: transparent; color: #F2EEF8; font-family: inherit; font-size: 19px; cursor: pointer">ออกจากห้อง</button>
+    <button type="button" aria-pressed="true" style="height: 58px; padding: 0 32px; border: 2px solid #39FF88; border-radius: 14px; background: transparent; color: #39FF88; font-family: inherit; font-size: 20px; font-weight: 800; cursor: pointer">พร้อมแล้ว ✓</button>
+    <button type="button" style="height: 58px; padding: 0 36px; border: 0; border-radius: 14px; background: #39FF88; color: #0E0A16; font-family: inherit; font-size: 21px; font-weight: 800; cursor: pointer">เริ่มเกม</button>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const people = [
+      { name: 'พิม (host)', color: '#F2B33D', tag: 'พร้อม', ready: true },
+      { name: 'ต้น', color: '#7B3FE4', tag: 'ยังไม่พร้อม', ready: false },
+      { name: 'ฝน', color: '#39FF88', tag: 'พร้อม', ready: true },
+      { name: 'บอส', color: '#FF4FA3', tag: 'พร้อม', ready: true },
+      { name: 'แนน', color: '#45B5FF', tag: 'พร้อม', ready: true },
+      { name: 'กาย', color: '#FF7333', tag: 'ยังไม่พร้อม', ready: false }
+    ];
+    const card = 'background: #1B1428; border: 2px solid #3A2E52; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0';
+    const empty = 'border: 2px dashed #3A2E52; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #8E85A3; min-width: 0';
+    const slots = [];
+    for (let i = 0; i < 8; i++) {
+      const p = people[i];
+      if (p) {
+        slots.push({
+          name: p.name, tag: p.tag, kickable: i > 0, card,
+          avatar: `width: 84px; height: 108px; border-radius: 42px 42px 26px 26px; background: ${p.color}`,
+          tagStyle: `font-size: 15px; font-weight: 600; color: ${p.ready ? '#39FF88' : '#B9B0CC'}`
+        });
+      } else {
+        slots.push({ name: 'ว่าง', tag: 'รอเพื่อน…', kickable: false, card: empty,
+          avatar: 'width: 84px; height: 108px; border-radius: 42px 42px 26px 26px; border: 2px dashed #3A2E52; box-sizing: border-box',
+          tagStyle: 'font-size: 15px; color: #8E85A3' });
+      }
+    }
+    return { slots };
+  }
+}
+</script>
+</body>
+</html>

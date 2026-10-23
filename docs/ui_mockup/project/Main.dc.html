@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>หน้าแรก Kanit</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#39FF88}a:hover{color:#8CFFC0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; position: relative; overflow: hidden; background: #0E0A16; color: #F2EEF8; font-family: 'Kanit', sans-serif; display: flex">
+  <div style="position: absolute; left: 640px; top: 120px; width: 640px; height: 520px; background: radial-gradient(closest-side, rgba(123,63,228,0.35), rgba(14,10,22,0)); pointer-events: none"></div>
+  <div style="flex: 0 0 520px; box-sizing: border-box; padding: 72px 64px; display: flex; flex-direction: column; justify-content: space-between; position: relative">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="font-size: 18px; letter-spacing: 6px; color: {{accent}}; font-weight: 600">ผีป่วน เพื่อนแปรพักตร์</div>
+      <h1 style="margin: 0; font-size: 92px; line-height: 0.95; font-weight: 800; letter-spacing: -1px">BOO-<br>TRAYAL</h1>
+      <p style="margin: 12px 0 0; font-size: 18px; line-height: 1.5; color: #B9B0CC; max-width: 380px">ช่วยกันปิดผนึก ทำพิธี แล้ววิ่งหนีให้ทันก่อนรุ่งสาง — แต่ระวัง เพื่อนบางคนอาจเป็นร่างทรง</p>
+    </div>
+    <nav aria-label="เมนูหลัก" style="display: flex; flex-direction: column; gap: 14px; width: 340px">
+      <button type="button" style="height: 64px; border: 0; border-radius: 14px; background: {{accent}}; color: #0E0A16; font-family: inherit; font-size: 26px; font-weight: 800; text-align: left; padding: 0 28px; cursor: pointer">เล่น</button>
+      <button type="button" style="height: 52px; border: 2px solid #3A2E52; border-radius: 14px; background: #1B1428; color: #F2EEF8; font-family: inherit; font-size: 20px; font-weight: 600; text-align: left; padding: 0 28px; cursor: pointer">วิธีเล่น</button>
+      <button type="button" style="height: 52px; border: 2px solid #3A2E52; border-radius: 14px; background: #1B1428; color: #F2EEF8; font-family: inherit; font-size: 20px; font-weight: 600; text-align: left; padding: 0 28px; cursor: pointer">ตั้งค่า</button>
+      <button type="button" style="height: 52px; border: 2px solid #3A2E52; border-radius: 14px; background: transparent; color: #B9B0CC; font-family: inherit; font-size: 20px; font-weight: 600; text-align: left; padding: 0 28px; cursor: pointer">ออกจากเกม</button>
+    </nav>
+    <div style="font-size: 14px; color: #8E85A3">v0.1.0 · เล่นกับเพื่อน 2–8 คน</div>
+  </div>
+  <div style="flex: 1 1 auto; position: relative; display: flex; align-items: center; justify-content: center">
+    <div style="position: absolute; top: 32px; right: 40px; display: flex; gap: 0; border: 2px solid #3A2E52; border-radius: 999px; overflow: hidden">
+      <button type="button" aria-pressed="true" style="height: 44px; min-width: 64px; border: 0; background: #7B3FE4; color: #FFFFFF; font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer">ไทย</button>
+      <button type="button" aria-pressed="false" style="height: 44px; min-width: 64px; border: 0; background: transparent; color: #B9B0CC; font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer">EN</button>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 0">
+      <svg width="300" height="360" viewBox="0 0 300 360" role="img" aria-label="ผีกระสือหัวลอย ไส้เรืองแสง">
+        <path d="M150 40 C95 40 70 85 70 130 C70 180 105 215 150 215 C195 215 230 180 230 130 C230 85 205 40 150 40 Z" fill="#EADFD6"></path>
+        <path d="M150 30 C88 30 58 82 62 135 C66 120 80 100 98 92 C110 70 190 70 202 92 C220 100 234 120 238 135 C242 82 212 30 150 30 Z" fill="#100A14"></path>
+        <ellipse cx="122" cy="135" rx="14" ry="10" fill="#E0213A"></ellipse>
+        <ellipse cx="178" cy="135" rx="14" ry="10" fill="#E0213A"></ellipse>
+        <path d="M125 178 Q150 196 175 178" stroke="#100A14" stroke-width="5" fill="none" stroke-linecap="round"></path>
+        <path d="M140 215 C130 250 165 262 150 292 C138 316 160 330 152 352" stroke="{{accent}}" stroke-width="12" fill="none" stroke-linecap="round"></path>
+        <path d="M162 214 C178 240 150 256 168 282" stroke="{{accent}}" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.75"></path>
+      </svg>
+      <div style="width: 260px; height: 26px; border-radius: 50%; background: rgba(57,255,136,0.18); margin-top: -6px"></div>
+    </div>
+    <div style="position: absolute; bottom: 36px; right: 40px; font-size: 14px; color: #8E85A3">ภาพตัวละครจริงจะมาใน M7 (low-poly)</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#39FF88","options":["#39FF88","#7B3FE4","#FF5FA2"]},"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#39FF88' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>เล่น</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#39FF88}a:hover{color:#8CFFC0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; padding: 56px 64px; background: #0E0A16; color: #F2EEF8; font-family: 'Kanit', sans-serif; display: flex; flex-direction: column; gap: 36px">
+  <div style="display: flex; align-items: center; gap: 20px">
+    <button type="button" aria-label="กลับ" style="width: 48px; height: 48px; border: 2px solid #3A2E52; border-radius: 12px; background: #1B1428; color: #F2EEF8; cursor: pointer; display: flex; align-items: center; justify-content: center">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5 L8 12 L15 19" stroke="#F2EEF8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <h1 style="margin: 0; font-size: 44px; font-weight: 800">เล่น</h1>
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; flex: 1 1 auto">
+    <section style="background: #1B1428; border: 2px solid #3A2E52; border-radius: 22px; padding: 32px; display: flex; flex-direction: column; gap: 16px">
+      <div style="font-size: 15px; letter-spacing: 3px; color: #39FF88; font-weight: 600">HOST</div>
+      <h2 style="margin: 0; font-size: 32px; font-weight: 800">สร้างห้อง</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.5; color: #B9B0CC; flex: 1 1 auto">ตั้งจำนวนคน ความยาวคืน และร่างทรง แล้วส่งรหัส 6 ตัวให้เพื่อน</p>
+      <button type="button" style="height: 60px; border: 0; border-radius: 14px; background: #39FF88; color: #0E0A16; font-family: inherit; font-size: 22px; font-weight: 800; cursor: pointer">สร้างห้อง</button>
+    </section>
+    <section style="background: #1B1428; border: 2px solid #3A2E52; border-radius: 22px; padding: 32px; display: flex; flex-direction: column; gap: 16px">
+      <div style="font-size: 15px; letter-spacing: 3px; color: #A98BFF; font-weight: 600">JOIN</div>
+      <h2 style="margin: 0; font-size: 32px; font-weight: 800">เข้าห้องเพื่อน</h2>
+      <label for="joincode" style="font-size: 18px; color: #B9B0CC">รหัสห้องจากเพื่อน</label>
+      <input id="joincode" value="K7Q2XP" maxlength="6" style="height: 64px; box-sizing: border-box; border: 2px solid #7B3FE4; border-radius: 14px; background: #0E0A16; color: #F2EEF8; font-family: inherit; font-size: 34px; font-weight: 600; letter-spacing: 10px; text-align: center; text-transform: uppercase">
+      <div style="flex: 1 1 auto"></div>
+      <button type="button" style="height: 60px; border: 0; border-radius: 14px; background: #7B3FE4; color: #FFFFFF; font-family: inherit; font-size: 22px; font-weight: 800; cursor: pointer">เข้าห้อง</button>
+    </section>
+    <section style="background: #140F1F; border: 2px dashed #3A2E52; border-radius: 22px; padding: 32px; display: flex; flex-direction: column; gap: 16px">
+      <div style="font-size: 15px; letter-spacing: 3px; color: #B9B0CC; font-weight: 600">SOLO</div>
+      <h2 style="margin: 0; font-size: 32px; font-weight: 800">ซ้อมคนเดียว</h2>
+      <p style="margin: 0; font-size: 18px; line-height: 1.5; color: #B9B0CC; flex: 1 1 auto">เล่นออฟไลน์ ไม่ต้องล็อกอิน ไม่มีร่างทรง เหมาะกับลองบ้านและผีก่อนชวนเพื่อน</p>
+      <button type="button" style="height: 60px; border: 2px solid #3A2E52; border-radius: 14px; background: transparent; color: #F2EEF8; font-family: inherit; font-size: 22px; font-weight: 600; cursor: pointer">เริ่มซ้อม</button>
+    </section>
+  </div>
+  <div style="font-size: 15px; color: #8E85A3">กำลังเชื่อมต่อจะขึ้นแถบสถานะตรงนี้ เช่น "กำลังเข้าห้อง K7Q2XP…"</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

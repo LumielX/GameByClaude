@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>สรุปคืน</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#39FF88}a:hover{color:#8CFFC0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 720px; box-sizing: border-box; padding: 40px 64px; background: #0E0A16; color: #F2EEF8; font-family: 'Kanit', sans-serif; display: flex; gap: 40px">
+  <section aria-label="เฉลย" style="flex: 0 0 470px; display: flex; flex-direction: column; gap: 18px">
+    <div style="font-size: 16px; letter-spacing: 3px; color: #B9B0CC; font-weight: 600">คืนที่ 1 จบแล้ว</div>
+    <h1 style="margin: 0; font-size: 50px; font-weight: 800; line-height: 1.05; color: #39FF88">ทีมหนีรอด!</h1>
+    <div style="background: #1B1428; border: 2px solid #7B3FE4; border-radius: 22px; padding: 26px; display: flex; align-items: center; gap: 22px">
+      <div aria-hidden="true" style="width: 96px; height: 122px; border-radius: 48px 48px 28px 28px; background: #39FF88; box-shadow: 0 0 0 6px rgba(123,63,228,0.6); flex: 0 0 auto"></div>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="font-size: 16px; color: #B9B0CC">ร่างทรงคืนนี้คือ…</div>
+        <div style="font-size: 38px; font-weight: 800">ฝน</div>
+        <div style="font-size: 16px; color: #B9B0CC">ป่วนสำเร็จ 2/3 · ถูกโหวตไล่ตอน 05:10</div>
+      </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <div style="font-size: 16px; color: #B9B0CC">รางวัลตลก</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <span style="background: #2A2038; border-radius: 999px; padding: 6px 14px; font-size: 16px">ขี้ขลาดที่สุด · ต้น</span>
+        <span style="background: #2A2038; border-radius: 999px; padding: 6px 14px; font-size: 16px">ตะโกนดังที่สุด · บอส</span>
+        <span style="background: #2A2038; border-radius: 999px; padding: 6px 14px; font-size: 16px">นักสืบ · แนน</span>
+      </div>
+    </div>
+  </section>
+  <section aria-label="เหรียญคืนนี้" style="flex: 1 1 auto; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); font-size: 15px; color: #8E85A3; padding: 0 18px">
+      <span>ผู้เล่น</span><span style="text-align: right">คืนนี้</span><span style="text-align: right">รวม</span>
+    </div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; background: #1B1428; border-radius: 14px; padding: 12px 18px; font-size: 20px">
+        <span style="font-weight: 600">{{r.name}}</span>
+        <span style="text-align: right; color: #39FF88; font-weight: 600">+{{r.night}}</span>
+        <span style="text-align: right">{{r.total}}</span>
+      </div>
+    </sc-for>
+    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: auto">
+      <span style="font-size: 17px; color: #B9B0CC">คืนถัดไปเริ่มใน 9 วิ</span>
+      <button type="button" style="height: 56px; padding: 0 30px; border: 0; border-radius: 14px; background: #39FF88; color: #0E0A16; font-family: inherit; font-size: 20px; font-weight: 800; cursor: pointer">ไปร้านค้า</button>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const rows = [['พิม', 170, 170], ['แนน', 160, 160], ['ต้น', 130, 130], ['บอส', 120, 120], ['กาย', 50, 50], ['ฝน', 0, 0]]
+      .map(([name, night, total]) => ({ name, night, total }));
+    return { rows };
+  }
+}
+</script>
+</body>
+</html>
