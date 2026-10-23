@@ -75,12 +75,12 @@ try {
     Wait-Marker $hostI 'GHOST_STATE state=Flee' | Out-Null
     $fleeLines = @(Select-String -Path $hostI.Log -Pattern 'GHOST_STATE state=Flee')
     $wanderAfter = Select-String -Path $hostI.Log -Pattern 'GHOST_STATE state=Wander' | Where-Object { $_.LineNumber -gt $fleeLines[0].LineNumber }
-    $deadline = (Get-Date).AddSeconds(10)
+    $deadline = (Get-Date).AddSeconds(20)
     while (-not $wanderAfter -and (Get-Date) -lt $deadline) {
         Start-Sleep -Milliseconds 500
         $wanderAfter = Select-String -Path $hostI.Log -Pattern 'GHOST_STATE state=Wander' | Where-Object { $_.LineNumber -gt $fleeLines[0].LineNumber }
     }
-    if (-not $wanderAfter) { throw 'ghost never returned to Wander after fleeing' }
+    if (-not $wanderAfter) { throw 'ghost never returned to Wander after fleeing (and the rest of its cooldown)' }
     Write-Host "  [host] $(@($wanderAfter)[0].Line)"
 
     Write-Host '-- 4. no exceptions or Netcode errors in any log'

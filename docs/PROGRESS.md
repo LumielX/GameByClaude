@@ -4,7 +4,7 @@
 
 ## สถานะปัจจุบัน
 - **เฟส:** 2 เสร็จ — GDD อนุมัติแล้ว (2026-10-22), แผน `docs/PLAN.md` (roadmap M0–M18) + แผนละเอียด `docs/plans/2026-10-22-m0-m1-foundation-core-rules.md` เขียนแล้ว
-- **เฟส 3 กำลังทำ** — M0–M3 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
+- **เฟส 3 กำลังทำ** — M0–M4 merge เข้า `main` แล้ว; บันทึกการตัดสินใจ (rulings) ของ M0–M1 อยู่ที่ `docs/plans/2026-10-22-m0-m1-ledger.md`
 - ⚠️ ห้ามแก้ไฟล์ข้อความภาษาไทยด้วย PowerShell 5.1 `Get-Content`/`Set-Content` (อ่าน UTF-8 ผิดแล้วไฟล์เสีย) — ใช้ Edit tool หรือ bash
 - **M0 เสร็จ (2026-10-22):** package ตรึงเวอร์ชันแล้ว (NGO 2.13.3, Multiplayer 2.4.1, Vivox 16.12.1, Localization 1.5.13, Navigation 2.0.16, Test Framework 1.8.0, transport 6.6.0 มากับ editor), สคริปต์ `tools/unity/{compile,run-tests,run-method,build-windows}.ps1`, asmdef 5 ตัว, ProjectSetupBuilder + SceneBuilder (idempotent), build `Builds/Windows/BOO-TRAYAL.exe` + smoke test `BOOTRAYAL_SMOKE_OK` ผ่าน, zip 59 MB
 - **M1 เสร็จ (2026-10-22):** กฎเกมทั้งหมดใน `Assets/_Project/Scripts/Core/` (RoomRules, RoleAssigner, VoteResolver, SabotageTracker, NightJudge, ScoreRules/Wallet, FearModel, Stamina, AdrenalineModel, SafeCode/FuseBox/RitualOffering puzzles, MeetingRules, ExorciseEffects, JoinPolicy) — EditMode tests 128/128 ผ่าน (`TestResults/EditMode.xml`), build + smoke ผ่าน
@@ -27,7 +27,15 @@
   - บั๊กที่เจอระหว่างทาง: CharacterController.minMoveDistance ทำให้ไม่ขยับที่ FPS สูง (ตั้ง 0), in-scene NetworkObject hash = 0 ตอน save ครั้งแรก (ResaveScene เรียก OnValidate), owner-authority item ไม่ sync หลัง ChangeOwnership (เปลี่ยนเป็น server-authoritative)
   - deferred minors: ของที่ถือชนตัวคนถือ; server ไม่หมุนของตามมือ; NaN จาก client ดัดแปลง; spawn ซ้ำเมื่อ id%4 ชน; cursor ค้างถ้า host ปิดก่อนโหลด Sandbox; input ไม่กลับมาหลัง OnDisable; หยิบทะลุกำแพงได้ (ไม่เช็ค LOS); smoke ยังไม่พิสูจน์ความเร็วขว้าง/โกศเคลื่อนที่; hash ค้างเก่าไม่ถูกจับ
   - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m3-ledger.md`
-- **ถัดไป: M4 แผนที่เรือนไทย graybox + ผีกระสือ** (NavMesh, state machine, ได้ยินเสียง/ไมค์, Fear + Adrenaline ฝั่ง client)
+- **M4 เสร็จ (2026-10-23):** เรือนไทย graybox + ผีกระสือบนเน็ต — แผน `docs/plans/2026-10-23-m4-house-ghost.md`
+  - Core/Ghosts: `GhostBrain` (Wander → Investigate → Alert 1 วิ → Chase → Grab 2 วิ → Cooldown 10 วิ, Flee เมื่อโดนไฟฉายส่องหน้า 2 วิ แล้วไม่กลัวไฟ 8 วิ, เลิกไล่เมื่อมองไม่เห็น 6 วิ, ไม่จับ Spy ที่ยังไม่ถูกเปิดโปง → ปล่อยแล้วเมิน 8 วิ), `GhostPerception` (มอง 14 m / 120°, ไฟฉาย 15 m / 12°), `GhostTuning` (ไล่ 6.0 m/s: เร็วกว่าวิ่งปกติ 5.6 แต่ช้ากว่าวิ่ง+Adrenaline 7.0), `NoiseRules.FromVoice`
+  - ฉาก `House` (ค่าเริ่มต้น; `-playscene Sandbox` ใช้ฉากทดสอบเดิม): ใต้ถุน เสา ลังของ, ชั้นบน ห้องนอน/ห้องพระ/ชาน/ครัว, บันไดหน้า+หลัง (วิ่งวนหนีได้), ลานบ้าน ศาลพระภูมิ รั้ว ประตูหนี (ยังปิด), bake NavMesh ด้วยโค้ด + ตรวจว่าผีเดินถึงทุกจุด
+  - Game: `GhostController` (server: มอง/ได้ยิน/ไฟฉาย → brain → NavMeshAgent), `GhostView` (ลอยขึ้นลง, ไส้เรืองแสงแรงขึ้นตอนไล่, เสียงกรีดตอนเตือน), `FearDirector` (vignette/chromatic/กล้องสั่น/เสียงลม-หัวใจ-เสียงหลอนแบบ cross-fade/ไฟกะพริบ + ส่งระยะผีให้ Adrenaline), `PlayerLife` (ถูกจับ/ตาย; **ชั่วคราว** เกิดใหม่ใน 5 วิ จนกว่า M5 จะทำผีจิ๋ว), `PlayerNoise` (วิ่งมีเสียงเท้า, Z กรี๊ด cooldown 3 วิ)
+  - เสียงทั้งหมดสังเคราะห์ด้วยโค้ด (`ProceduralClips`) ยังไม่มีไฟล์เสียงจากภายนอก
+  - หลักฐาน: EditMode 250/250; `tools/unity/ghost-smoke.ps1` (ผีได้ยินเสียงกรี๊ด → เตือน 1 วิ → ไล่ → จับ → ตาย 2 วิต่อมา → cooldown → เกิดใหม่; client ได้ FEAR band=near + Adrenaline; ไฟฉายส่องจนผีหนี) ผ่าน; player-smoke, net-smoke Local ผ่าน; builder รันซ้ำไม่มี diff
+  - บั๊กที่เจอ: โกศบนชานตกกระทบพื้นตอนโหลดฉากทำให้ผีได้ยิน (ของเพิ่งเกิดไม่ส่งเสียง 1.5 วิ)
+  - บันทึกการตัดสินใจ: `docs/plans/2026-10-23-m4-ledger.md`
+- **ถัดไป: M5 วงจรหนึ่งคืน** (NightDirector, สุ่ม Spy, ปริศนา 3 แบบ, พิธี, ประตูหนี, พลัง Spy, ประชุม/โหวต, ผีจิ๋ว, สรุปคืน)
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-23

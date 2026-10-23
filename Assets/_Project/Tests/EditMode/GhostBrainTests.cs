@@ -260,6 +260,32 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void Investigate_StaleReachedTick_DoesNotStartLinger()
+        {
+            var b = new GhostBrain();
+            b.OnNoise(5f, 8f);
+            b.Tick(0.5f, new GhostSenses { ReachedPoint = true }); // stale path on the first tick
+            Run(b, 4f, Nothing);
+            Assert.AreEqual(GhostState.Investigate, b.State, "only lingers while actually at the point");
+        }
+
+        [Test]
+        public void Cooldown_LitFlee_ResumesRemainingCooldown()
+        {
+            var b = Chasing();
+            b.Tick(0.1f, Target(1f));
+            Run(b, 2f, Target(1f));
+            Assert.AreEqual(GhostState.Cooldown, b.State);
+            Assert.AreEqual(GhostEvent.Fled, Run(b, 2f, Lit)); // 8 s of cooldown left
+            Run(b, 3f, Nothing);
+            Assert.AreEqual(GhostState.Cooldown, b.State, "fleeing does not shorten the 10 s rest");
+            Run(b, 7.5f, Sees(Victim));
+            Assert.AreEqual(GhostState.Cooldown, b.State);
+            Run(b, 0.5f, Nothing);
+            Assert.AreEqual(GhostState.Wander, b.State);
+        }
+
+        [Test]
         public void Investigate_Timeout15s_Wander()
         {
             var b = new GhostBrain();

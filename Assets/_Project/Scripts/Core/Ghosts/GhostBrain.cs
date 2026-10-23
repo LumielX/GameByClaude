@@ -17,6 +17,8 @@ namespace BooTrayal.Core.Ghosts
         float _lightImmunity;
         float _lostSight;
         float _linger = -1f;
+        /// <summary>Cooldown seconds still owed when a flashlight scared the ghost mid-rest.</summary>
+        float _resumeCooldown;
 
         public GhostState State { get; private set; } = GhostState.Wander;
         public ulong TargetId { get; private set; }
@@ -65,6 +67,7 @@ namespace BooTrayal.Core.Ghosts
                 _exposure = s.Lit ? _exposure + dt : Math.Max(0f, _exposure - GhostTuning.LightDecayRate * dt);
                 if (_exposure >= GhostTuning.FlashlightScareSeconds - Epsilon)
                 {
+                    _resumeCooldown = State == GhostState.Cooldown ? Math.Max(0f, GhostTuning.CooldownSeconds - StateTime) : 0f;
                     Enter(GhostState.Flee);
                     _exposure = 0f;
                     return GhostEvent.Fled;
@@ -80,7 +83,8 @@ namespace BooTrayal.Core.Ghosts
                 {
                     var e = TryAlert(s);
                     if (e != GhostEvent.None) return e;
-                    if (s.ReachedPoint || _linger >= 0f) _linger = Math.Max(0f, _linger) + dt;
+                    // Linger only while actually at the point; a stale "reached" from the old path resets.
+                    _linger = s.ReachedPoint ? Math.Max(0f, _linger) + dt : -1f;
                     if (_linger >= GhostTuning.LingerSeconds - Epsilon || StateTime >= GhostTuning.InvestigateTimeout - Epsilon)
                         Enter(GhostState.Wander);
                     return GhostEvent.None;
@@ -127,7 +131,14 @@ namespace BooTrayal.Core.Ghosts
                     if (StateTime >= GhostTuning.FleeSeconds - Epsilon)
                     {
                         _lightImmunity = GhostTuning.LightImmunitySeconds;
-                        Enter(GhostState.Wander);
+                        if (_resumeCooldown > Epsilon)
+                        {
+                            // A flashlight must not shorten the 10 s rest after a kill (GDD 6.1).
+                            Enter(GhostState.Cooldown);
+                            StateTime = GhostTuning.CooldownSeconds - _resumeCooldown;
+                        }
+                        else Enter(GhostState.Wander);
+                        _resumeCooldown = 0f;
                     }
                     return GhostEvent.None;
             }

@@ -178,7 +178,11 @@ namespace BooTrayal.Game.Ghosts
             }
 
             if (_brain.State == GhostState.Investigate)
-                s.ReachedPoint = !_agent.pathPending && (!_agent.hasPath || _agent.remainingDistance <= ArriveDistance);
+            {
+                // Measured to the noise point itself, not the agent's path (which may still be the previous one).
+                var off = _noisePoint - transform.position;
+                s.ReachedPoint = Mathf.Abs(off.y) < 1.5f && new Vector2(off.x, off.z).magnitude <= ArriveDistance;
+            }
             return s;
         }
 
