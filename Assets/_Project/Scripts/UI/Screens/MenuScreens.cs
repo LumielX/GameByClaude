@@ -204,8 +204,10 @@ namespace BooTrayal.UI.Screens
 
     public class SettingsScreen : UIScreen
     {
-        Slider _volume, _sensitivity;
+        Slider _volume, _sensitivity, _voiceVolume;
         Toggle _reduced;
+        Button _open, _ptt;
+        Label _voiceStatus;
 
         protected override void Bind()
         {
@@ -218,6 +220,11 @@ namespace BooTrayal.UI.Screens
             _volume.RegisterValueChangedCallback(e => GameSettings.SetVolume(e.newValue));
             _sensitivity.RegisterValueChangedCallback(e => GameSettings.SetSensitivity(e.newValue));
             _reduced.RegisterValueChangedCallback(e => GameSettings.SetReducedEffects(e.newValue));
+            _voiceVolume = View.Q<Slider>("voice-volume");
+            _voiceVolume.RegisterValueChangedCallback(e => GameSettings.SetVoiceVolume(e.newValue));
+            _open = Btn("voice-open", () => GameSettings.SetPushToTalk(false));
+            _ptt = Btn("voice-ptt", () => GameSettings.SetPushToTalk(true));
+            _voiceStatus = View.Q<Label>("voice-status");
             LanguagePills.Bind(View);
         }
 
@@ -226,9 +233,18 @@ namespace BooTrayal.UI.Screens
             _volume.SetValueWithoutNotify(GameSettings.Volume);
             _sensitivity.SetValueWithoutNotify(GameSettings.Sensitivity);
             _reduced.SetValueWithoutNotify(GameSettings.ReducedEffects);
+            _voiceVolume.SetValueWithoutNotify(GameSettings.VoiceVolume);
         }
 
-        public override void Refresh() => LanguagePills.Refresh(View);
+        public override void Refresh()
+        {
+            LanguagePills.Refresh(View);
+            SetClass(_open, "pill-on", !GameSettings.PushToTalk);
+            SetClass(_ptt, "pill-on", GameSettings.PushToTalk);
+            var voice = BooTrayal.Game.Voice.VoiceService.Instance;
+            _voiceStatus.text = voice == null ? "" : voice.Active ? L.Get("settings.voice.on")
+                : !string.IsNullOrEmpty(voice.LastError) ? L.Get("settings.voice.error") : L.Get("settings.voice.offline");
+        }
     }
 
     public class HowToScreen : UIScreen

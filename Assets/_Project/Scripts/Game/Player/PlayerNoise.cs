@@ -1,4 +1,5 @@
 using BooTrayal.Core.Player;
+using BooTrayal.Core.Voice;
 using BooTrayal.Game.Audio;
 using BooTrayal.Game.Items;
 using Unity.Netcode;
@@ -21,6 +22,7 @@ namespace BooTrayal.Game.Player
         float _ownerCooldown;
         double _lastScream = double.NegativeInfinity;
         double _lastBoo = double.NegativeInfinity;
+        double _lastVoice = double.NegativeInfinity;
 
         void Awake()
         {
@@ -72,6 +74,23 @@ namespace BooTrayal.Game.Player
             _lastScream = now;
             Debug.Log($"SCREAM by={OwnerClientId}");
             NoiseBus.Raise(transform.position + Vector3.up * HeadHeight, NoiseRules.FromVoice(1f));
+        }
+
+        /// <summary>Owner: the mic is loud (0..1, from Vivox audio energy). The Krasue hears it like a scream, scaled.</summary>
+        public void ReportVoice(float level)
+        {
+            if (IsOwner && level > 0f && _life.IsAlive) VoiceRpc(level);
+        }
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+        void VoiceRpc(float level)
+        {
+            double now = NetworkManager.ServerTime.Time;
+            if (!_life.IsAlive || float.IsNaN(level) || level <= 0f || !VoiceRules.AcceptVoice(now, _lastVoice)) return;
+            _lastVoice = now;
+            level = Mathf.Clamp01(level);
+            if (Application.isBatchMode) Debug.Log($"VOICE_NOISE by={OwnerClientId} level={level:0.00}");
+            NoiseBus.Raise(transform.position + Vector3.up * HeadHeight, NoiseRules.FromVoice(level));
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]

@@ -29,6 +29,8 @@ namespace BooTrayal.Game.Networking
         /// <summary>0 = default (1).</summary>
         public int Spies { get; private set; }
         public bool NoGhost { get; private set; }
+        /// <summary>No Vivox even in online rooms (smoke tests run without audio devices).</summary>
+        public bool NoVoice { get; private set; }
         /// <summary>Multiplies the 45 s discussion and 15 s vote.</summary>
         public float MeetingScale { get; private set; } = 1f;
         /// <summary>Seeds roles, seals and codes for reproducible tests.</summary>
@@ -65,6 +67,7 @@ namespace BooTrayal.Game.Networking
                     case "-nospy": a.NoSpy = true; break;
                     case "-spies": a.Spies = PositiveInt(Value(args, ref i)); break;
                     case "-noghost": a.NoGhost = true; break;
+                    case "-novoice": a.NoVoice = true; break;
                     case "-uismoke": a.UiSmoke = true; break;
                     case "-uishots": a.UiShots = Value(args, ref i); break;
                     case "-meetingscale":

@@ -19,10 +19,14 @@
             <ui:Label text="@settings.reduced.desc" class="faint" />
           </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement class="row" style="opacity: 0.55;">
-          <ui:Label text="@settings.mic" style="margin-right: 16px;" />
-          <ui:Label text="@settings.mic.soon" class="faint" />
+        <ui:Label text="@settings.voice" class="field-label" />
+        <ui:VisualElement class="pill-group" style="align-self: flex-start;">
+          <ui:Button name="voice-open" text="@settings.voice.open" class="pill semibold" />
+          <ui:Button name="voice-ptt" text="@settings.voice.ptt" class="pill semibold" />
         </ui:VisualElement>
+        <ui:Label text="@settings.voice.volume" class="field-label" />
+        <ui:Slider name="voice-volume" low-value="0" high-value="1" />
+        <ui:Label name="voice-status" text="" class="faint" />
       </ui:VisualElement>
       <ui:Button name="back" text="@settings.back" class="btn btn-primary heavy" style="align-self: flex-start; margin-top: 24px;" />
     </ui:VisualElement>

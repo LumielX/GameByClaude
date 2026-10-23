@@ -22,6 +22,8 @@ namespace BooTrayal.Game.Player
         /// <summary>Spy power keys until the M6 power wheel: Q sabotage, X blackout.</summary>
         bool PowerSabotagePressed { get; }
         bool PowerBlackoutPressed { get; }
+        /// <summary>Push-to-talk held (V).</summary>
+        bool TalkHeld { get; }
     }
 
     public static class PlayerInputSource

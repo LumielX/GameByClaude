@@ -3,7 +3,9 @@
 #   -Mode Relay : Unity Multiplayer Sessions (Lobby + Relay) with a real join code
 param(
     [ValidateSet('Local', 'Relay')][string]$Mode = 'Local',
-    [int]$TimeoutSec = 60
+    [int]$TimeoutSec = 60,
+    # Opt-in: let Vivox run (Relay only). Without a microphone it may log VOICE_FAILED; the script reports either way.
+    [switch]$Voice
 )
 $ErrorActionPreference = 'Stop'
 $ProjectPath = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -13,11 +15,12 @@ if (-not (Test-Path $exe)) { Write-Host "Build first: $exe missing" -ForegroundC
 if (Test-Path $dir) { Remove-Item $dir -Recurse -Force }
 New-Item -ItemType Directory -Force $dir | Out-Null
 
+$voiceArgs = if ($Voice) { @() } else { @('-novoice') }
 $procs = New-Object System.Collections.ArrayList
 
 function Start-Instance([string]$name, [string[]]$extra) {
     $log = Join-Path $dir "$name.log"
-    $argList = @('-batchmode', '-nographics', '-logFile', "`"$log`"", '-name', $name) + $extra
+    $argList = @('-batchmode', '-nographics', '-logFile', "`"$log`"", '-name', $name) + $voiceArgs + $extra
     $p = Start-Process -FilePath $exe -ArgumentList $argList -PassThru
     [void]$procs.Add($p)
     return [pscustomobject]@{ Name = $name; Log = $log; Process = $p }
@@ -57,6 +60,13 @@ try {
     $c1 = Start-Instance 'client1' ($joinArgs + @('-profile', 'smokec1'))
     $line = Wait-Marker $c1 'NET_CONNECTED|NET_FAILED|NET_REJECTED'
     if ($line -notmatch 'NET_CONNECTED') { throw "client1 did not connect: $line" }
+    if ($Voice) {
+        Write-Host '-- voice (Vivox): login + channels on both, or a reported failure'
+        foreach ($inst in @($host1, $c1)) {
+            $v = Wait-Marker $inst 'VOICE_JOINED channel=bt-.*-meet|VOICE_FAILED'
+            if ($v -match 'VOICE_FAILED') { Write-Host "  [$($inst.Name)] voice unavailable here (allowed in batchmode): $v" -ForegroundColor Yellow }
+        }
+    }
     Wait-Marker $host1 'NET_CLIENT_JOINED' | Out-Null
 
     Write-Host '-- 2. old-version client is refused'

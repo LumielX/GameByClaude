@@ -34,7 +34,7 @@ namespace BooTrayal.UI.Screens
     /// <summary>In-night HUD (mockup "HUD ระหว่างคืน"): timer, tasks, stamina, held item, role, interact hint, banners.</summary>
     public class HudScreen : UIScreen
     {
-        Label _night, _timer, _seals, _ritual, _escape, _hintText, _banner, _toast, _adrenaline, _heldName, _role;
+        Label _night, _timer, _seals, _ritual, _escape, _hintText, _banner, _toast, _adrenaline, _heldName, _role, _speaking;
         VisualElement _hint, _bannerRow, _toastRow, _staminaFill, _held;
 
         protected override void Bind()
@@ -55,6 +55,7 @@ namespace BooTrayal.UI.Screens
             _held = View.Q<VisualElement>("held");
             _heldName = View.Q<Label>("held-name");
             _role = View.Q<Label>("role");
+            _speaking = View.Q<Label>("speaking");
         }
 
         public override void Refresh()
@@ -102,6 +103,11 @@ namespace BooTrayal.UI.Screens
                     ? "  ·  " + L.Format("hud.partners", string.Join(", ", d.MyPartners.Select(PlayerAvatar.NameOf))) : "");
             else _role.text = L.Get("hud.role.crew");
             _role.style.display = _role.text.Length > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+
+            var voice = BooTrayal.Game.Voice.VoiceService.Instance;
+            _speaking.text = voice != null && voice.Speaking.Count > 0
+                ? string.Join("\n", voice.Speaking.Select(id => L.Format("hud.speaking", PlayerAvatar.NameOf(id))))
+                : "";
         }
 
         static string PartText(Interactable part)

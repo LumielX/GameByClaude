@@ -3,6 +3,7 @@
     <ui:VisualElement class="col" picking-mode="Ignore" style="position: absolute; left: 36px; top: 30px;">
       <ui:Label name="night" text="" class="muted" />
       <ui:Label name="timer" text="10:00" class="hud-big heavy" />
+      <ui:Label name="speaking" text="" class="accent" style="margin-top: 10px;" />
     </ui:VisualElement>
     <ui:VisualElement class="hud-box col" picking-mode="Ignore" style="position: absolute; right: 36px; top: 30px; width: 400px;">
       <ui:Label text="@hud.tasks" class="faint" />

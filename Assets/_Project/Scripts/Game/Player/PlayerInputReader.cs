@@ -12,7 +12,7 @@ namespace BooTrayal.Game.Player
         /// <summary>True while a menu needs the mouse (Esc toggles). Gameplay input reads as idle.</summary>
         public static bool CursorFree { get; private set; }
 
-        InputAction _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _scream, _powerSabotage, _powerBlackout, _escape;
+        InputAction _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _scream, _powerSabotage, _powerBlackout, _talk, _escape;
         bool _active;
 
         void Awake()
@@ -34,6 +34,7 @@ namespace BooTrayal.Game.Player
             _scream = Button("Scream", "<Keyboard>/z", "<Gamepad>/rightShoulder");
             _powerSabotage = Button("PowerSabotage", "<Keyboard>/q", "<Gamepad>/dpad/left");
             _powerBlackout = Button("PowerBlackout", "<Keyboard>/x", "<Gamepad>/dpad/right");
+            _talk = Button("Talk", "<Keyboard>/v", "<Gamepad>/rightStickPress");
             _escape = Button("Escape", "<Keyboard>/escape", "<Gamepad>/start");
         }
 
@@ -77,7 +78,7 @@ namespace BooTrayal.Game.Player
             Cursor.visible = free;
         }
 
-        InputAction[] All() => new[] { _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _scream, _powerSabotage, _powerBlackout, _escape };
+        InputAction[] All() => new[] { _move, _look, _lookPad, _run, _crouch, _jump, _interact, _throw, _drop, _push, _flashlight, _scream, _powerSabotage, _powerBlackout, _talk, _escape };
 
         bool Live => _active && !CursorFree;
 
@@ -106,5 +107,6 @@ namespace BooTrayal.Game.Player
         public bool ScreamPressed => Live && _scream.WasPressedThisFrame();
         public bool PowerSabotagePressed => Live && _powerSabotage.WasPressedThisFrame();
         public bool PowerBlackoutPressed => Live && _powerBlackout.WasPressedThisFrame();
+        public bool TalkHeld => Live && _talk.IsPressed();
     }
 }

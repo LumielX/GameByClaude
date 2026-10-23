@@ -46,6 +46,7 @@ namespace BooTrayal.Editor.Builders
             var services = Root(scene, "Services");
             Ensure<ConnectionService>(services);
             Ensure<SessionFlow>(services);
+            Ensure<BooTrayal.Game.Voice.VoiceService>(services);
             Ensure<SmokeProbe>(services);
             UIBuilder.Wire(services);
 

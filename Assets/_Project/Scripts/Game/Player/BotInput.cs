@@ -19,6 +19,7 @@ namespace BooTrayal.Game.Player
         public bool Run { get; set; }
         public bool Crouch { get; set; }
         public bool JumpHeld { get; set; }
+        public bool TalkHeld { get; set; }
         public bool JumpPressed => _active[(int)BotButton.Jump];
         public bool InteractPressed => _active[(int)BotButton.Interact];
         public bool ThrowPressed => _active[(int)BotButton.Throw];

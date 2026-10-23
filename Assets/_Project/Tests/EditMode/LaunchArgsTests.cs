@@ -107,6 +107,13 @@ namespace BooTrayal.Tests
         }
 
         [Test]
+        public void NoVoice_Flag()
+        {
+            Assert.IsTrue(LaunchArgs.Parse(new[] { "x.exe", "-novoice" }).NoVoice);
+            Assert.IsFalse(LaunchArgs.Parse(new[] { "x.exe" }).NoVoice);
+        }
+
+        [Test]
         public void Bad_NightSeconds_Ignored()
         {
             Assert.IsNull(LaunchArgs.Parse(new[] { "x.exe", "-nightseconds", "abc" }).NightSeconds);
