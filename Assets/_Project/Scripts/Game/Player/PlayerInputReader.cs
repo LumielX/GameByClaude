@@ -67,7 +67,7 @@ namespace BooTrayal.Game.Player
 
         void Update()
         {
-            if (_active && _escape.WasPressedThisFrame()) SetCursorFree(!CursorFree);
+            // Esc is handled by the UI (pause menu), which owns the cursor.
         }
 
         public static void SetCursorFree(bool free)

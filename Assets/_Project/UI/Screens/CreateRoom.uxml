@@ -1,0 +1,40 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="create" class="screen row" style="align-items: stretch;">
+    <ui:VisualElement class="col grow" style="margin-right: 40px;">
+      <ui:Label text="@create.title" class="h1 heavy" style="margin-bottom: 26px;" />
+      <ui:Label text="@create.maxplayers" class="field-label" />
+      <ui:VisualElement name="counts" class="row gap-s" style="margin-bottom: 22px;" />
+      <ui:Label text="@create.spy" class="field-label" />
+      <ui:VisualElement class="row gap-s" style="margin-bottom: 22px;">
+        <ui:Button name="spy-0" text="@create.spy.off" class="btn btn-small" />
+        <ui:Button name="spy-1" text="@create.spy.one" class="btn btn-small" />
+        <ui:Button name="spy-2" text="@create.spy.two" class="btn btn-small" />
+      </ui:VisualElement>
+      <ui:VisualElement class="row" style="align-items: flex-start; margin-bottom: 22px;">
+        <ui:VisualElement class="col grow" style="flex-basis: 0; margin-right: 16px;">
+          <ui:Label text="@create.nightlength" class="field-label" />
+          <ui:DropdownField name="length" />
+        </ui:VisualElement>
+        <ui:VisualElement class="col grow" style="flex-basis: 0; margin-right: 16px;">
+          <ui:Label text="@create.nights" class="field-label" />
+          <ui:DropdownField name="nights" />
+        </ui:VisualElement>
+        <ui:VisualElement class="col grow" style="flex-basis: 0;">
+          <ui:Label text="@create.difficulty" class="field-label" />
+          <ui:DropdownField name="difficulty" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+      <ui:VisualElement class="grow" />
+      <ui:VisualElement class="row">
+        <ui:Button name="back" text="@create.back" class="btn" style="margin-right: 12px;" />
+        <ui:Button name="submit" text="@create.submit" class="btn btn-primary heavy" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement class="card col" style="width: 400px;">
+      <ui:Label name="summary" text="" class="muted" style="font-size: 19px;" />
+      <ui:VisualElement class="grow" />
+      <ui:Label text="@create.hint" class="faint" />
+      <ui:Label name="status" text="" class="warn wrap" style="margin-top: 14px;" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

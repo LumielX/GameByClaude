@@ -1,0 +1,78 @@
+/* BOO-TRAYAL theme — tokens from the approved mockup (docs/ui_mockup). Fonts and the Thai text generator are set in UIRoot. */
+
+.bt-root { flex-grow: 1; color: rgb(242, 238, 248); font-size: 20px; }
+
+.screen { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgb(14, 10, 22); padding: 56px 72px; }
+.overlay { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(11, 8, 18, 0.82); align-items: center; justify-content: center; }
+.hud-layer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+
+.row { flex-direction: row; align-items: center; }
+.col { flex-direction: column; }
+.grow { flex-grow: 1; }
+.gap-s > * { margin-right: 8px; }
+.stack > * { margin-bottom: 14px; }
+
+.h1 { font-size: 48px; -unity-font-style: bold; margin: 0; padding: 0; }
+.h2 { font-size: 32px; -unity-font-style: bold; margin: 0 0 8px 0; }
+.giant { font-size: 104px; -unity-font-style: bold; }
+.tag { font-size: 16px; letter-spacing: 4px; color: rgb(57, 255, 136); -unity-font-style: bold; }
+.tag-purple { color: rgb(169, 139, 255); }
+.tag-muted { color: rgb(185, 176, 204); }
+.muted { color: rgb(185, 176, 204); white-space: normal; }
+.faint { color: rgb(142, 133, 163); font-size: 16px; white-space: normal; }
+.accent { color: rgb(57, 255, 136); }
+.warn { color: rgb(255, 194, 75); }
+.wrap { white-space: normal; }
+
+.card { background-color: rgb(27, 20, 40); border-width: 2px; border-color: rgb(58, 46, 82); border-radius: 22px; padding: 30px; }
+.card-dashed { background-color: rgb(20, 15, 31); }
+
+Button { margin: 0; -unity-font-style: bold; }
+.btn { height: 56px; border-width: 2px; border-radius: 14px; border-color: rgb(58, 46, 82); background-color: rgb(27, 20, 40); color: rgb(242, 238, 248); font-size: 21px; padding: 0 26px; -unity-text-align: middle-center; }
+.btn:hover { border-color: rgb(123, 63, 228); }
+.btn:active { background-color: rgb(42, 32, 56); }
+.btn:disabled { opacity: 0.45; }
+.btn-primary { background-color: rgb(57, 255, 136); border-color: rgb(57, 255, 136); color: rgb(14, 10, 22); }
+.btn-primary:hover { background-color: rgb(140, 255, 192); border-color: rgb(140, 255, 192); }
+.btn-purple { background-color: rgb(123, 63, 228); border-color: rgb(123, 63, 228); color: rgb(255, 255, 255); }
+.btn-ghost { background-color: rgba(0, 0, 0, 0); color: rgb(185, 176, 204); }
+.btn-danger { background-color: rgba(0, 0, 0, 0); border-color: rgb(90, 42, 56); color: rgb(255, 138, 155); }
+.btn-left { -unity-text-align: middle-left; }
+.btn-big { height: 66px; font-size: 27px; }
+.btn-small { height: 44px; font-size: 17px; padding: 0 16px; }
+.btn-on { background-color: rgb(57, 255, 136); border-color: rgb(57, 255, 136); color: rgb(14, 10, 22); }
+.btn-on-purple { background-color: rgb(123, 63, 228); border-color: rgb(123, 63, 228); color: rgb(255, 255, 255); }
+.btn-selected { border-color: rgb(255, 194, 75); background-color: rgba(255, 194, 75, 0.12); }
+
+.pill-group { flex-direction: row; border-width: 2px; border-color: rgb(58, 46, 82); border-radius: 999px; overflow: hidden; }
+.pill { height: 44px; min-width: 70px; border-width: 0; border-radius: 0; background-color: rgba(0, 0, 0, 0); color: rgb(185, 176, 204); font-size: 17px; }
+.pill-on { background-color: rgb(123, 63, 228); color: rgb(255, 255, 255); }
+
+.field-label { font-size: 17px; color: rgb(185, 176, 204); margin: 0 0 8px 0; }
+TextField { margin: 0; }
+TextField > .unity-text-field__input, .bt-input > .unity-base-text-field__input { background-color: rgb(14, 10, 22); border-width: 2px; border-color: rgb(58, 46, 82); border-radius: 12px; color: rgb(242, 238, 248); font-size: 22px; padding: 6px 14px; min-height: 52px; }
+.code-input > .unity-base-text-field__input { font-size: 36px; letter-spacing: 10px; -unity-text-align: middle-center; border-color: rgb(123, 63, 228); min-height: 64px; }
+DropdownField { margin: 0; }
+DropdownField > .unity-base-popup-field__input { background-color: rgb(27, 20, 40); border-width: 2px; border-color: rgb(58, 46, 82); border-radius: 12px; color: rgb(242, 238, 248); min-height: 52px; font-size: 20px; padding: 0 14px; }
+Slider { margin: 0; }
+.unity-base-slider__dragger { background-color: rgb(57, 255, 136); border-color: rgb(57, 255, 136); }
+.unity-base-slider__tracker { background-color: rgb(42, 32, 56); border-color: rgb(58, 46, 82); }
+Toggle { margin: 0; }
+.unity-toggle__checkmark { background-color: rgb(27, 20, 40); border-color: rgb(58, 46, 82); width: 28px; height: 28px; border-radius: 6px; }
+
+.bar { height: 14px; border-radius: 7px; background-color: rgb(42, 32, 56); overflow: hidden; }
+.bar-fill { height: 100%; background-color: rgb(57, 255, 136); }
+.bar-warn > .bar-fill { background-color: rgb(255, 194, 75); }
+
+.hud-box { background-color: rgba(14, 10, 22, 0.72); border-width: 2px; border-color: rgb(58, 46, 82); border-radius: 16px; padding: 14px 18px; }
+.hud-pill { background-color: rgba(123, 63, 228, 0.9); border-radius: 999px; padding: 6px 18px; font-size: 17px; -unity-font-style: bold; }
+.hud-big { font-size: 46px; -unity-font-style: bold; }
+.toast { background-color: rgba(14, 10, 22, 0.88); border-width: 2px; border-color: rgb(255, 194, 75); border-radius: 16px; padding: 12px 22px; font-size: 24px; -unity-font-style: bold; white-space: normal; -unity-text-align: middle-center; }
+.key { background-color: rgb(242, 238, 248); color: rgb(14, 10, 22); border-radius: 8px; padding: 0 8px; margin-right: 10px; -unity-font-style: bold; }
+
+.slot { flex-grow: 1; flex-basis: 0; height: 210px; margin: 0 7px 14px 7px; align-items: center; justify-content: center; background-color: rgb(27, 20, 40); border-width: 2px; border-color: rgb(58, 46, 82); border-radius: 18px; padding: 12px; }
+.slot-empty { background-color: rgba(0, 0, 0, 0); }
+.avatar { width: 80px; height: 102px; border-top-left-radius: 40px; border-top-right-radius: 40px; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; margin-bottom: 8px; }
+.table-row { flex-direction: row; background-color: rgb(27, 20, 40); border-radius: 14px; padding: 10px 18px; margin-bottom: 8px; font-size: 21px; }
+.table-row > Label { flex-grow: 1; flex-basis: 0; }
+.right { -unity-text-align: middle-right; }

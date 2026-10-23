@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="howto" class="screen col" style="align-items: center;">
+    <ui:VisualElement class="col" style="width: 1000px;">
+      <ui:Label text="@howto.title" class="h1 heavy" style="margin-bottom: 26px;" />
+      <ui:VisualElement class="card col stack">
+        <ui:Label text="@howto.1" class="wrap" />
+        <ui:Label text="@howto.2" class="wrap" />
+        <ui:Label text="@howto.3" class="wrap" />
+        <ui:Label text="@howto.4" class="wrap" />
+        <ui:Label text="@howto.5" class="wrap" />
+        <ui:Label text="@howto.6" class="faint" />
+      </ui:VisualElement>
+      <ui:Button name="back" text="@settings.back" class="btn btn-primary heavy" style="align-self: flex-start; margin-top: 24px;" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

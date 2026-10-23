@@ -1,0 +1,30 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="settings" class="screen col" style="align-items: center;">
+    <ui:VisualElement class="col" style="width: 760px;">
+      <ui:Label text="@settings.title" class="h1 heavy" style="margin-bottom: 30px;" />
+      <ui:VisualElement class="card col stack">
+        <ui:Label text="@settings.volume" class="field-label" />
+        <ui:Slider name="volume" low-value="0" high-value="1" />
+        <ui:Label text="@settings.sensitivity" class="field-label" />
+        <ui:Slider name="sensitivity" low-value="0.03" high-value="0.4" />
+        <ui:Label text="@settings.language" class="field-label" />
+        <ui:VisualElement class="pill-group" style="align-self: flex-start;">
+          <ui:Button name="lang-th" text="@lang.th" class="pill semibold" />
+          <ui:Button name="lang-en" text="@lang.en" class="pill semibold" />
+        </ui:VisualElement>
+        <ui:VisualElement class="row">
+          <ui:Toggle name="reduced" />
+          <ui:VisualElement class="col" style="margin-left: 12px;">
+            <ui:Label text="@settings.reduced" />
+            <ui:Label text="@settings.reduced.desc" class="faint" />
+          </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="row" style="opacity: 0.55;">
+          <ui:Label text="@settings.mic" style="margin-right: 16px;" />
+          <ui:Label text="@settings.mic.soon" class="faint" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+      <ui:Button name="back" text="@settings.back" class="btn btn-primary heavy" style="align-self: flex-start; margin-top: 24px;" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

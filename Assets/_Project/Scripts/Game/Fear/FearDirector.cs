@@ -2,6 +2,7 @@ using BooTrayal.Core.Fear;
 using BooTrayal.Game.Audio;
 using BooTrayal.Game.Ghosts;
 using BooTrayal.Game.Player;
+using BooTrayal.Game.Settings;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -93,9 +94,10 @@ namespace BooTrayal.Game.Fear
             Levels = levels;
             LocalPosition = transform.position;
 
-            _vignette.intensity.value = VignetteMax * levels.Vignette;
-            _chromatic.intensity.value = levels.Chromatic;
-            _look.ShakeOffset = Random.insideUnitSphere * (ShakeMax * levels.Shake);
+            bool reduced = GameSettings.ReducedEffects;
+            _vignette.intensity.value = VignetteMax * levels.Vignette * (reduced ? 0.5f : 1f);
+            _chromatic.intensity.value = reduced ? 0f : levels.Chromatic;
+            _look.ShakeOffset = reduced ? Vector3.zero : Random.insideUnitSphere * (ShakeMax * levels.Shake);
             Fade(_wind, 0.6f * levels.Whisper);
             Fade(_heart, levels.Heartbeat);
             Fade(_drone, 0.8f * levels.Shake);

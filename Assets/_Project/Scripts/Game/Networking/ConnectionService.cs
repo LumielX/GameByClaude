@@ -42,6 +42,8 @@ namespace BooTrayal.Game.Networking
         public int ConnectedCount { get; private set; }
         /// <summary>Host-side game phase used by the join rules. M5's NightDirector drives it.</summary>
         public SessionPhase Phase { get; set; } = SessionPhase.Lobby;
+        /// <summary>Room options chosen on the Create Room screen (host only; used by the NightDirector).</summary>
+        public GameConfig HostConfig { get; set; } = new GameConfig();
 
         public event Action Changed;
 
@@ -60,6 +62,13 @@ namespace BooTrayal.Game.Networking
             DontDestroyOnLoad(gameObject);
             Args = LaunchArgs.Parse(Environment.GetCommandLineArgs());
             PlayerDisplayName = PlayerName.Sanitize(Args.PlayerName, UnityEngine.Random.Range(1, 10000));
+        }
+
+        /// <summary>The name typed on the Play screen (sanitized like every other name; used for the next connection).</summary>
+        public void SetPlayerName(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return;
+            PlayerDisplayName = PlayerName.Sanitize(raw, UnityEngine.Random.Range(1, 10000));
         }
 
         /// <summary>Applies -autohost/-autojoin flags. Called by SessionFlow once the Menu scene is up.</summary>

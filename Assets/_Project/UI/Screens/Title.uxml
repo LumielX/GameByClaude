@@ -1,0 +1,36 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="title" class="screen row" style="padding: 0;">
+    <ui:VisualElement class="col" style="width: 640px; height: 100%; padding: 80px 72px; justify-content: space-between;">
+      <ui:VisualElement class="col">
+        <ui:Label text="@menu.tagline" class="tag" style="font-size: 20px; letter-spacing: 6px;" />
+        <ui:Label text="BOO-&#10;TRAYAL" class="giant heavy" style="margin-top: 6px;" />
+        <ui:Label text="@menu.subtitle" class="muted" style="font-size: 20px; max-width: 460px; margin-top: 10px;" />
+      </ui:VisualElement>
+      <ui:VisualElement class="col stack" style="width: 380px;">
+        <ui:Button name="play" text="@menu.play" class="btn btn-primary btn-big btn-left heavy" />
+        <ui:Button name="howto" text="@menu.howto" class="btn btn-left semibold" />
+        <ui:Button name="settings" text="@menu.settings" class="btn btn-left semibold" />
+        <ui:Button name="quit" text="@menu.quit" class="btn btn-ghost btn-left semibold" />
+      </ui:VisualElement>
+      <ui:Label name="version" text="v0" class="faint" />
+    </ui:VisualElement>
+    <ui:VisualElement class="grow" style="align-items: center; justify-content: center;">
+      <ui:VisualElement class="pill-group" style="position: absolute; top: 40px; right: 48px;">
+        <ui:Button name="lang-th" text="@lang.th" class="pill semibold" />
+        <ui:Button name="lang-en" text="@lang.en" class="pill semibold" />
+      </ui:VisualElement>
+      <ui:VisualElement name="krasue" style="width: 300px; height: 380px; align-items: center;">
+        <ui:VisualElement style="width: 200px; height: 200px; border-radius: 100px; background-color: rgb(234, 223, 214); margin-top: 20px; border-top-width: 26px; border-top-color: rgb(16, 10, 20);" />
+        <ui:VisualElement class="row" style="position: absolute; top: 120px; width: 120px; justify-content: space-between;">
+          <ui:VisualElement style="width: 28px; height: 20px; border-radius: 10px; background-color: rgb(224, 33, 58);" />
+          <ui:VisualElement style="width: 28px; height: 20px; border-radius: 10px; background-color: rgb(224, 33, 58);" />
+        </ui:VisualElement>
+        <ui:VisualElement class="row" style="justify-content: center; margin-top: -6px;">
+          <ui:VisualElement style="width: 16px; height: 140px; border-radius: 8px; background-color: rgb(57, 255, 136); margin-right: 14px;" />
+          <ui:VisualElement style="width: 12px; height: 96px; border-radius: 6px; background-color: rgba(57, 255, 136, 0.7);" />
+        </ui:VisualElement>
+      </ui:VisualElement>
+      <ui:VisualElement style="width: 260px; height: 26px; border-radius: 130px; background-color: rgba(57, 255, 136, 0.18);" />
+    </ui:VisualElement>
+  </ui:VisualElement>
+</ui:UXML>

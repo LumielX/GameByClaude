@@ -65,6 +65,7 @@ namespace BooTrayal.Game.Night
 
         // ---- Server state ----
         GameSession _game;
+        GameConfig _cfg;
         NightSession _night;
         IRandom _rng;
         SealStation[] _stations = new SealStation[0];
@@ -144,7 +145,8 @@ namespace BooTrayal.Game.Night
         public void StartGame()
         {
             if (!IsServer || Phase.Value != SessionPhase.Lobby) return;
-            var cfg = new GameConfig();
+            _cfg = ConnectionService.Instance != null ? ConnectionService.Instance.HostConfig : new GameConfig();
+            var cfg = _cfg;
             int nights = Args.Nights > 0 ? Args.Nights : cfg.Nights;
             _game = new GameSession(nights);
             foreach (var id in NetworkManager.ConnectedClientsIds) _game.AddPlayer(id);
@@ -155,7 +157,7 @@ namespace BooTrayal.Game.Night
 
         void BeginNight()
         {
-            var cfg = new GameConfig();
+            var cfg = _cfg ?? new GameConfig();
             var ids = NetworkManager.ConnectedClientsIds.OrderBy(i => i).ToList();
             foreach (var id in ids) _game.AddPlayer(id);
             int spies = Args.NoSpy ? 0 : RoomRules.SpyCount(ids.Count, cfg.SpyEnabled, Args.Spies > 0 ? Args.Spies : cfg.RequestedSpies);

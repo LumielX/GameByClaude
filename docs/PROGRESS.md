@@ -51,7 +51,12 @@
 - **ถัดไป: M6 UI เวอร์ชันแรก + 2 ภาษา** — mockup 9 หน้าทำแล้ว (2026-10-23): Artifact canvas https://claude.ai/artifact/DcLKE6kdAw62QMcH9bau33 , ต้นฉบับใน `docs/ui_mockup/project/*.dc.html`
   - หน้า: หน้าแรก (Kanit / Mitr เทียบกัน), เล่น (สร้าง/เข้าห้อง/ซ้อมคนเดียว), สร้างห้อง, ล็อบบี้ 8 ช่อง + แชท, HUD, ประชุม/โหวต, สรุปคืน, หยุดเกม + แจ้งข้อผิดพลาด
   - ธีม: พื้นมืด #0E0A16, เขียวนีออน #39FF88, ม่วง #7B3FE4, การ์ด #1B1428
-  - **รอผู้ใช้:** เลือกฟอนต์ไทย (Kanit/Mitr) + อนุมัติหน้าตา ก่อนเริ่มทำ UI Toolkit
+  - ผู้ใช้เลือก **Kanit** + อนุมัติหน้าตาแล้ว (2026-10-23)
+- **M6 กำลังทำ (branch `m6-ui`, ยังไม่ merge)** — แผน `docs/plans/2026-10-23-m6-ui.md`, ledger `.superpowers/sdd/2026-10-23-m6-ui/progress.md` (git-ignored; สำเนาสรุปอยู่ด้านล่าง)
+  - Task 1 เสร็จ: ฟอนต์ Kanit (OFL, `CREDITS.md`), `Core/Localization/Localizer` + ตาราง `Resources/Lang/th.txt` / `en.txt`, `ChatRules`, `LobbyRules` — EditMode 306/306
+  - Task 2 กำลังทำ (WIP commit, **ยังไม่ได้ compile/ทดสอบ**): `UI/Theme.uss`, `UI/Screens/{Title,Play,CreateRoom,Settings,HowTo,Error}.uxml`, `Scripts/UI/UIRoot.cs`, `Scripts/UI/Screens/MenuScreens.cs`, stub `GameScreens.cs`, `Game/Settings/GameSettings.cs`, `ConnectionService.HostConfig/SetPlayerName`, NightDirector ใช้ HostConfig, FearDirector ลดเอฟเฟกต์, PlayerInputReader ไม่จับ Esc แล้ว (UIRoot จับ)
+  - **ทำต่อจากตรงนี้:** compile แก้ error → เขียน `Editor/Builders/UIBuilder.cs` (PanelSettings + ไฟล์ `.tss` ที่มี `@import url("unity-theme://default");`, ใส่ UIDocument+UIRoot ใน Bootstrap Services, เอา DebugNetMenu/NightHud ออกแล้วลบไฟล์) → builders 2 รอบไม่มี diff → build → net-smoke Local → commit Task 2 → Task 3 (Lobby: PlayerLobby ready/chat, kick) → Task 4 (HUD/Vote/Summary/Pause + NightDirector ส่งข้อมูลแทนข้อความไทย) → Task 5 (ui-smoke, รีวิว, merge, push)
+  - rulings: ใช้ Localizer ของเราเอง (ไฟล์ key=value แก้ง่าย) แทน Unity Localization; "เปิดทุกหน้าไม่มี exception" ตรวจด้วย `-uismoke` ใน build
 - หมายเหตุ: process `X:\TheUnity\Unity Hub\resources\unity.exe serve` คือ helper ของ Hub ไม่ใช่ Editor (สคริปต์ข้ามให้แล้ว)
 - ก่อนรัน batchmode ทุกครั้ง: ตรวจว่า Unity Editor ปิดอยู่
 - **อัปเดตล่าสุด:** 2026-10-23

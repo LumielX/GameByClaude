@@ -1,0 +1,35 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+  <ui:VisualElement name="play" class="screen col">
+    <ui:VisualElement class="row" style="margin-bottom: 30px;">
+      <ui:Button name="back" text="@play.back" class="btn btn-small" style="margin-right: 20px;" />
+      <ui:Label text="@play.title" class="h1 heavy grow" />
+      <ui:VisualElement class="col" style="width: 360px;">
+        <ui:Label text="@play.name" class="field-label" />
+        <ui:TextField name="name" max-length="24" class="bt-input" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement class="row grow" style="align-items: stretch;">
+      <ui:VisualElement class="card col grow" style="flex-basis: 0; margin-right: 24px;">
+        <ui:Label text="@play.host.tag" class="tag" />
+        <ui:Label text="@play.host.title" class="h2 heavy" />
+        <ui:Label text="@play.host.desc" class="muted grow" />
+        <ui:Button name="host" text="@play.host.button" class="btn btn-primary heavy" />
+      </ui:VisualElement>
+      <ui:VisualElement class="card col grow" style="flex-basis: 0; margin-right: 24px;">
+        <ui:Label text="@play.join.tag" class="tag tag-purple" />
+        <ui:Label text="@play.join.title" class="h2 heavy" />
+        <ui:Label text="@play.join.label" class="field-label" />
+        <ui:TextField name="code" max-length="6" class="bt-input code-input" />
+        <ui:VisualElement class="grow" />
+        <ui:Button name="join" text="@play.join.button" class="btn btn-purple heavy" />
+      </ui:VisualElement>
+      <ui:VisualElement class="card card-dashed col grow" style="flex-basis: 0;">
+        <ui:Label text="@play.solo.tag" class="tag tag-muted" />
+        <ui:Label text="@play.solo.title" class="h2 heavy" />
+        <ui:Label text="@play.solo.desc" class="muted grow" />
+        <ui:Button name="solo" text="@play.solo.button" class="btn semibold" />
+      </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:Label name="status" text="" class="faint" style="margin-top: 22px; font-size: 18px;" />
+  </ui:VisualElement>
+</ui:UXML>

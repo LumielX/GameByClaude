@@ -4,7 +4,9 @@
     "references": [
         "BooTrayal.Core",
         "BooTrayal.Game",
-        "Unity.Localization"
+        "Unity.Netcode.Runtime",
+        "Unity.InputSystem",
+        "Unity.Collections"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
