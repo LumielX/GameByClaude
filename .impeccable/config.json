@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "icon-tile-stack",
+        "value": "*",
+        "files": [
+          "docs/ui_mockup/project/Play.dc.html"
+        ],
+        "createdAt": "2026-10-23T06:16:00.041Z",
+        "reason": "Claude: the back button sits beside the heading in a row, not stacked; the user approved this mockup on 2026-10-23"
+      },
+      {
+        "rule": "radial-spotlight-glow",
+        "value": "*",
+        "files": [
+          "docs/ui_mockup/project/Hud.dc.html"
+        ],
+        "createdAt": "2026-10-23T06:16:00.254Z",
+        "reason": "Claude: the glow stands in for the player's flashlight beam in a mockup of the 3D game view, not page decoration; the user approved this mockup on 2026-10-23"
+      }
+    ]
+  }
+}
