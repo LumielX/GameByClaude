@@ -42,6 +42,13 @@ namespace BooTrayal.Game.Ghosts
         GhostState _destinationFor = (GhostState)255;
 
         public GhostBrain Brain => _brain;
+        /// <summary>Server: frozen in place, senses off (during meetings, GDD 7.4).</summary>
+        public bool Paused { get; set; }
+
+        /// <summary>Server: is this player the one being warned about, chased or held right now?</summary>
+        public bool IsChasing(ulong clientId) =>
+            _brain.HasTarget && _brain.TargetId == clientId &&
+            (_brain.State == GhostState.Alert || _brain.State == GhostState.Chase || _brain.State == GhostState.Grab);
         Vector3 Head => transform.position + Vector3.up * HeadHeight;
 
         void Awake() => _agent = GetComponent<NavMeshAgent>();
@@ -70,7 +77,7 @@ namespace BooTrayal.Game.Ghosts
 
         void OnNoise(Vector3 position, Noise noise)
         {
-            if (!IsSpawned) return;
+            if (!IsSpawned || Paused) return;
             float distance = Vector3.Distance(Head, position);
             if (!_brain.OnNoise(distance, noise.Radius)) return;
             _noisePoint = OnNavMesh(position);
@@ -84,6 +91,11 @@ namespace BooTrayal.Game.Ghosts
         {
             if (!IsSpawned || !IsServer) return;
             float dt = Time.deltaTime;
+            if (Paused)
+            {
+                if (_agent.isOnNavMesh) _agent.isStopped = true;
+                return;
+            }
             var senses = Gather();
             var e = _brain.Tick(dt, senses);
             Handle(e);

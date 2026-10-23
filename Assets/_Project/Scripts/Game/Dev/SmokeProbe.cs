@@ -6,6 +6,7 @@ using BooTrayal.Game.Flow;
 using BooTrayal.Game.Ghosts;
 using BooTrayal.Game.Items;
 using BooTrayal.Game.Networking;
+using BooTrayal.Game.Night;
 using BooTrayal.Game.Player;
 using Unity.Netcode;
 using UnityEngine;
@@ -32,6 +33,12 @@ namespace BooTrayal.Game.Dev
             while (SceneManager.GetActiveScene().name == SessionFlow.MenuScene || SceneManager.GetActiveScene().name == "Bootstrap" || LocalPlayer == null)
                 yield return null;
             yield return new WaitForSeconds(1.5f);
+            if (role == "victim" || role == "lighter")
+            {
+                // House games start in the lobby: wait for the night (players are teleported to their spawns).
+                while (NightDirector.Instance == null || !NightDirector.Instance.InNight) yield return null;
+                yield return new WaitForSeconds(1.5f);
+            }
 
             switch (role)
             {

@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using BooTrayal.Game.Networking;
+using Unity.Collections;
 using Unity.Netcode;
 
 namespace BooTrayal.Game.Player
@@ -17,6 +19,20 @@ namespace BooTrayal.Game.Player
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         const float KnockdownTilt = 80f;
 
+        /// <summary>The name typed in the menu, set by the owner (shown in meetings and summaries).</summary>
+        public readonly NetworkVariable<FixedString128Bytes> DisplayName =
+            new NetworkVariable<FixedString128Bytes>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+        public string Name => DisplayName.Value.Length > 0 ? DisplayName.Value.ToString() : $"Player {OwnerClientId}";
+
+        /// <summary>Display name of a connected player, or "Player N".</summary>
+        public static string NameOf(ulong clientId)
+        {
+            foreach (var a in FindObjectsByType<PlayerAvatar>())
+                if (a.OwnerClientId == clientId) return a.Name;
+            return $"Player {clientId}";
+        }
+
         Transform _visual;
         PlayerMotor _motor;
         float _tilt;
@@ -29,6 +45,11 @@ namespace BooTrayal.Game.Player
 
         public override void OnNetworkSpawn()
         {
+            if (IsOwner && ConnectionService.Instance != null && !string.IsNullOrEmpty(ConnectionService.Instance.PlayerDisplayName))
+                DisplayName.Value = new FixedString128Bytes(ConnectionService.Instance.PlayerDisplayName); // names are capped at 96 UTF-8 bytes
+            var mini = transform.Find("MiniGhostVisual");
+            if (IsOwner && mini != null)
+                foreach (var r in mini.GetComponentsInChildren<Renderer>(true)) r.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
             if (_visual == null) return;
             var color = Palette[(int)(OwnerClientId % (ulong)Palette.Length)];
             var block = new MaterialPropertyBlock();

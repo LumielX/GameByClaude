@@ -65,5 +65,43 @@ namespace BooTrayal.Tests
             Assert.IsFalse(LaunchArgs.Parse(new[] { "x.exe" }).GhostWait);
             Assert.IsTrue(LaunchArgs.Parse(new[] { "x.exe", "-ghostwait" }).GhostWait);
         }
+    
+        [Test]
+        public void Parse_NightFlags()
+        {
+            var a = LaunchArgs.Parse(new[] { "x.exe", "-autostart", "5", "-nights", "2", "-nospy", "-spies", "2", "-noghost", "-meetingscale", "0.1", "-seed", "11" });
+            Assert.AreEqual(5, a.AutoStart);
+            Assert.AreEqual(2, a.Nights);
+            Assert.IsTrue(a.NoSpy);
+            Assert.AreEqual(2, a.Spies);
+            Assert.IsTrue(a.NoGhost);
+            Assert.AreEqual(0.1f, a.MeetingScale, 1e-6f);
+            Assert.AreEqual(11, a.Seed);
+            var d = LaunchArgs.Parse(new[] { "x.exe" });
+            Assert.AreEqual(0, d.AutoStart);
+            Assert.AreEqual(0, d.Nights);
+            Assert.AreEqual(1f, d.MeetingScale);
+            Assert.IsNull(d.Seed);
+            Assert.IsNull(d.NightSeconds);
+        }
+
+        [Test]
+        public void NightSeconds_CommaList()
+        {
+            var a = LaunchArgs.Parse(new[] { "x.exe", "-nightseconds", "200,15.5" });
+            CollectionAssert.AreEqual(new[] { 200f, 15.5f }, a.NightSeconds);
+            Assert.AreEqual(200f, a.NightSecondsFor(0));
+            Assert.AreEqual(15.5f, a.NightSecondsFor(1));
+            Assert.AreEqual(15.5f, a.NightSecondsFor(4), "the last value repeats");
+        }
+
+        [Test]
+        public void Bad_NightSeconds_Ignored()
+        {
+            Assert.IsNull(LaunchArgs.Parse(new[] { "x.exe", "-nightseconds", "abc" }).NightSeconds);
+            Assert.IsNull(LaunchArgs.Parse(new[] { "x.exe", "-nightseconds", "10,-5" }).NightSeconds);
+            Assert.AreEqual(0, LaunchArgs.Parse(new[] { "x.exe", "-autostart", "lots" }).AutoStart);
+            Assert.AreEqual(1f, LaunchArgs.Parse(new[] { "x.exe", "-meetingscale", "0" }).MeetingScale);
+        }
     }
 }

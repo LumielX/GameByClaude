@@ -1,5 +1,5 @@
 # Multi-instance ghost smoke test in the House scene (local transport), driven by SmokeProbe bots.
-# host (-ghostwait: the Krasue holds still until it hears or sees someone) + victim (sneaks behind it and screams)
+# host (-autostart 3 starts the night; -ghostwait: the Krasue holds still until it hears or sees someone) + victim (sneaks behind it and screams)
 # + lighter (shines a flashlight in its face during the cooldown).
 param([int]$TimeoutSec = 60)
 $ErrorActionPreference = 'Stop'
@@ -47,14 +47,14 @@ function Time-Of([string]$line) {
 $ok = $false
 try {
     Write-Host '== Ghost smoke =='
-    $hostI = Start-Instance 'host' @('-autohost-local', '-smokeprobe', 'host', '-ghostwait')
-    Wait-Marker $hostI 'GHOST_SPAWNED' | Out-Null
+    $hostI = Start-Instance 'host' @('-autohost-local', '-smokeprobe', 'host', '-ghostwait', '-autostart', '3')
 
     Write-Host '-- 1. victim sneaks behind the ghost and screams: heard, 1 s warning, chase, grab, death'
     $victim = Start-Instance 'victim' @('-autojoin-local', '-smokeprobe', 'victim')
     Wait-Marker $victim 'PLAYER_PLACED' | Out-Null
     $lighter = Start-Instance 'lighter' @('-autojoin-local', '-smokeprobe', 'lighter')
     Wait-Marker $lighter 'PLAYER_PLACED' | Out-Null
+    Wait-Marker $hostI 'GHOST_SPAWNED' | Out-Null
 
     $heard = Time-Of (Wait-Marker $hostI 'GHOST_HEARD')
     $alert = Time-Of (Wait-Marker $hostI 'GHOST_STATE state=Alert target=1 ')
@@ -69,7 +69,8 @@ try {
     Write-Host '-- 2. the victim felt it coming (client-side fear + adrenaline from the synced ghost)'
     Wait-Marker $victim 'FEAR band=near' | Out-Null
     Wait-Marker $victim 'PLAYER_ADRENALINE state=Adrenaline' | Out-Null
-    Wait-Marker $hostI 'PLAYER_RESPAWNED id=1' | Out-Null
+    Wait-Marker $hostI 'PLAYER_MINIGHOST id=1 cause=ghost' | Out-Null
+    Wait-Marker $hostI 'SOUL_SPAWNED id=1' | Out-Null
 
     Write-Host '-- 3. a flashlight held on its face makes it flee'
     Wait-Marker $hostI 'GHOST_STATE state=Flee' | Out-Null

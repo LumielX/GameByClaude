@@ -48,6 +48,7 @@ namespace BooTrayal.Editor.Builders
             Ensure<DebugNetMenu>(services);
             Ensure<SessionFlow>(services);
             Ensure<SmokeProbe>(services);
+            Ensure<BooTrayal.Game.Night.NightHud>(services);
 
             EditorSceneManager.SaveScene(scene, BootstrapPath);
         }

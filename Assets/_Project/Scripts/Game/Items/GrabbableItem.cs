@@ -90,6 +90,9 @@ namespace BooTrayal.Game.Items
             MoveTo(position, rotation);
         }
 
+        /// <summary>Server: every holder lets go (the item is about to despawn).</summary>
+        public void ForceDropAll() => DropAll("despawn");
+
         void DropAll(string reason)
         {
             for (int i = Holders.Count - 1; i >= 0; i--) Release(Holders[i], Vector3.zero, reason);

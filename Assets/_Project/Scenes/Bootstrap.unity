@@ -325,6 +325,7 @@ GameObject:
   - component: {fileID: 1775321581}
   - component: {fileID: 1775321585}
   - component: {fileID: 1775321584}
+  - component: {fileID: 1775321586}
   m_Layer: 0
   m_Name: Services
   m_TagString: Untagged
@@ -395,6 +396,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f7cadc403da0ab44a92a7f00d88338c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: BooTrayal.Game::BooTrayal.Game.Flow.SessionFlow
+--- !u!114 &1775321586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1775321580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea9e3e10b351c514cbef0f712e870884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: BooTrayal.Game::BooTrayal.Game.Night.NightHud
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

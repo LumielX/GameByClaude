@@ -128,7 +128,8 @@ namespace BooTrayal.Editor.Builders
             Ensure<Unity.Netcode.NetworkObject>(ghostSpawn);
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(GhostPrefabBuilder.PrefabPath);
             if (prefab == null) throw new System.InvalidOperationException($"Missing {GhostPrefabBuilder.PrefabPath}; run NetworkPrefabBuilder.Build first");
-            Ensure<GhostSpawner>(ghostSpawn).Prefab = prefab;
+            var spawner = Ensure<GhostSpawner>(ghostSpawn);
+            spawner.Prefab = prefab;
             var points = new[]
             {
                 new Vector3(-6f, 0f, -1f), new Vector3(6f, 0f, 1f), new Vector3(0f, 0f, 4f),
@@ -157,6 +158,14 @@ namespace BooTrayal.Editor.Builders
             Lamp(lights, "LampUnder", new Vector3(0f, 2f, 0f), new Color(0.3f, 1f, 0.55f), 9f, 1.2f, true);
 
             var stationPoints = HouseStationsBuilder.Build(scene, env);
+            var directorGo = Root(scene, "NightDirector");
+            Ensure<Unity.Netcode.NetworkObject>(directorGo);
+            var director = Ensure<BooTrayal.Game.Night.NightDirector>(directorGo);
+            director.SoulOrbPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(SoulOrbPrefabBuilder.PrefabPath);
+            if (director.SoulOrbPrefab == null) throw new System.InvalidOperationException($"Missing {SoulOrbPrefabBuilder.PrefabPath}; run NetworkPrefabBuilder.Build first");
+            director.GhostSpawner = spawner;
+            director.Altar = Object.FindAnyObjectByType<BooTrayal.Game.World.RitualAltar>();
+            director.Shrine = spirit.transform;
             BakeNavMesh(env);
             EditorSceneManager.SaveScene(scene, ScenePath);
             ResaveScene(ScenePath);
